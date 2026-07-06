@@ -1,17 +1,17 @@
 import Container from "@/components/Container";
-import PlaceholderImage from "@/components/PlaceholderImage";
+import SiteImage from "@/components/SiteImage";
+import Reveal from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
 import { site } from "@/lib/site";
 
 export default function AboutStory() {
   return (
-    <section className="py-20 sm:py-28">
-      <Container className="grid items-start gap-12 md:grid-cols-2">
-        <div>
+    <section className="py-24 sm:py-32">
+      <Container className="grid items-start gap-12 md:grid-cols-2 lg:gap-16">
+        <Reveal>
           <SectionHeading
-            eyebrow={`About ${site.name}`}
-            title="One roof. Four worlds."
-            lede={site.description}
+            eyebrow="Our story"
+            title="Built for the whole evening"
           />
           {/* TODO: replace with the client's real brand story */}
           <div className="mt-8 space-y-5 leading-relaxed">
@@ -27,14 +27,28 @@ export default function AboutStory() {
               standard: premium, personal, and made to be remembered.
             </p>
           </div>
-        </div>
-        <div className="grid gap-4">
-          <PlaceholderImage label="Facility — wide interior shot" aspect="aspect-[4/3]" />
+        </Reveal>
+        <Reveal delay={150} className="grid gap-4">
+          <SiteImage
+            src="/images/about-wide.jpg"
+            alt="Cinema hall interior — one of the four experiences"
+            aspect="aspect-[4/3]"
+          />
           <div className="grid grid-cols-2 gap-4">
-            <PlaceholderImage label="Detail shot — cinema" aspect="aspect-square" />
-            <PlaceholderImage label="Detail shot — lounge" aspect="aspect-square" />
+            <SiteImage
+              src="/images/about-detail-1.jpg"
+              alt="Guest enjoying popcorn at the cinema"
+              aspect="aspect-square"
+              sizes="(max-width: 768px) 50vw, 25vw"
+            />
+            <SiteImage
+              src="/images/about-detail-2.jpg"
+              alt="Drinks being mixed at the lounge bar"
+              aspect="aspect-square"
+              sizes="(max-width: 768px) 50vw, 25vw"
+            />
           </div>
-        </div>
+        </Reveal>
       </Container>
     </section>
   );

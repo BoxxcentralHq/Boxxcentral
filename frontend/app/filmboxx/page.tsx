@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
-import FilmboxxHero from "./_components/FilmboxxHero";
-import FilmboxxShowcase from "./_components/FilmboxxShowcase";
+import ExperiencePage from "@/components/ExperiencePage";
+import { getExperience } from "@/lib/experiences";
+
+const filmboxx = getExperience("filmboxx");
 
 export const metadata: Metadata = {
   title: "FilmBoxx — Private Cinema",
@@ -9,10 +11,5 @@ export const metadata: Metadata = {
 };
 
 export default function FilmboxxPage() {
-  return (
-    <>
-      <FilmboxxHero />
-      <FilmboxxShowcase />
-    </>
-  );
+  return <ExperiencePage experience={filmboxx} />;
 }

@@ -2,10 +2,15 @@
  * The four BoxxCentral experiences — single source of truth consumed by
  * the home page cards, the services catalogue, and each sub-brand page.
  *
- * All copy here is placeholder-grade and awaits client sign-off.
+ * Copy is placeholder-grade and awaits client sign-off. Photos and videos
+ * are free Pexels stock stand-ins until the client's own facility assets
+ * arrive — swap the files in /public/images and /public/videos.
  * The lounge has no confirmed sub-brand name yet ("LoungeBoxx"?) — its
  * `name` is deliberately generic until the client confirms.
  */
+
+/** A sourced photo under /public. */
+export type Media = { src: string; alt: string };
 
 export type Experience = {
   slug: string;
@@ -24,6 +29,25 @@ export type Experience = {
   href: string;
   /** True only for FilmBoxx — the transactional experience. */
   bookable: boolean;
+  /** Card / feature photo used on the home grid and services catalogue. */
+  image: Media;
+  /** Sub-brand page hero — consumed by <ExperiencePage>. */
+  hero: {
+    cta: { label: string; href: string };
+    /** Small print under the CTA (e.g. "booking coming soon"). */
+    note?: string;
+    /** Background video under /public. */
+    videoSrc: string;
+  };
+  /** Sub-brand page showcase section — consumed by <ExperiencePage>. */
+  showcase: {
+    eyebrow: string;
+    title: string;
+    /** [wide shot, detail A, detail B]. */
+    media: [Media, Media, Media];
+    /** Media column leads on desktop (alternating rhythm across pages). */
+    mediaFirst?: boolean;
+  };
 };
 
 export const experiences: Experience[] = [
@@ -44,6 +68,33 @@ export const experiences: Experience[] = [
     ],
     href: "/filmboxx",
     bookable: true,
+    image: {
+      src: "/images/filmboxx-wide.jpg",
+      alt: "Empty cinema hall with the screen glowing in the dark",
+    },
+    hero: {
+      cta: { label: "Book a private session", href: "/filmboxx" },
+      note: "Online booking with Paystack — coming soon",
+      videoSrc: "/videos/filmboxx.mp4",
+    },
+    showcase: {
+      eyebrow: "The experience",
+      title: "Your screen. Your people.",
+      media: [
+        {
+          src: "/images/filmboxx-wide.jpg",
+          alt: "Screening room with the lights down",
+        },
+        {
+          src: "/images/filmboxx-detail-1.jpg",
+          alt: "Rows of red cinema seats",
+        },
+        {
+          src: "/images/filmboxx-detail-2.jpg",
+          alt: "Popcorn ready for the show",
+        },
+      ],
+    },
   },
   {
     slug: "gymboxx",
@@ -61,6 +112,33 @@ export const experiences: Experience[] = [
     ],
     href: "/gymboxx",
     bookable: false,
+    image: {
+      src: "/images/gymboxx-wide.jpg",
+      alt: "Modern gym interior with dramatic lighting",
+    },
+    hero: {
+      cta: { label: "Ask about membership", href: "/contact" },
+      videoSrc: "/videos/gymboxx.mp4",
+    },
+    showcase: {
+      eyebrow: "The studio",
+      title: "Where the work gets done",
+      media: [
+        {
+          src: "/images/gymboxx-wide.jpg",
+          alt: "Gym floor with modern equipment",
+        },
+        {
+          src: "/images/gymboxx-detail-1.jpg",
+          alt: "Black and red dumbbells on the rack",
+        },
+        {
+          src: "/images/gymboxx-detail-2.jpg",
+          alt: "Punching bags hanging in the studio",
+        },
+      ],
+      mediaFirst: true,
+    },
   },
   {
     slug: "bowlboxx",
@@ -78,6 +156,32 @@ export const experiences: Experience[] = [
     ],
     href: "/bowlboxx",
     bookable: false,
+    image: {
+      src: "/images/bowlboxx-wide.jpg",
+      alt: "Dimly lit bowling alley at night",
+    },
+    hero: {
+      cta: { label: "Plan a game night", href: "/contact" },
+      videoSrc: "/videos/bowlboxx.mp4",
+    },
+    showcase: {
+      eyebrow: "The lanes",
+      title: "Loud nights, clean strikes",
+      media: [
+        {
+          src: "/images/bowlboxx-wide.jpg",
+          alt: "Bowling lanes under moody lighting",
+        },
+        {
+          src: "/images/bowlboxx-detail-1.jpg",
+          alt: "Bowling pins washed in red light",
+        },
+        {
+          src: "/images/bowlboxx-detail-2.jpg",
+          alt: "Bowling ball and shoes on the lane",
+        },
+      ],
+    },
   },
   {
     slug: "lounge",
@@ -95,6 +199,33 @@ export const experiences: Experience[] = [
     ],
     href: "/lounge",
     bookable: false,
+    image: {
+      src: "/images/lounge-wide.jpg",
+      alt: "Bartender mixing cocktails at a stylish bar",
+    },
+    hero: {
+      cta: { label: "Find us tonight", href: "/contact" },
+      videoSrc: "/videos/lounge.mp4",
+    },
+    showcase: {
+      eyebrow: "The room",
+      title: "The soft landing",
+      media: [
+        {
+          src: "/images/lounge-wide.jpg",
+          alt: "Bar counter in warm, moody light",
+        },
+        {
+          src: "/images/lounge-detail-1.jpg",
+          alt: "Cocktail served in close-up",
+        },
+        {
+          src: "/images/lounge-detail-2.jpg",
+          alt: "Barman preparing drinks",
+        },
+      ],
+      mediaFirst: true,
+    },
   },
 ];
 

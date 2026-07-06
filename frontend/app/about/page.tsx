@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import PageHero from "@/components/PageHero";
+import { site } from "@/lib/site";
 import AboutStory from "./_components/AboutStory";
 
 export const metadata: Metadata = {
@@ -8,5 +10,14 @@ export const metadata: Metadata = {
 };
 
 export default function AboutPage() {
-  return <AboutStory />;
+  return (
+    <>
+      <PageHero
+        eyebrow={`About ${site.name}`}
+        title="One roof. Four worlds."
+        description={site.description}
+      />
+      <AboutStory />
+    </>
+  );
 }

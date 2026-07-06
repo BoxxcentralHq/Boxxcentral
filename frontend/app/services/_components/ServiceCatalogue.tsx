@@ -1,53 +1,55 @@
 import Link from "next/link";
-import Button from "@/components/Button";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
 import Container from "@/components/Container";
-import PlaceholderImage from "@/components/PlaceholderImage";
-import SectionHeading from "@/components/SectionHeading";
+import SiteImage from "@/components/SiteImage";
+import Reveal from "@/components/Reveal";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { experiences } from "@/lib/experiences";
 import { bookingCta } from "@/lib/site";
+import { cn } from "@/lib/utils";
 
 export default function ServiceCatalogue() {
   return (
-    <section className="py-20 sm:py-28">
-      <Container>
-        <SectionHeading
-          eyebrow="Services"
-          title="What's inside BoxxCentral"
-          lede="Every experience in the building, at a glance — tap any of them to go deeper."
-        />
-
-        <div className="mt-14 space-y-16">
-          {experiences.map((exp, i) => (
-            <article
-              key={exp.slug}
-              className="grid items-center gap-8 md:grid-cols-2"
-            >
-              <PlaceholderImage
-                label={`${exp.name} — feature photo`}
+    <section className="py-24 sm:py-32">
+      <Container className="space-y-20">
+        {experiences.map((exp, i) => (
+          <Reveal key={exp.slug}>
+            <article className="grid items-center gap-8 md:grid-cols-2 lg:gap-12">
+              <SiteImage
+                src={exp.image.src}
+                alt={exp.image.alt}
                 aspect="aspect-video"
-                className={i % 2 === 1 ? "md:order-last" : ""}
+                className={cn(i % 2 === 1 && "md:order-last")}
               />
-              <div>
-                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-boxx-red">
-                  {exp.kind}
-                </span>
-                <h3 className="mt-3 text-2xl font-bold text-boxx-white sm:text-3xl">
+              <div className="flex flex-col items-start">
+                <Badge variant="soft">{exp.kind}</Badge>
+                <h3 className="mt-4 font-heading text-3xl uppercase tracking-wide text-boxx-white sm:text-4xl">
                   {exp.name}
                 </h3>
                 <p className="mt-4 leading-relaxed">{exp.summary}</p>
-                <div className="mt-6 flex items-center gap-5">
+                <div className="mt-8 flex flex-wrap items-center gap-5">
+                  {exp.bookable && (
+                    <Button asChild>
+                      <Link href={bookingCta.href}>{bookingCta.label}</Link>
+                    </Button>
+                  )}
                   <Link
                     href={exp.href}
-                    className="text-sm font-semibold text-boxx-red-glow transition-colors hover:text-boxx-red"
+                    className="group inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-boxx-mist transition-colors duration-200 hover:text-boxx-red-glow"
                   >
-                    Explore {exp.name} →
+                    Explore {exp.name}
+                    <HugeiconsIcon
+                      icon={ArrowRight01Icon}
+                      className="size-4 transition-transform duration-300 group-hover:translate-x-1"
+                    />
                   </Link>
-                  {exp.bookable && <Button href={bookingCta.href}>{bookingCta.label}</Button>}
                 </div>
               </div>
             </article>
-          ))}
-        </div>
+          </Reveal>
+        ))}
       </Container>
     </section>
   );

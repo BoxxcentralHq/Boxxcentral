@@ -3,81 +3,107 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import {
+  Cancel01Icon,
+  Menu01Icon,
+  ShoppingCart01Icon,
+} from "@hugeicons/core-free-icons";
+import { Button } from "@/components/ui/button";
 import { bookingCta, navLinks, site } from "@/lib/site";
+import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 export default function Navbar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
   const linkClass = (href: string) =>
-    `text-sm transition-colors duration-200 ${
+    cn(
+      "text-xs font-semibold uppercase tracking-[0.15em] transition-colors duration-200",
       pathname === href
-        ? "text-boxx-white font-semibold"
-        : "text-boxx-mist hover:text-boxx-white"
-    }`;
+        ? "text-boxx-red"
+        : "text-boxx-mist hover:text-boxx-white",
+    );
 
   return (
-    <header className="sticky top-0 z-50 border-b border-boxx-line bg-boxx-night/90 backdrop-blur">
-      <nav className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-5 sm:px-8">
-        <Link
-          href="/"
-          className="text-lg font-bold tracking-tight text-boxx-white"
-          onClick={() => setOpen(false)}
-        >
-          Boxx<span className="text-boxx-red">Central</span>
-        </Link>
-
-        {/* Desktop links */}
-        <div className="hidden items-center gap-7 lg:flex">
-          {navLinks.map((link) => (
-            <Link key={link.href} href={link.href} className={linkClass(link.href)}>
-              {link.label}
-            </Link>
-          ))}
+    <header className="fixed inset-x-0 top-4 z-50">
+      <div className="mx-auto w-4/5 max-w-6xl rounded-3xl border border-boxx-line bg-boxx-night/85 backdrop-blur-md">
+        <nav className="relative flex h-18 w-full items-center justify-between px-5 sm:px-8">
           <Link
-            href={bookingCta.href}
-            className="rounded-full bg-boxx-red px-5 py-2 text-sm font-semibold text-boxx-white transition-colors duration-200 hover:bg-boxx-red-deep"
+            href="/"
+            className="font-heading text-2xl uppercase tracking-wide text-boxx-white"
+            onClick={() => setOpen(false)}
           >
-            {bookingCta.label}
+            <Image src="/logo.png" alt={site.name} width={150} height={50} />
           </Link>
-        </div>
 
-        {/* Mobile toggle */}
-        <button
-          type="button"
-          className="flex h-10 w-10 items-center justify-center rounded-md text-boxx-white lg:hidden"
-          aria-label={open ? `Close ${site.name} menu` : `Open ${site.name} menu`}
-          aria-expanded={open}
-          onClick={() => setOpen((v) => !v)}
-        >
-          <span className="text-xl leading-none">{open ? "✕" : "☰"}</span>
-        </button>
-      </nav>
-
-      {/* Mobile menu */}
-      {open && (
-        <div className="border-t border-boxx-line bg-boxx-night lg:hidden">
-          <div className="mx-auto flex w-full max-w-6xl flex-col gap-1 px-5 py-4 sm:px-8">
+          {/* Desktop links — centered */}
+          <div className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-7 lg:flex">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`rounded-md px-2 py-2.5 ${linkClass(link.href)}`}
-                onClick={() => setOpen(false)}
+                className={linkClass(link.href)}
               >
                 {link.label}
               </Link>
             ))}
-            <Link
-              href={bookingCta.href}
-              className="mt-2 rounded-full bg-boxx-red px-5 py-3 text-center text-sm font-semibold text-boxx-white"
-              onClick={() => setOpen(false)}
-            >
-              {bookingCta.label}
-            </Link>
           </div>
-        </div>
-      )}
+
+          <div className="flex items-center gap-2">
+            <Button asChild variant="ghost" size="icon" aria-label="Cart">
+              <Link href="/cart" onClick={() => setOpen(false)}>
+                <HugeiconsIcon icon={ShoppingCart01Icon} className="size-5" />
+              </Link>
+            </Button>
+
+            <Button asChild size="sm" className="hidden lg:inline-flex">
+              <Link href={bookingCta.href}>{bookingCta.label}</Link>
+            </Button>
+
+            {/* Mobile toggle */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="lg:hidden"
+              aria-label={
+                open ? `Close ${site.name} menu` : `Open ${site.name} menu`
+              }
+              aria-expanded={open}
+              onClick={() => setOpen((v) => !v)}
+            >
+              <HugeiconsIcon
+                icon={open ? Cancel01Icon : Menu01Icon}
+                className="size-5"
+              />
+            </Button>
+          </div>
+        </nav>
+
+        {/* Mobile menu */}
+        {open && (
+          <div className="animate-in fade-in slide-in-from-top-2 rounded-b-3xl border-t border-boxx-line bg-boxx-night duration-200 lg:hidden">
+            <div className="flex w-full flex-col gap-1 px-5 py-5 sm:px-8">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn("rounded-md px-2 py-3", linkClass(link.href))}
+                  onClick={() => setOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              ))}
+              <Button asChild className="mt-3">
+                <Link href={bookingCta.href} onClick={() => setOpen(false)}>
+                  {bookingCta.label}
+                </Link>
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
     </header>
   );
 }

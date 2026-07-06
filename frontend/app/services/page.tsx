@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import PageHero from "@/components/PageHero";
 import ServiceCatalogue from "./_components/ServiceCatalogue";
 
 export const metadata: Metadata = {
@@ -8,5 +9,14 @@ export const metadata: Metadata = {
 };
 
 export default function ServicesPage() {
-  return <ServiceCatalogue />;
+  return (
+    <>
+      <PageHero
+        eyebrow="Services"
+        title="What's inside BoxxCentral"
+        description="Every experience in the building, at a glance — tap any of them to go deeper."
+      />
+      <ServiceCatalogue />
+    </>
+  );
 }
