@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+/*
+ * BoxxCentral design tokens — the single source of truth for the palette.
+ * Brand palette: red / black / white. Dark theme across the entire site.
+ * Never use raw hex values in components; always consume these tokens
+ * through Tailwind utilities (bg-boxx-night, text-boxx-red, etc.).
+ */
+@theme {
+  /* Canvas & surfaces (black family) */
+  --color-boxx-night: #0a0a0b; /* page canvas */
+  --color-boxx-coal: #121216; /* raised surfaces: cards, panels */
+  --color-boxx-slate: #1c1c22; /* elevated surfaces, hover states */
+  --color-boxx-line: #26262e; /* borders, dividers */
+
+  /* Brand red (CTAs and accents only — used sparingly) */
+  --color-boxx-red: #e4212e;
+  --color-boxx-red-deep: #b3141f; /* hover / pressed */
+  --color-boxx-red-glow: #ff3b47; /* glows, highlights on dark */
+
+  /* Type (white family) */
+  --color-boxx-white: #fafafa; /* headings, primary text */
+  --color-boxx-mist: #a6a6b0; /* body copy, secondary text */
+  --color-boxx-dim: #5c5c66; /* captions, placeholder labels */
+
+  /* Typography */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+body {
+  background-color: var(--color-boxx-night);
+  color: var(--color-boxx-mist);
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background-color: var(--color-boxx-red);
+  color: var(--color-boxx-white);
+}
