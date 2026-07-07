@@ -4,7 +4,6 @@ import {
   Call02Icon,
   Location01Icon,
   Mail01Icon,
-  WhatsappIcon,
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { experiences } from "@/lib/experiences";
@@ -27,22 +26,6 @@ export default function Footer() {
   return (
     <footer className="relative overflow-hidden border-t border-boxx-line bg-boxx-coal">
       <div className="absolute -top-32 left-1/2 h-64 w-2xl -translate-x-1/2 rounded-full bg-boxx-red opacity-[0.07] blur-3xl" />
-
-      <div className="relative border-b border-boxx-line">
-        <div className="mx-auto flex w-full max-w-6xl flex-col items-start justify-between gap-6 px-5 py-14 sm:px-8 md:flex-row md:items-center">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.3em] text-boxx-red">
-              {site.tagline}
-            </p>
-            <p className="mt-3 font-heading text-3xl uppercase tracking-wide text-boxx-white sm:text-4xl">
-              Ready when you are.
-            </p>
-          </div>
-          <Button asChild size="lg">
-            <Link href={bookingCta.href}>{bookingCta.label}</Link>
-          </Button>
-        </div>
-      </div>
 
       {/* Link columns */}
       <div className="relative mx-auto grid w-full max-w-6xl gap-12 px-5 py-16 sm:px-8 md:grid-cols-2 lg:grid-cols-12">

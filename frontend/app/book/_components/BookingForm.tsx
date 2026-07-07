@@ -95,7 +95,6 @@ function StepHeading({ step, title }: { step: number; title: string }) {
 }
 
 export default function BookingForm() {
-  // FilmBoxx pre-selected — it's the headline, transactional experience.
   const [selected, setSelected] = useState<string[]>(["filmboxx"]);
   const [date, setDate] = useState<Date | undefined>();
   const [dateOpen, setDateOpen] = useState(false);
@@ -343,7 +342,9 @@ export default function BookingForm() {
                 />
               </div>
               <div className="space-y-2">
-                <FieldLabel htmlFor="booking-phone">Phone / WhatsApp</FieldLabel>
+                <FieldLabel htmlFor="booking-phone">
+                  Phone / WhatsApp
+                </FieldLabel>
                 <input
                   id="booking-phone"
                   type="tel"
@@ -381,7 +382,10 @@ export default function BookingForm() {
             {selectedExperiences.length > 0 ? (
               <ul className="mt-5 space-y-3">
                 {selectedExperiences.map((exp) => (
-                  <li key={exp.slug} className="flex items-center gap-3 text-sm">
+                  <li
+                    key={exp.slug}
+                    className="flex items-center gap-3 text-sm"
+                  >
                     <HugeiconsIcon
                       icon={experienceIcons[exp.slug]}
                       aria-hidden
@@ -444,23 +448,17 @@ export default function BookingForm() {
               size="lg"
             >
               {isValid ? (
-                <a href={whatsappHref} target="_blank" rel="noopener noreferrer">
-                  <HugeiconsIcon icon={WhatsappIcon} className="size-4" />
-                  Send booking on WhatsApp
+                <a
+                  href={whatsappHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Proceed to payment
                 </a>
               ) : (
-                <span>
-                  <HugeiconsIcon icon={WhatsappIcon} className="size-4" />
-                  Send booking on WhatsApp
-                </span>
+                <span>Proceed to payment</span>
               )}
             </Button>
-
-            <p className="mt-4 text-xs leading-relaxed text-boxx-dim">
-              No payment needed now — we confirm availability and pricing with
-              you on WhatsApp. Secure online payment with Paystack is coming
-              soon.
-            </p>
           </aside>
         </Reveal>
       </Container>

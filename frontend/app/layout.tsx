@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Anton, Figtree } from "next/font/google";
-import Footer from "@/components/Footer";
-import Navbar from "@/components/Navbar";
+import SiteChrome from "@/components/SiteChrome";
 import { site } from "@/lib/site";
 import "./globals.css";
 import { cn } from "@/lib/utils";
@@ -50,9 +49,7 @@ export default function RootLayout({
       )}
     >
       <body className="flex min-h-full flex-col">
-        <Navbar />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <SiteChrome>{children}</SiteChrome>
       </body>
     </html>
   );

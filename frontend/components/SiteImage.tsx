@@ -35,7 +35,14 @@ export default function SiteImage({
       )}
     >
       {src ? (
-        <Image src={src} alt={alt} fill sizes={sizes} className="object-cover" />
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          sizes={sizes}
+          quality={100}
+          className="object-cover"
+        />
       ) : (
         <>
           {/* Soft red glow to keep placeholders on-brand and atmospheric */}

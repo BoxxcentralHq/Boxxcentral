@@ -9,7 +9,7 @@ type LocationMapProps = {
   className?: string;
 };
 
-const mapQuery = encodeURIComponent(contact.address);
+const mapQuery = encodeURIComponent(contact.mapQuery);
 
 /**
  * Interactive Google Maps embed for the facility, framed like every other
