@@ -9,7 +9,6 @@ import {
 } from "@hugeicons/core-free-icons";
 import { contact, socials } from "@/lib/site";
 
-/** Raised card wrapping one contact group. */
 function DetailCard({
   icon,
   label,
