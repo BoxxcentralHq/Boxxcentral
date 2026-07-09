@@ -71,11 +71,12 @@ export default function ServiceCatalogue() {
               </ul>
 
               <div className="mt-8 flex flex-wrap items-center gap-4">
-                {exp.bookable && (
-                  <Button asChild>
-                    <Link href={bookingCta.href}>{bookingCta.label}</Link>
-                  </Button>
-                )}
+                {/* Pre-selects this experience on the booking form via the query param */}
+                <Button asChild>
+                  <Link href={`${bookingCta.href}?experience=${exp.slug}`}>
+                    Book {exp.name}
+                  </Link>
+                </Button>
                 <Button asChild variant="outline">
                   <Link href={exp.href}>
                     Explore {exp.name}

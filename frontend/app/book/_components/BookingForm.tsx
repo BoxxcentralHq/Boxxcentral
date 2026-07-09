@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
 import type { IconSvgElement } from "@hugeicons/react";
 import {
@@ -95,7 +96,22 @@ function StepHeading({ step, title }: { step: number; title: string }) {
 }
 
 export default function BookingForm() {
-  const [selected, setSelected] = useState<string[]>(["filmboxx"]);
+  const searchParams = useSearchParams();
+
+  /**
+   * `?experience=<slug>` (comma-separable) pre-selects experiences —
+   * the "Book {name}" buttons on /services link here with it set.
+   * Unknown slugs are ignored; no valid slug falls back to FilmBoxx.
+   */
+  const [selected, setSelected] = useState<string[]>(() => {
+    const requested =
+      searchParams
+        .get("experience")
+        ?.split(",")
+        .map((s) => s.trim().toLowerCase())
+        .filter((slug) => experiences.some((e) => e.slug === slug)) ?? [];
+    return requested.length > 0 ? requested : ["filmboxx"];
+  });
   const [date, setDate] = useState<Date | undefined>();
   const [dateOpen, setDateOpen] = useState(false);
   const [time, setTime] = useState("");

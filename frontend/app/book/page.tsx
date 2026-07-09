@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import PageHero from "@/components/PageHero";
 import BookingForm from "./_components/BookingForm";
 
@@ -16,7 +17,10 @@ export default function BookPage() {
         title="Build your night"
         description="Pick one experience or stack a few, tell us when and how many of you are coming — we'll take care of the rest."
       />
-      <BookingForm />
+      {/* useSearchParams inside the form requires a Suspense boundary */}
+      <Suspense>
+        <BookingForm />
+      </Suspense>
     </>
   );
 }

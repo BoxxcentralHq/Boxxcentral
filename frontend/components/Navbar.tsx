@@ -14,9 +14,25 @@ import { bookingCta, navLinks, site } from "@/lib/site";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 
+/**
+ * Sub-brand pages swap the navbar logo for their own mark; everywhere else
+ * shows the main BoxxCentral logo. Dimensions match each PNG's aspect ratio.
+ */
+const brandLogos: Record<string, { src: string; alt: string; width: number; height: number }> = {
+  "/filmboxx": { src: "/filmboxx.png", alt: "FilmBoxx", width: 148, height: 39 },
+  "/bowlboxx": { src: "/bowlboxx.png", alt: "BowlBoxx", width: 168, height: 28 },
+};
+
 export default function Navbar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+
+  const logo = brandLogos[pathname] ?? {
+    src: "/logo.png",
+    alt: site.name,
+    width: 150,
+    height: 50,
+  };
 
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -27,7 +43,7 @@ export default function Navbar() {
   const desktopLinkClass = (href: string) =>
     cn(
       linkBase,
-      "rounded-full px-4 py-2",
+      "rounded-xl px-4 py-2",
       isActive(href)
         ? "bg-boxx-red/10 text-boxx-red"
         : "text-boxx-mist hover:text-boxx-white",
@@ -51,7 +67,12 @@ export default function Navbar() {
             className="font-heading text-2xl uppercase tracking-wide text-boxx-white"
             onClick={() => setOpen(false)}
           >
-            <Image src="/logo.png" alt={site.name} width={150} height={50} />
+            <Image
+              src={logo.src}
+              alt={logo.alt}
+              width={logo.width}
+              height={logo.height}
+            />
           </Link>
 
           <div className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-2 lg:flex">

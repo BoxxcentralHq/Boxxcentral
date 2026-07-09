@@ -73,7 +73,8 @@ export const experiences: Experience[] = [
       alt: "Empty cinema hall with the screen glowing in the dark",
     },
     hero: {
-      cta: { label: "Book a private session", href: "/filmboxx" },
+      /* Secondary next to the page's "Book FilmBoxx" button (was a self-link) */
+      cta: { label: "Ask about private events", href: "/contact" },
       note: "Online booking with Paystack — coming soon",
       videoSrc: "/videos/filmboxx.mp4",
     },

@@ -6,8 +6,8 @@ import type { Experience } from "@/lib/experiences";
 
 /**
  * Complete sub-brand page (hero + showcase), driven entirely by the
- * experience's data in lib/experiences.ts. Only the bookable experience
- * (FilmBoxx) earns the primary red CTA; the rest stay subordinate.
+ * experience's data in lib/experiences.ts. The hero carries the data CTA;
+ * the showcase below adds the "Book {name}" action after the highlights.
  */
 export default function ExperiencePage({ experience }: { experience: Experience }) {
   return (
