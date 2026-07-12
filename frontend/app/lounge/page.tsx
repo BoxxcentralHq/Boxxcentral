@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
-import LoungeHero from "./_components/LoungeHero";
-import LoungeShowcase from "./_components/LoungeShowcase";
+import ExperiencePage from "@/components/ExperiencePage";
+import { getExperience } from "@/lib/experiences";
+
+const lounge = getExperience("lounge");
 
 export const metadata: Metadata = {
   title: "The Lounge",
@@ -9,10 +11,5 @@ export const metadata: Metadata = {
 };
 
 export default function LoungePage() {
-  return (
-    <>
-      <LoungeHero />
-      <LoungeShowcase />
-    </>
-  );
+  return <ExperiencePage experience={lounge} />;
 }

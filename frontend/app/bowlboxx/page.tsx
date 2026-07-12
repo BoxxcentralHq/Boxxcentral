@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
-import BowlboxxHero from "./_components/BowlboxxHero";
-import BowlboxxShowcase from "./_components/BowlboxxShowcase";
+import ExperiencePage from "@/components/ExperiencePage";
+import { getExperience } from "@/lib/experiences";
+
+const bowlboxx = getExperience("bowlboxx");
 
 export const metadata: Metadata = {
   title: "BowlBoxx — Bowling",
@@ -9,10 +11,5 @@ export const metadata: Metadata = {
 };
 
 export default function BowlboxxPage() {
-  return (
-    <>
-      <BowlboxxHero />
-      <BowlboxxShowcase />
-    </>
-  );
+  return <ExperiencePage experience={bowlboxx} />;
 }

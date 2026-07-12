@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
-import GymboxxHero from "./_components/GymboxxHero";
-import GymboxxShowcase from "./_components/GymboxxShowcase";
+import ExperiencePage from "@/components/ExperiencePage";
+import { getExperience } from "@/lib/experiences";
+
+const gymboxx = getExperience("gymboxx");
 
 export const metadata: Metadata = {
   title: "GymBoxx — Gym Studio",
@@ -9,10 +11,5 @@ export const metadata: Metadata = {
 };
 
 export default function GymboxxPage() {
-  return (
-    <>
-      <GymboxxHero />
-      <GymboxxShowcase />
-    </>
-  );
+  return <ExperiencePage experience={gymboxx} />;
 }

@@ -1,53 +1,95 @@
+import Image from "next/image";
 import Link from "next/link";
-import Button from "@/components/Button";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
 import Container from "@/components/Container";
-import PlaceholderImage from "@/components/PlaceholderImage";
-import SectionHeading from "@/components/SectionHeading";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { experiences } from "@/lib/experiences";
 import { bookingCta } from "@/lib/site";
 
+/**
+ * Sticky offsets per card: each panel pins slightly lower than the one
+ * before, so earlier chapters peek out above as the next slides over.
+ * (Static classes — Tailwind can't see computed class names.)
+ */
+const stickyTops = ["top-24", "top-28", "top-32", "top-36"];
+
+/**
+ * The four experiences as full-image "chapters" that stack over one
+ * another on scroll. No <Reveal> here: a sticky element can only pin
+ * within its parent's bounds, so the cards must sit directly in the
+ * scrolling flow — the stacking itself is the animation.
+ */
 export default function ServiceCatalogue() {
   return (
-    <section className="py-20 sm:py-28">
-      <Container>
-        <SectionHeading
-          eyebrow="Services"
-          title="What's inside BoxxCentral"
-          lede="Every experience in the building, at a glance — tap any of them to go deeper."
-        />
+    <section className="py-24 sm:py-32">
+      <Container className="space-y-6">
+        {experiences.map((exp, i) => (
+          <article
+            key={exp.slug}
+            className={`sticky ${stickyTops[i % stickyTops.length]} overflow-hidden rounded-2xl border border-boxx-line bg-boxx-coal`}
+          >
+            <Image
+              src={exp.image.src}
+              alt={exp.image.alt}
+              fill
+              sizes="(max-width: 1152px) 100vw, 1152px"
+              quality={100}
+              className="object-cover"
+            />
+            {/* Scrim: readable copy at the bottom, image breathing on top */}
+            <div className="absolute inset-0 bg-linear-to-t from-boxx-night via-boxx-night/45 to-boxx-night/10" />
 
-        <div className="mt-14 space-y-16">
-          {experiences.map((exp, i) => (
-            <article
-              key={exp.slug}
-              className="grid items-center gap-8 md:grid-cols-2"
+            {/* Chapter number, outlined so it stays quiet */}
+            <span
+              aria-hidden
+              className="absolute right-6 top-5 font-heading text-7xl leading-none text-stroke sm:right-10 sm:text-8xl"
             >
-              <PlaceholderImage
-                label={`${exp.name} — feature photo`}
-                aspect="aspect-video"
-                className={i % 2 === 1 ? "md:order-last" : ""}
-              />
-              <div>
-                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-boxx-red">
-                  {exp.kind}
-                </span>
-                <h3 className="mt-3 text-2xl font-bold text-boxx-white sm:text-3xl">
-                  {exp.name}
-                </h3>
-                <p className="mt-4 leading-relaxed">{exp.summary}</p>
-                <div className="mt-6 flex items-center gap-5">
-                  <Link
-                    href={exp.href}
-                    className="text-sm font-semibold text-boxx-red-glow transition-colors hover:text-boxx-red"
+              0{i + 1}
+            </span>
+
+            <div className="relative flex min-h-[72vh] flex-col items-start justify-end p-6 sm:p-10 lg:p-14">
+              <Badge variant="soft">{exp.kind}</Badge>
+              <h3 className="mt-4 font-heading text-4xl uppercase tracking-wide text-boxx-white sm:text-6xl">
+                {exp.name}
+              </h3>
+              <p className="mt-4 max-w-xl leading-relaxed text-boxx-mist">
+                {exp.summary}
+              </p>
+
+              {/* A taste of the highlights as quiet glass chips */}
+              <ul className="mt-6 hidden flex-wrap gap-2 sm:flex">
+                {exp.highlights.slice(0, 3).map((h) => (
+                  <li
+                    key={h}
+                    className="rounded-full border border-boxx-white/15 bg-boxx-night/50 px-3.5 py-1.5 text-xs text-boxx-mist backdrop-blur-sm"
                   >
-                    Explore {exp.name} →
+                    {h}
+                  </li>
+                ))}
+              </ul>
+
+              <div className="mt-8 flex flex-wrap items-center gap-4">
+                {/* Pre-selects this experience on the booking form via the query param */}
+                <Button asChild>
+                  <Link href={`${bookingCta.href}?experience=${exp.slug}`}>
+                    Book {exp.name}
                   </Link>
-                  {exp.bookable && <Button href={bookingCta.href}>{bookingCta.label}</Button>}
-                </div>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link href={exp.href}>
+                    Explore {exp.name}
+                    <HugeiconsIcon
+                      icon={ArrowRight01Icon}
+                      className="size-4"
+                    />
+                  </Link>
+                </Button>
               </div>
-            </article>
-          ))}
-        </div>
+            </div>
+          </article>
+        ))}
       </Container>
     </section>
   );
