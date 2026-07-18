@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Anton, Figtree } from "next/font/google";
+import { Toaster } from "sonner";
 import SiteChrome from "@/components/SiteChrome";
 import { site } from "@/lib/site";
 import "./globals.css";
@@ -50,6 +51,16 @@ export default function RootLayout({
     >
       <body className="flex min-h-full flex-col">
         <SiteChrome>{children}</SiteChrome>
+        <Toaster
+          theme="dark"
+          position="top-right"
+          toastOptions={{
+            classNames: {
+              toast: "!bg-boxx-coal !border-boxx-line !text-boxx-white",
+              description: "!text-boxx-mist",
+            },
+          }}
+        />
       </body>
     </html>
   );
