@@ -14,7 +14,6 @@ export default function LoginPage() {
     <section className="relative flex min-h-svh items-center justify-center overflow-hidden px-5 py-16">
       {/* Same atmospheric backdrop language as the marketing heroes */}
       <div className="absolute inset-0 bg-linear-to-b from-boxx-coal via-boxx-night to-boxx-night" />
-      <div className="absolute -top-1/3 left-1/2 h-[32rem] w-[32rem] -translate-x-1/2 rounded-full bg-boxx-red opacity-[0.1] blur-3xl" />
 
       <div className="relative w-full max-w-md">
         <div className="rounded-2xl border border-boxx-line bg-boxx-coal p-6 sm:p-10">

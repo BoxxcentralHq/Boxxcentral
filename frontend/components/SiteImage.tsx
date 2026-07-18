@@ -45,8 +45,6 @@ export default function SiteImage({
         />
       ) : (
         <>
-          {/* Soft red glow to keep placeholders on-brand and atmospheric */}
-          <div className="absolute -bottom-1/3 -right-1/4 h-2/3 w-2/3 rounded-full bg-boxx-red opacity-[0.07] blur-3xl" />
           <div className="absolute inset-0 flex items-center justify-center p-4">
             <span className="text-center text-xs uppercase tracking-[0.2em] text-boxx-dim">
               {alt}

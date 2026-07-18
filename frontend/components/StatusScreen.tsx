@@ -19,7 +19,6 @@ export default function StatusScreen({
   return (
     <section className="relative overflow-hidden">
       <div className="absolute inset-0 bg-linear-to-b from-boxx-coal via-boxx-night to-boxx-night" />
-      <div className="absolute -top-1/3 left-1/2 h-[32rem] w-[32rem] -translate-x-1/2 rounded-full bg-boxx-red opacity-[0.1] blur-3xl" />
 
       <Container className="relative flex min-h-[72svh] flex-col items-center justify-center py-24 text-center">
         <Reveal className="flex flex-col items-center">
