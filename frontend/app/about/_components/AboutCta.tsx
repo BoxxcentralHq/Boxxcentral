@@ -8,11 +8,6 @@ import { bookingCta, contact, site } from "@/lib/site";
 export default function AboutCta() {
   return (
     <section className="relative overflow-hidden py-24 sm:py-32">
-      {/* Soft red glow rising from below, echoing the hero treatment */}
-      <div
-        aria-hidden
-        className="absolute -bottom-1/2 left-1/2 h-[28rem] w-[28rem] -translate-x-1/2 rounded-full bg-boxx-red opacity-[0.08] blur-3xl"
-      />
       <Container className="relative text-center">
         <Reveal className="flex flex-col items-center">
           <span className="text-xs font-bold uppercase tracking-[0.3em] text-boxx-red">

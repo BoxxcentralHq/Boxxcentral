@@ -25,7 +25,6 @@ const footerLinkClass =
 export default function Footer() {
   return (
     <footer className="relative overflow-hidden border-t border-boxx-line bg-boxx-coal">
-      <div className="absolute -top-32 left-1/2 h-64 w-2xl -translate-x-1/2 rounded-full bg-boxx-red opacity-[0.07] blur-3xl" />
 
       {/* Link columns */}
       <div className="relative mx-auto grid w-full max-w-6xl gap-12 px-5 py-16 sm:px-8 md:grid-cols-2 lg:grid-cols-12">

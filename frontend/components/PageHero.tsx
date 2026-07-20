@@ -96,10 +96,9 @@ export default function PageHero({
         )}
       </motion.div>
 
-      {/* Contrast scrim + red energy glow over the media */}
+      {/* Contrast scrim over the media */}
       <div className="absolute inset-0 bg-boxx-night/70" />
       <div className="absolute inset-0 bg-linear-to-t from-boxx-night via-transparent to-boxx-night/40" />
-      <div className="absolute -top-1/3 left-1/2 h-128 w-lg -translate-x-1/2 rounded-full bg-boxx-red opacity-[0.1] blur-3xl" />
 
       <Container
         className={cn(

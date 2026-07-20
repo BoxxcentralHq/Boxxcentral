@@ -15,7 +15,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-boxx-red text-boxx-white shadow-glow hover:bg-boxx-red-glow active:bg-boxx-red-deep",
+          "bg-boxx-red text-boxx-white hover:bg-boxx-red-glow active:bg-boxx-red-deep",
         outline:
           "border border-boxx-line bg-transparent text-boxx-white hover:border-boxx-red hover:text-boxx-white",
         ghost: "text-boxx-mist hover:bg-boxx-slate hover:text-boxx-white",
