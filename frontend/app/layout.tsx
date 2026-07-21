@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Anton, Figtree } from "next/font/google";
 import { Toaster } from "sonner";
+import QueryProvider from "@/components/providers/QueryProvider";
 import SiteChrome from "@/components/SiteChrome";
 import { site } from "@/lib/site";
 import "./globals.css";
@@ -50,7 +51,9 @@ export default function RootLayout({
       )}
     >
       <body className="flex min-h-full flex-col">
-        <SiteChrome>{children}</SiteChrome>
+        <QueryProvider>
+          <SiteChrome>{children}</SiteChrome>
+        </QueryProvider>
         <Toaster
           theme="dark"
           position="top-right"

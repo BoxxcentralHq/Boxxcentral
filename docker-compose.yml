@@ -1,0 +1,52 @@
+# Production app stack — lives at /srv/boxxcentral/docker-compose.yml on the
+# VPS, deployed by CI. No .env file here: secrets are shell-exported into the
+# SSH session by the deploy workflow and interpolated at `up` time. MongoDB
+# is NOT part of this stack — see deploy/mongo/ (standalone, manually run).
+
+services:
+  backend:
+    image: ghcr.io/praisekeyz/boxxcentral-backend:latest
+    restart: always
+    ports:
+      - "127.0.0.1:4000:4000"
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      FRONTEND_URL: ${FRONTEND_URL}
+      MONGODB_URI: ${MONGODB_URI}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      FLW_SECRET_KEY: ${FLW_SECRET_KEY}
+      FLW_SECRET_HASH: ${FLW_SECRET_HASH}
+      ZEPTOMAIL_URL: ${ZEPTOMAIL_URL}
+      ZEPTOMAIL_TOKEN: ${ZEPTOMAIL_TOKEN}
+      MAIL_FROM: ${MAIL_FROM}
+      MAIL_FROM_NAME: ${MAIL_FROM_NAME}
+      MAIL_NOREPLY: ${MAIL_NOREPLY}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    networks:
+      - default
+      - boxxcentral_net
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:4000/api/v1').then(()=>process.exit(0)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  frontend:
+    image: ghcr.io/praisekeyz/boxxcentral-frontend:latest
+    restart: always
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - default
+
+networks:
+  default:
+  boxxcentral_net:
+    external: true

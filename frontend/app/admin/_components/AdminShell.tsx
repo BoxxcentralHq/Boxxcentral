@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -13,7 +13,7 @@ import {
   Message01Icon,
   Settings01Icon,
 } from "@hugeicons/core-free-icons";
-import { isSignedIn, signOut } from "@/lib/admin-auth";
+import { useLogout, useProfile } from "@/lib/auth";
 import { site } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
@@ -75,23 +75,18 @@ export default function AdminShell({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  /** null = still checking (first client render), then resolved. */
-  const [authed, setAuthed] = useState<boolean | null>(null);
+  const { data: profile, isError } = useProfile();
+  const logout = useLogout();
 
   useEffect(() => {
-    if (isSignedIn()) {
-      setAuthed(true);
-    } else {
-      router.replace("/login");
-    }
-  }, [router]);
+    if (isError) router.replace("/login");
+  }, [isError, router]);
 
   function handleSignOut() {
-    signOut();
-    router.replace("/login");
+    logout.mutate();
   }
 
-  if (!authed) {
+  if (!profile) {
     return (
       <div className="flex min-h-svh items-center justify-center text-xs font-bold uppercase tracking-[0.3em] text-boxx-dim">
         Checking session…

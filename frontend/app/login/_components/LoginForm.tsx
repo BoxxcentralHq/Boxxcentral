@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ViewIcon, ViewOffSlashIcon } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
-import { signIn } from "@/lib/admin-auth";
+import { ApiError } from "@/lib/api/client";
+import { toastApiError } from "@/lib/api/toast";
+import { useLogin } from "@/lib/auth";
 
 const fieldClass =
   "w-full rounded-xl border border-boxx-line bg-boxx-night px-4 py-3 text-sm text-boxx-white placeholder:text-boxx-dim outline-none transition-colors duration-200 focus:border-boxx-red focus-visible:ring-[3px] focus-visible:ring-ring";
@@ -29,9 +31,11 @@ function FieldLabel({
 
 export default function LoginForm() {
   const router = useRouter();
+  const login = useLogin();
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
+
+  const submitting = login.isPending;
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -39,13 +43,20 @@ export default function LoginForm() {
     const email = String(data.get("email") ?? "");
     const password = String(data.get("password") ?? "");
 
-    setSubmitting(true);
-    if (signIn(email, password)) {
-      router.replace("/admin");
-    } else {
-      setError("That email and password don't match. Try again.");
-      setSubmitting(false);
-    }
+    setError(null);
+    login.mutate(
+      { email, password },
+      {
+        onSuccess: () => router.replace("/admin"),
+        onError: (err) => {
+          if (err instanceof ApiError && err.status === 401) {
+            setError("That email and password don't match. Try again.");
+          } else {
+            toastApiError(err);
+          }
+        },
+      },
+    );
   }
 
   return (

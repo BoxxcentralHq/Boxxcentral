@@ -9,6 +9,15 @@ export type Admin = {
   role: AdminRole;
 };
 
+// GET /admin/profile returns the JWT payload, not the full admin record
+export type Profile = {
+  userId: string;
+  email: string;
+  role: AdminRole;
+};
+
+export type LoginResponse = { admin: Admin };
+
 export type CinemaSettings = {
   basePrice: number;
   includedGuests: number;

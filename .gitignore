@@ -1,0 +1,3 @@
+# Reference-only deploy configs (nginx, standalone Mongo) — not part of CI,
+# kept local to whoever manages the VPS rather than tracked in git
+deploy/
