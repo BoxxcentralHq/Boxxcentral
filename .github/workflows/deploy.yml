@@ -110,6 +110,7 @@ jobs:
           key: ${{ secrets.SERVER_PRIVATE_KEY }}
           source: docker-compose.yml
           target: /srv/boxxcentral
+          debug: true
 
       - name: Pull images and restart
         uses: appleboy/ssh-action@v1.2.0
