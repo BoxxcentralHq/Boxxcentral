@@ -5,7 +5,7 @@
 
 services:
   backend:
-    image: ghcr.io/praisekeyz/boxxcentral-backend:latest
+    image: ghcr.io/boxxcentralhq/boxxcentral-backend:latest
     restart: always
     ports:
       - "127.0.0.1:4000:4000"
@@ -37,7 +37,7 @@ services:
       retries: 3
 
   frontend:
-    image: ghcr.io/praisekeyz/boxxcentral-frontend:latest
+    image: ghcr.io/boxxcentralhq/boxxcentral-frontend:latest
     restart: always
     ports:
       - "127.0.0.1:3000:3000"

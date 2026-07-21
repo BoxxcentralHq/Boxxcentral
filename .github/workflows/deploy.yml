@@ -9,8 +9,8 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  BACKEND_IMAGE: ghcr.io/praisekeyz/boxxcentral-backend
-  FRONTEND_IMAGE: ghcr.io/praisekeyz/boxxcentral-frontend
+  BACKEND_IMAGE: ghcr.io/boxxcentralhq/boxxcentral-backend
+  FRONTEND_IMAGE: ghcr.io/boxxcentralhq/boxxcentral-frontend
 
 jobs:
   test-backend:
