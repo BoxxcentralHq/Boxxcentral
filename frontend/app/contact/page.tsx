@@ -22,7 +22,7 @@ export default function ContactPage() {
         description="Questions, group bookings, events — drop us a message or talk to us on WhatsApp."
       />
 
-      {/* Message box + contact details, side by side */}
+      {/* The form and the "visit us" panel, side by side */}
       <section className="py-24 sm:py-32">
         <Container className="grid items-start gap-10 lg:grid-cols-5 lg:gap-14">
           <Reveal variant="left" className="lg:col-span-3">
