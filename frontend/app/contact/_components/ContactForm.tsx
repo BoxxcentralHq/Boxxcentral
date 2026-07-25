@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { WhatsappIcon } from "@hugeicons/core-free-icons";
+import { Send, WhatsappIcon } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/lib/api/toast";
 import { contact, site } from "@/lib/site";
@@ -62,7 +62,9 @@ export default function ContactForm() {
       "_blank",
       "noopener,noreferrer",
     );
-    toast.success("Opening WhatsApp — send it over and we'll take it from there.");
+    toast.success(
+      "Opening WhatsApp — send it over and we'll take it from there.",
+    );
   };
 
   return (
@@ -74,8 +76,8 @@ export default function ContactForm() {
         What&apos;s the plan?
       </h2>
       <p className="mt-3 text-sm leading-relaxed">
-        Group size, dates, the experience you&apos;re after — the more
-        detail the better. We reply within the day.
+        Group size, dates, the experience you&apos;re after — the more detail
+        the better. We reply within the day.
       </p>
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-5">
@@ -112,7 +114,11 @@ export default function ContactForm() {
 
         <div className="space-y-2">
           <FieldLabel htmlFor="contact-topic">Topic</FieldLabel>
-          <div id="contact-topic" role="radiogroup" className="flex flex-wrap gap-2">
+          <div
+            id="contact-topic"
+            role="radiogroup"
+            className="flex flex-wrap gap-2"
+          >
             {topics.map((t) => (
               <button
                 key={t}
@@ -149,8 +155,8 @@ export default function ContactForm() {
 
         <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center">
           <Button type="submit" size="lg">
-            <HugeiconsIcon icon={WhatsappIcon} className="size-4" />
-            Send on WhatsApp
+            Send
+            <HugeiconsIcon icon={Send} className="size-4" />
           </Button>
         </div>
       </form>
