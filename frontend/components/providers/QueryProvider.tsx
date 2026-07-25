@@ -1,0 +1,22 @@
+"use client";
+
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useState } from "react";
+
+export default function QueryProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  // created once per browser session, inside state so SSR never shares it
+  const [client] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: { retry: 1, staleTime: 30_000, refetchOnWindowFocus: false },
+        },
+      }),
+  );
+
+  return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
+}

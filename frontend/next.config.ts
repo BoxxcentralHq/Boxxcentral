@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // produces .next/standalone — a pruned server bundle for the Docker image
+  output: "standalone",
   images: {
     /*
      * Allowed `quality` values for next/image. Photography site-wide is
