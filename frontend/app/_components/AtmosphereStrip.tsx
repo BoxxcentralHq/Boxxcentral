@@ -72,7 +72,7 @@ export default function AtmosphereStrip() {
       </Container>
 
       {/* Full-bleed filmstrip: drifts sideways, pauses on hover */}
-      <Reveal>
+      <Reveal variant="scale">
         <div className="marquee relative mt-12 overflow-hidden">
           <div className="marquee-track flex w-max">
             <FilmstripFrames />

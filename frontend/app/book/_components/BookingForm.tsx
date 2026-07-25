@@ -167,7 +167,7 @@ export default function BookingForm() {
   return (
     <section className="py-24 sm:py-32">
       <Container className="grid items-start gap-12 lg:grid-cols-[1fr_22rem] lg:gap-16">
-        <Reveal className="space-y-14">
+        <Reveal variant="left" className="space-y-14">
           {/* Step 1 — pick one or more experiences */}
           <fieldset>
             <legend className="sr-only">Choose your experiences</legend>
@@ -389,7 +389,7 @@ export default function BookingForm() {
         </Reveal>
 
         {/* Sticky booking summary */}
-        <Reveal delay={150} className="lg:sticky lg:top-24">
+        <Reveal delay={150} variant="right" className="lg:sticky lg:top-24">
           <aside className="rounded-2xl border border-boxx-line bg-boxx-coal p-6 sm:p-8">
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-boxx-dim">
               Your night

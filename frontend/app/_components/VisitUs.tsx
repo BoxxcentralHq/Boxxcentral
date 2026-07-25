@@ -53,7 +53,7 @@ export default function VisitUs() {
           </div>
         </Reveal>
 
-        <Reveal delay={150}>
+        <Reveal delay={150} variant="scale">
           <LocationMap aspect="aspect-[4/3]" />
         </Reveal>
       </Container>

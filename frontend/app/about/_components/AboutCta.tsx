@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Container from "@/components/Container";
 import Reveal from "@/components/Reveal";
+import Magnetic from "@/components/motion/Magnetic";
 import { Button } from "@/components/ui/button";
 import { bookingCta, contact, site } from "@/lib/site";
 
@@ -9,7 +10,7 @@ export default function AboutCta() {
   return (
     <section className="relative overflow-hidden py-24 sm:py-32">
       <Container className="relative text-center">
-        <Reveal className="flex flex-col items-center">
+        <Reveal variant="scale" className="flex flex-col items-center">
           <span className="text-xs font-bold uppercase tracking-[0.3em] text-boxx-red">
             The rest is yours
           </span>
@@ -22,12 +23,16 @@ export default function AboutCta() {
             hard to leave.
           </p>
           <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-            <Button asChild size="lg">
-              <Link href={bookingCta.href}>{bookingCta.label}</Link>
-            </Button>
-            <Button asChild size="lg" variant="outline">
-              <Link href="/contact">Plan a visit</Link>
-            </Button>
+            <Magnetic>
+              <Button asChild size="lg">
+                <Link href={bookingCta.href}>{bookingCta.label}</Link>
+              </Button>
+            </Magnetic>
+            <Magnetic strength={0.25}>
+              <Button asChild size="lg" variant="outline">
+                <Link href="/contact">Plan a visit</Link>
+              </Button>
+            </Magnetic>
           </div>
         </Reveal>
       </Container>

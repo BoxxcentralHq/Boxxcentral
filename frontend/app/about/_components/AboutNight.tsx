@@ -26,7 +26,7 @@ export default function AboutNight() {
   return (
     <section className="border-y border-boxx-line bg-boxx-coal py-24 sm:py-32">
       <Container className="grid items-start gap-12 md:grid-cols-[2fr_3fr] lg:gap-16">
-        <Reveal className="md:sticky md:top-28">
+        <Reveal variant="left" className="md:sticky md:top-28">
           <SectionHeading
             eyebrow="A night here"
             title="How an evening flows"

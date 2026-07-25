@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { format, parseISO } from "date-fns";
+import Reveal from "@/components/Reveal";
 import { bookings, messages, overviewStats } from "@/lib/admin-data";
 import { PanelLabel, StatusBadge } from "./_components/shared";
 
@@ -27,32 +28,36 @@ function PanelHeader({
 export default function AdminOverviewPage() {
   return (
     <div className="mx-auto w-full max-w-6xl">
-      <p className="text-xs font-bold uppercase tracking-[0.3em] text-boxx-red">
-        Overview
-      </p>
-      <h1 className="mt-2 font-heading text-3xl uppercase tracking-wide text-boxx-white sm:text-4xl">
-        Today at a glance
-      </h1>
+      <Reveal>
+        <p className="text-xs font-bold uppercase tracking-[0.3em] text-boxx-red">
+          Overview
+        </p>
+        <h1 className="mt-2 font-heading text-3xl uppercase tracking-wide text-boxx-white sm:text-4xl">
+          Today at a glance
+        </h1>
+      </Reveal>
 
       {/* Stat tiles */}
       <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {overviewStats.map((stat) => (
-          <div
-            key={stat.label}
-            className="rounded-2xl border border-boxx-line bg-boxx-coal p-5"
-          >
-            <PanelLabel>{stat.label}</PanelLabel>
-            <p className="mt-3 font-heading text-4xl text-boxx-white">
-              {stat.value}
-            </p>
-            <p className="mt-1.5 text-xs text-boxx-dim">{stat.note}</p>
-          </div>
+        {overviewStats.map((stat, i) => (
+          <Reveal key={stat.label} delay={i * 80}>
+            <div className="rounded-2xl border border-boxx-line bg-boxx-coal p-5">
+              <PanelLabel>{stat.label}</PanelLabel>
+              <p className="mt-3 font-heading text-4xl text-boxx-white">
+                {stat.value}
+              </p>
+              <p className="mt-1.5 text-xs text-boxx-dim">{stat.note}</p>
+            </div>
+          </Reveal>
         ))}
       </div>
 
       <div className="mt-10 grid items-start gap-6 xl:grid-cols-3">
         {/* Recent bookings */}
-        <section className="rounded-2xl border border-boxx-line bg-boxx-coal xl:col-span-2">
+        <Reveal
+          delay={100}
+          className="rounded-2xl border border-boxx-line bg-boxx-coal xl:col-span-2"
+        >
           <PanelHeader label="Recent bookings" href="/admin/bookings" />
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
@@ -92,10 +97,13 @@ export default function AdminOverviewPage() {
               </tbody>
             </table>
           </div>
-        </section>
+        </Reveal>
 
         {/* Latest messages */}
-        <section className="rounded-2xl border border-boxx-line bg-boxx-coal">
+        <Reveal
+          delay={160}
+          className="rounded-2xl border border-boxx-line bg-boxx-coal"
+        >
           <PanelHeader label="Latest messages" href="/admin/messages" />
           <ul>
             {messages.map((m) => (
@@ -126,7 +134,7 @@ export default function AdminOverviewPage() {
               </li>
             ))}
           </ul>
-        </section>
+        </Reveal>
       </div>
     </div>
   );

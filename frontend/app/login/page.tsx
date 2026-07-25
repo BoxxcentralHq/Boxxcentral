@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import Reveal from "@/components/Reveal";
 import { site } from "@/lib/site";
 import LoginForm from "./_components/LoginForm";
 
@@ -15,7 +16,7 @@ export default function LoginPage() {
       {/* Same atmospheric backdrop language as the marketing heroes */}
       <div className="absolute inset-0 bg-linear-to-b from-boxx-coal via-boxx-night to-boxx-night" />
 
-      <div className="relative w-full max-w-md">
+      <Reveal className="relative w-full max-w-md">
         <div className="rounded-2xl border border-boxx-line bg-boxx-coal p-6 sm:p-10">
           <Link href="/" className="inline-block">
             <Image src="/logo.png" alt={site.name} width={140} height={47} />
@@ -42,7 +43,7 @@ export default function LoginPage() {
             Back to the site
           </Link>
         </p>
-      </div>
+      </Reveal>
     </section>
   );
 }

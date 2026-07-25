@@ -20,7 +20,6 @@ const iconsBySlug: Record<string, typeof FilmRoll01Icon> = {
   lounge: DrinkIcon,
 };
 
-/** Compact tour of the four sub-brands — the services page holds the detail. */
 export default function AboutWorlds() {
   return (
     <section className="py-24 sm:py-32">
@@ -34,7 +33,11 @@ export default function AboutWorlds() {
         </Reveal>
         <div className="mt-14 grid gap-4 sm:grid-cols-2">
           {experiences.map((exp, i) => (
-            <Reveal key={exp.slug} delay={i * 100}>
+            <Reveal
+              key={exp.slug}
+              delay={Math.floor(i / 2) * 120}
+              variant={i % 2 === 0 ? "left" : "right"}
+            >
               <Link
                 href={exp.href}
                 className="group flex h-full flex-col rounded-2xl border border-boxx-line bg-boxx-coal p-7 transition-colors duration-200 hover:border-boxx-red/40 hover:bg-boxx-slate sm:p-8"

@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Cancel01Icon,
@@ -26,6 +27,21 @@ const brandLogos: Record<string, { src: string; alt: string; width: number; heig
 export default function Navbar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const reduceMotion = useReducedMotion();
+
+  // Lock body scroll and allow Escape to dismiss while the full-screen menu is up.
+  useEffect(() => {
+    if (!open) return;
+    document.body.style.overflow = "hidden";
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [open]);
 
   const logo = brandLogos[pathname] ?? {
     src: "/logo.png",
@@ -51,73 +67,99 @@ export default function Navbar() {
 
   const mobileLinkClass = (href: string) =>
     cn(
-      linkBase,
-      "rounded-md px-3 py-3",
+      "font-heading text-4xl uppercase leading-tight tracking-wide transition-colors duration-200",
       isActive(href)
-        ? "bg-boxx-red/10 text-boxx-red"
-        : "text-boxx-mist hover:text-boxx-white",
+        ? "text-boxx-red"
+        : "text-boxx-white/90 hover:text-boxx-red",
     );
 
   return (
-    <header className="fixed inset-x-0 top-4 z-50 px-2 md:px-0">
-      <div className="mx-auto ms:w-4/5 w-full  max-w-6xl rounded-3xl border border-white/10 bg-white/5 shadow-md shadow-black/25 backdrop-blur-xl backdrop-saturate-150">
-        <nav className="relative flex h-18 w-full items-center justify-between px-5 sm:px-8">
-          <Link
-            href="/"
-            className="font-heading text-2xl uppercase tracking-wide text-boxx-white"
-            onClick={() => setOpen(false)}
-          >
-            <Image
-              src={logo.src}
-              alt={logo.alt}
-              width={logo.width}
-              height={logo.height}
-            />
-          </Link>
-
-          <div className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-2 lg:flex">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={desktopLinkClass(link.href)}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
-
-          <div className="flex items-center md:gap-2 gap-1">
-            <Button asChild variant="ghost" size="icon" aria-label="Cart">
-              <Link href="/cart" onClick={() => setOpen(false)}>
-                <HugeiconsIcon icon={ShoppingCart01Icon} className="size-5" />
-              </Link>
-            </Button>
-
-            <Button asChild size="sm" className="hidden lg:inline-flex">
-              <Link href={bookingCta.href}>{bookingCta.label}</Link>
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="lg:hidden "
-              aria-label={
-                open ? `Close ${site.name} menu` : `Open ${site.name} menu`
-              }
-              aria-expanded={open}
-              onClick={() => setOpen((v) => !v)}
+    <>
+      <motion.header
+        initial={reduceMotion ? undefined : { opacity: 0, y: -24 }}
+        animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+        className="fixed inset-x-0 top-4 z-50 px-2 md:px-0"
+      >
+        <div className="mx-auto ms:w-4/5 w-full  max-w-6xl rounded-3xl border border-white/10 bg-white/5 shadow-md shadow-black/25 backdrop-blur-xl backdrop-saturate-150">
+          <nav className="relative flex h-18 w-full items-center justify-between px-5 sm:px-8">
+            <Link
+              href="/"
+              className="font-heading text-2xl uppercase tracking-wide text-boxx-white"
+              onClick={() => setOpen(false)}
             >
-              <HugeiconsIcon
-                icon={open ? Cancel01Icon : Menu09Icon}
-                className="size-5"
+              <Image
+                src={logo.src}
+                alt={logo.alt}
+                width={logo.width}
+                height={logo.height}
               />
-            </Button>
-          </div>
-        </nav>
+            </Link>
 
+            <div className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-2 lg:flex">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={desktopLinkClass(link.href)}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+
+            <div className="flex items-center md:gap-2 gap-1">
+              <Button asChild variant="ghost" size="icon" aria-label="Cart">
+                <Link href="/cart" onClick={() => setOpen(false)}>
+                  <HugeiconsIcon icon={ShoppingCart01Icon} className="size-5" />
+                </Link>
+              </Button>
+
+              <Button asChild size="sm" className="hidden lg:inline-flex">
+                <Link href={bookingCta.href}>{bookingCta.label}</Link>
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden "
+                aria-label={
+                  open ? `Close ${site.name} menu` : `Open ${site.name} menu`
+                }
+                aria-expanded={open}
+                onClick={() => setOpen((v) => !v)}
+              >
+                <HugeiconsIcon
+                  icon={open ? Cancel01Icon : Menu09Icon}
+                  className="size-5"
+                />
+              </Button>
+            </div>
+          </nav>
+        </div>
+      </motion.header>
+
+      {/*
+        Full-screen mobile menu. Rendered outside the header's blurred pill on
+        purpose: `backdrop-blur` on an ancestor creates a containing block for
+        `position: fixed` descendants, which would trap this overlay inside
+        the pill's small bounds instead of covering the viewport.
+      */}
+      <AnimatePresence>
         {open && (
-          <div className="animate-in fade-in slide-in-from-top-2 rounded-b-3xl border-t border-white/10 duration-200 lg:hidden">
-            <div className="flex w-full flex-col gap-1 px-5 py-5 sm:px-8">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+            className="fixed inset-0 z-40 bg-boxx-night lg:hidden"
+          >
+            <motion.div
+              initial={{ y: 16, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 16, opacity: 0 }}
+              transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1], delay: 0.05 }}
+              className="flex h-full flex-col justify-center gap-3 px-8 pb-16"
+            >
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
@@ -128,15 +170,15 @@ export default function Navbar() {
                   {link.label}
                 </Link>
               ))}
-              <Button asChild className="mt-3">
+              <Button asChild size="lg" className="mt-6 w-fit">
                 <Link href={bookingCta.href} onClick={() => setOpen(false)}>
                   {bookingCta.label}
                 </Link>
               </Button>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         )}
-      </div>
-    </header>
+      </AnimatePresence>
+    </>
   );
 }

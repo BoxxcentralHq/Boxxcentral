@@ -8,6 +8,7 @@ import {
   Mail01Icon,
   WhatsappIcon,
 } from "@hugeicons/core-free-icons";
+import Reveal from "@/components/Reveal";
 import {
   messages as initialMessages,
   type ContactMessage,
@@ -76,7 +77,7 @@ export default function MessagesManager() {
   return (
     <div>
       {/* Filter tabs */}
-      <div className="flex gap-2">
+      <Reveal className="flex gap-2">
         {(
           [
             { value: "all", label: "All", count: messages.length },
@@ -98,10 +99,10 @@ export default function MessagesManager() {
             <span className="ml-2 text-boxx-dim">{tab.count}</span>
           </button>
         ))}
-      </div>
+      </Reveal>
 
       {/* Inbox */}
-      <div className="mt-6 rounded-2xl border border-boxx-line bg-boxx-coal">
+      <Reveal delay={100} className="mt-6 rounded-2xl border border-boxx-line bg-boxx-coal">
         <ul>
           {visible.map((m) => {
             const expanded = expandedId === m.id;
@@ -211,7 +212,7 @@ export default function MessagesManager() {
             </li>
           )}
         </ul>
-      </div>
+      </Reveal>
     </div>
   );
 }
