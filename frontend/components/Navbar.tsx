@@ -5,11 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  Cancel01Icon,
-  Menu09Icon,
-  ShoppingCart01Icon,
-} from "@hugeicons/core-free-icons";
+import { Cancel01Icon, Menu09Icon } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { bookingCta, navLinks, site } from "@/lib/site";
 import { cn } from "@/lib/utils";
@@ -19,9 +15,22 @@ import Image from "next/image";
  * Sub-brand pages swap the navbar logo for their own mark; everywhere else
  * shows the main BoxxCentral logo. Dimensions match each PNG's aspect ratio.
  */
-const brandLogos: Record<string, { src: string; alt: string; width: number; height: number }> = {
-  "/filmboxx": { src: "/filmboxx.png", alt: "FilmBoxx", width: 148, height: 39 },
-  "/bowlboxx": { src: "/bowlboxx.png", alt: "BowlBoxx", width: 168, height: 28 },
+const brandLogos: Record<
+  string,
+  { src: string; alt: string; width: number; height: number }
+> = {
+  "/filmboxx": {
+    src: "/filmboxx.png",
+    alt: "FilmBoxx",
+    width: 148,
+    height: 39,
+  },
+  "/bowlboxx": {
+    src: "/bowlboxx.png",
+    alt: "BowlBoxx",
+    width: 168,
+    height: 28,
+  },
 };
 
 export default function Navbar() {
@@ -109,9 +118,9 @@ export default function Navbar() {
             </div>
 
             <div className="flex items-center md:gap-2 gap-1">
-              <Button asChild variant="ghost" size="icon" aria-label="Cart">
-                <Link href="/cart" onClick={() => setOpen(false)}>
-                  <HugeiconsIcon icon={ShoppingCart01Icon} className="size-5" />
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/lounge" onClick={() => setOpen(false)}>
+                  View Menu
                 </Link>
               </Button>
 
@@ -157,7 +166,11 @@ export default function Navbar() {
               initial={{ y: 16, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 16, opacity: 0 }}
-              transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1], delay: 0.05 }}
+              transition={{
+                duration: 0.3,
+                ease: [0.4, 0, 0.2, 1],
+                delay: 0.05,
+              }}
               className="flex h-full flex-col justify-center gap-3 px-8 pb-16"
             >
               {navLinks.map((link) => (
