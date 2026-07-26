@@ -5,6 +5,7 @@ import {
   Location01Icon,
   Mail01Icon,
 } from "@hugeicons/core-free-icons";
+import Reveal from "@/components/Reveal";
 import { Button } from "@/components/ui/button";
 import { experiences } from "@/lib/experiences";
 import { bookingCta, contact, navLinks, site, socials } from "@/lib/site";
@@ -28,7 +29,7 @@ export default function Footer() {
 
       {/* Link columns */}
       <div className="relative mx-auto grid w-full max-w-6xl gap-12 px-5 py-16 sm:px-8 md:grid-cols-2 lg:grid-cols-12">
-        <div className="lg:col-span-5">
+        <Reveal className="lg:col-span-5">
           <Link
             href="/"
             className="font-heading text-2xl uppercase tracking-wide text-boxx-white"
@@ -52,9 +53,9 @@ export default function Footer() {
               </a>
             ))}
           </div>
-        </div>
+        </Reveal>
 
-        <div className="lg:col-span-2">
+        <Reveal delay={80} className="lg:col-span-2">
           <ColumnLabel>Experiences</ColumnLabel>
           <ul className="mt-5 space-y-3">
             {experiences.map((exp) => (
@@ -65,9 +66,9 @@ export default function Footer() {
               </li>
             ))}
           </ul>
-        </div>
+        </Reveal>
 
-        <div className="lg:col-span-2">
+        <Reveal delay={140} className="lg:col-span-2">
           <ColumnLabel>Explore</ColumnLabel>
           <ul className="mt-5 space-y-3">
             {navLinks.map((link) => (
@@ -78,9 +79,9 @@ export default function Footer() {
               </li>
             ))}
           </ul>
-        </div>
+        </Reveal>
 
-        <div className="lg:col-span-3">
+        <Reveal delay={200} className="lg:col-span-3">
           <ColumnLabel>Find us</ColumnLabel>
           <ul className="mt-5 space-y-3 text-sm">
             <li className="flex items-start gap-2.5">
@@ -118,17 +119,17 @@ export default function Footer() {
               </a>
             </li>
           </ul>
-        </div>
+        </Reveal>
       </div>
 
       {/* Legal bar */}
       <div className="relative border-t border-boxx-line">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-2 px-5 py-5 text-xs text-boxx-dim sm:flex-row sm:items-center sm:justify-between sm:px-8">
+        <Reveal className="mx-auto flex w-full max-w-6xl flex-col gap-2 px-5 py-5 text-xs text-boxx-dim sm:flex-row sm:items-center sm:justify-between sm:px-8">
           <p>
             © {new Date().getFullYear()} {site.name}. All rights reserved.
           </p>
           <p>{site.tagline}</p>
-        </div>
+        </Reveal>
       </div>
 
       <div aria-hidden className="relative select-none">

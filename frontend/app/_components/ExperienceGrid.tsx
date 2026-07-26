@@ -24,7 +24,7 @@ export default function ExperienceGrid() {
 
         <div className="mt-12 grid gap-6">
           {/* FilmBoxx — the headline experience, full width */}
-          <Reveal>
+          <Reveal variant="scale">
             <Link
               href={filmboxx.href}
               className="group block overflow-hidden rounded-2xl border border-boxx-line bg-boxx-coal transition-colors duration-300 hover:border-boxx-red"

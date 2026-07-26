@@ -73,8 +73,9 @@ body {
 
 /*
  * Scroll-reveal animation, driven by the <Reveal> component.
- * Elements start slightly translated + transparent and settle into place
- * once they intersect the viewport. Disabled for reduced-motion users.
+ * Elements start offset + transparent and settle into place once they
+ * intersect the viewport. `data-reveal-variant` picks the entrance
+ * direction; disabled entirely for reduced-motion users.
  */
 [data-reveal] {
   opacity: 0;
@@ -84,7 +85,32 @@ body {
     transform 700ms var(--ease-standard);
 }
 
-[data-reveal="visible"] {
+[data-reveal][data-reveal-variant="down"] {
+  transform: translateY(-28px);
+}
+
+[data-reveal][data-reveal-variant="left"] {
+  transform: translateX(-32px);
+}
+
+[data-reveal][data-reveal-variant="right"] {
+  transform: translateX(32px);
+}
+
+[data-reveal][data-reveal-variant="scale"] {
+  transform: scale(0.94);
+}
+
+[data-reveal][data-reveal-variant="fade"] {
+  transform: none;
+}
+
+/*
+ * Higher-specificity tie-breaker (two attribute selectors, same as the
+ * variant rules above) placed last so it always wins the cascade and
+ * resets every variant back to its resting position once visible.
+ */
+[data-reveal="visible"][data-reveal-variant] {
   opacity: 1;
   transform: none;
 }
@@ -93,7 +119,8 @@ body {
   html {
     scroll-behavior: auto;
   }
-  [data-reveal] {
+  [data-reveal],
+  [data-reveal][data-reveal-variant] {
     opacity: 1;
     transform: none;
     transition: none;

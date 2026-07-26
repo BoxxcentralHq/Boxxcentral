@@ -1,13 +1,14 @@
 import Container from "@/components/Container";
 import SiteImage from "@/components/SiteImage";
 import Reveal from "@/components/Reveal";
+import CountUp from "@/components/motion/CountUp";
 import SectionHeading from "@/components/SectionHeading";
 import { site } from "@/lib/site";
 
 const stats = [
-  { value: "4", label: "Experiences" },
-  { value: "1", label: "Address" },
-  { value: "7", label: "Days a week" },
+  { value: 4, label: "Experiences" },
+  { value: 1, label: "Address" },
+  { value: 7, label: "Days a week" },
 ] as const;
 
 export default function AboutStory() {
@@ -43,19 +44,19 @@ export default function AboutStory() {
           </div>
 
           <dl className="mt-10 grid grid-cols-3 gap-6 border-t border-boxx-line pt-8">
-            {stats.map((stat) => (
-              <div key={stat.label}>
+            {stats.map((stat, i) => (
+              <Reveal key={stat.label} delay={i * 100}>
                 <dd className="font-heading text-4xl text-boxx-red sm:text-5xl">
-                  {stat.value}
+                  <CountUp value={stat.value} />
                 </dd>
                 <dt className="mt-2 text-xs font-bold uppercase tracking-[0.2em] text-boxx-dim">
                   {stat.label}
                 </dt>
-              </div>
+              </Reveal>
             ))}
           </dl>
         </Reveal>
-        <Reveal delay={150} className="grid gap-4">
+        <Reveal delay={150} variant="scale" className="grid gap-4">
           <SiteImage
             src="/images/about-wide.jpg"
             alt="Cinema hall interior — one of the four experiences"

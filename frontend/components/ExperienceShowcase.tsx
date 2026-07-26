@@ -38,6 +38,7 @@ export default function ExperienceShowcase({ experience }: { experience: Experie
 
         <Reveal
           delay={150}
+          variant="scale"
           className={cn("grid gap-4", showcase.mediaFirst && "md:order-first")}
         >
           <SiteImage src={wide.src} alt={wide.alt} aspect="aspect-video" />

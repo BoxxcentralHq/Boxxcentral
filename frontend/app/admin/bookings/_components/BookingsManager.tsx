@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { format, parseISO } from "date-fns";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Search01Icon } from "@hugeicons/core-free-icons";
+import Reveal from "@/components/Reveal";
 import {
   bookings as initialBookings,
   type Booking,
@@ -83,7 +84,7 @@ export default function BookingsManager() {
   return (
     <div>
       {/* Filters */}
-      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+      <Reveal className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
         <div className="flex flex-wrap gap-2">
           {tabs.map((tab) => (
             <button
@@ -118,10 +119,10 @@ export default function BookingsManager() {
             className="w-full rounded-full border border-boxx-line bg-boxx-coal py-2.5 pl-11 pr-4 text-sm text-boxx-white placeholder:text-boxx-dim outline-none transition-colors duration-200 focus:border-boxx-red focus-visible:ring-[3px] focus-visible:ring-ring"
           />
         </div>
-      </div>
+      </Reveal>
 
       {/* Table */}
-      <div className="mt-6 rounded-2xl border border-boxx-line bg-boxx-coal">
+      <Reveal delay={100} className="mt-6 rounded-2xl border border-boxx-line bg-boxx-coal">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
@@ -205,7 +206,7 @@ export default function BookingsManager() {
             </tbody>
           </table>
         </div>
-      </div>
+      </Reveal>
     </div>
   );
 }
