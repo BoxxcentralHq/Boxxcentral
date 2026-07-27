@@ -1,7 +1,7 @@
 // server-component fetches for PUBLIC data only — admin screens are
 // client components and use lib/api/client.ts with cookie auth
 import { buildUrl, parseResponse, Query } from "./core";
-import type { Availability, CinemaSettings, Movie } from "./types";
+import type { Availability, CinemaSettings, MenuItem, Movie } from "./types";
 
 type CacheOpts = {
   // seconds between revalidations; 0 = always fresh (no-store)
@@ -34,6 +34,10 @@ export function getCinemaSettings() {
 
 export function getMovies() {
   return serverFetch<Movie[]>("/cinema/movies", undefined, { revalidate: 60 });
+}
+
+export function getMenuItems() {
+  return serverFetch<MenuItem[]>("/menu", undefined, { revalidate: 60 });
 }
 
 export function getAvailability(date: string) {

@@ -21,7 +21,7 @@ export class Movie {
   @Prop()
   posterUrl?: string;
 
-  @Prop()
+  @Prop({ select: false })
   posterPublicId?: string;
 
   @Prop({ default: true })

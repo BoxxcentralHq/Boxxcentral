@@ -8,9 +8,11 @@ import { AppService } from './app.service';
 import { AdminModule } from './admin/admin.module';
 import { BookingsModule } from './bookings/bookings.module';
 import { CinemaModule } from './cinema/cinema.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { ContactModule } from './contact/contact.module';
 import { EmailModule } from './email/email.module';
 import { FlutterwaveModule } from './flutterwave/flutterwave.module';
+import { MenuModule } from './menu/menu.module';
 import { PaymentsModule } from './payments/payments.module';
 
 @Module({
@@ -35,6 +37,7 @@ import { PaymentsModule } from './payments/payments.module';
     }),
     // Default rate limit: 20 requests / 10s per IP (login is stricter via @Throttle)
     ThrottlerModule.forRoot([{ ttl: 10000, limit: 20 }]),
+    CloudinaryModule,
     EmailModule,
     FlutterwaveModule,
     AdminModule,
@@ -42,6 +45,7 @@ import { PaymentsModule } from './payments/payments.module';
     CinemaModule,
     BookingsModule,
     ContactModule,
+    MenuModule,
   ],
   controllers: [AppController],
   providers: [AppService],

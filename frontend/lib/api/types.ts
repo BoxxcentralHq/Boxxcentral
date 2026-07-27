@@ -40,6 +40,34 @@ export type Movie = {
   createdAt: string;
 };
 
+export const MENU_CATEGORIES = [
+  "Food",
+  "Pastries",
+  "Pizza",
+  "Signature Cocktail",
+  "Classic Cocktails",
+  "Mocktail",
+  "Smoothie",
+  "Juices",
+  "Shots",
+  "Drinks",
+] as const;
+export type MenuCategory = (typeof MENU_CATEGORIES)[number];
+
+export type MenuItem = {
+  _id: string;
+  name: string;
+  category: MenuCategory;
+  // naira, raw — format for display with toLocaleString("en-NG")
+  price: number;
+  description: string;
+  imageUrl?: string;
+  imageAlt?: string;
+  tags: string[];
+  visible: boolean;
+  createdAt: string;
+};
+
 export type BookingStatus = "pending" | "reserved" | "cancelled" | "completed";
 
 export type Booking = {
