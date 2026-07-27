@@ -30,12 +30,7 @@ export default function CountUp({
   const [display, setDisplay] = useState(0);
 
   useEffect(() => {
-    if (!inView) return;
-
-    if (reduceMotion) {
-      setDisplay(value);
-      return;
-    }
+    if (!inView || reduceMotion) return;
 
     let raf: number;
     const start = performance.now();
@@ -51,10 +46,12 @@ export default function CountUp({
     return () => cancelAnimationFrame(raf);
   }, [inView, reduceMotion, value, duration]);
 
+  const shown = reduceMotion ? value : display;
+
   return (
     <span ref={ref} className={cn(className)}>
       {prefix}
-      {display}
+      {shown}
       {suffix}
     </span>
   );
