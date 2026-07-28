@@ -2,9 +2,9 @@
  * The four BoxxCentral experiences — single source of truth consumed by
  * the home page cards, the services catalogue, and each sub-brand page.
  *
- * Copy is placeholder-grade and awaits client sign-off. Photos and videos
- * are free Pexels stock stand-ins until the client's own facility assets
- * arrive — swap the files in /public/images and /public/videos.
+ * Copy is placeholder-grade and awaits client sign-off. Photos are real
+ * BoxxCentral facility shots (see /public/images); videos are still
+ * Pexels stand-ins until footage arrives — swap the files in /public/videos.
  * The lounge has no confirmed sub-brand name yet ("LoungeBoxx"?) — its
  * `name` is deliberately generic until the client confirms.
  */
@@ -69,8 +69,8 @@ export const experiences: Experience[] = [
     href: "/filmboxx",
     bookable: true,
     image: {
-      src: "/images/filmboxx-wide.jpg",
-      alt: "Empty cinema hall with the screen glowing in the dark",
+      src: "/assets/DSC00412-2.jpg",
+      alt: "Tufted lounge seating with the screen glowing in the dark",
     },
     hero: {
       /* Secondary next to the page's "Book FilmBoxx" button (was a self-link) */
@@ -83,16 +83,16 @@ export const experiences: Experience[] = [
       title: "Your screen. Your people.",
       media: [
         {
-          src: "/images/filmboxx-wide.jpg",
-          alt: "Screening room with the lights down",
+          src: "/assets/DSC00412-2.jpg",
+          alt: "Screening room seating with the lights down",
         },
         {
           src: "/images/filmboxx-detail-1.jpg",
-          alt: "Rows of red cinema seats",
+          alt: "Plush tufted cinema seating in close-up",
         },
         {
           src: "/images/filmboxx-detail-2.jpg",
-          alt: "Popcorn ready for the show",
+          alt: "Popcorn on the armrest, screen glowing behind",
         },
       ],
     },
@@ -115,7 +115,7 @@ export const experiences: Experience[] = [
     bookable: false,
     image: {
       src: "/images/gymboxx-wide.jpg",
-      alt: "Modern gym interior with dramatic lighting",
+      alt: "Free weights, racks, and cardio machines on the gym floor",
     },
     hero: {
       cta: { label: "Ask about membership", href: "/contact" },
@@ -131,11 +131,11 @@ export const experiences: Experience[] = [
         },
         {
           src: "/images/gymboxx-detail-1.jpg",
-          alt: "Black and red dumbbells on the rack",
+          alt: "Weight plate loaded on the rack",
         },
         {
           src: "/images/gymboxx-detail-2.jpg",
-          alt: "Punching bags hanging in the studio",
+          alt: "Cable machine and bench press station",
         },
       ],
       mediaFirst: true,
@@ -159,7 +159,7 @@ export const experiences: Experience[] = [
     bookable: false,
     image: {
       src: "/images/bowlboxx-wide.jpg",
-      alt: "Dimly lit bowling alley at night",
+      alt: "Bowling lanes lit up under neon light",
     },
     hero: {
       cta: { label: "Plan a game night", href: "/contact" },
@@ -175,11 +175,11 @@ export const experiences: Experience[] = [
         },
         {
           src: "/images/bowlboxx-detail-1.jpg",
-          alt: "Bowling pins washed in red light",
+          alt: "House bowling balls racked and ready",
         },
         {
           src: "/images/bowlboxx-detail-2.jpg",
-          alt: "Bowling ball and shoes on the lane",
+          alt: "Bowling shoes and balls at the lane",
         },
       ],
     },
@@ -202,7 +202,7 @@ export const experiences: Experience[] = [
     bookable: false,
     image: {
       src: "/images/lounge-wide.jpg",
-      alt: "Bartender mixing cocktails at a stylish bar",
+      alt: "Lounge seating beneath the vinyl record wall",
     },
     hero: {
       cta: { label: "Find us tonight", href: "/contact" },
@@ -214,15 +214,15 @@ export const experiences: Experience[] = [
       media: [
         {
           src: "/images/lounge-wide.jpg",
-          alt: "Bar counter in warm, moody light",
+          alt: "Lounge seating in warm, moody light",
         },
         {
           src: "/images/lounge-detail-1.jpg",
-          alt: "Cocktail served in close-up",
+          alt: "Booth seating in warm, moody light",
         },
         {
           src: "/images/lounge-detail-2.jpg",
-          alt: "Barman preparing drinks",
+          alt: "Backlit bar shelf stocked with spirits",
         },
       ],
       mediaFirst: true,

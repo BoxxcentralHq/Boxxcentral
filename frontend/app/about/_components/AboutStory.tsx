@@ -59,19 +59,19 @@ export default function AboutStory() {
         <Reveal delay={150} variant="scale" className="grid gap-4">
           <SiteImage
             src="/images/about-wide.jpg"
-            alt="Cinema hall interior — one of the four experiences"
+            alt="The screening room — one of the four experiences"
             aspect="aspect-[4/3]"
           />
           <div className="grid grid-cols-2 gap-4">
             <SiteImage
               src="/images/about-detail-1.jpg"
-              alt="Guest enjoying popcorn at the cinema"
+              alt="BoxxCentral popcorn, ready for the show"
               aspect="aspect-square"
               sizes="(max-width: 768px) 50vw, 25vw"
             />
             <SiteImage
               src="/images/about-detail-2.jpg"
-              alt="Drinks being mixed at the lounge bar"
+              alt="Backlit bar shelf stocked with spirits"
               aspect="aspect-square"
               sizes="(max-width: 768px) 50vw, 25vw"
             />

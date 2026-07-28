@@ -11,6 +11,7 @@ import {
   DashboardSquare01Icon,
   Logout03Icon,
   Message01Icon,
+  RestaurantIcon,
   Settings01Icon,
 } from "@hugeicons/core-free-icons";
 import { useLogout, useProfile } from "@/lib/auth";
@@ -29,6 +30,7 @@ const navItems: NavItem[] = [
   { label: "Overview", href: "/admin", icon: DashboardSquare01Icon },
   { label: "Bookings", href: "/admin/bookings", icon: Calendar03Icon },
   { label: "Messages", href: "/admin/messages", icon: Message01Icon },
+  { label: "Menu", href: "/admin/menu", icon: RestaurantIcon },
   { label: "Settings", href: "/admin/settings", icon: Settings01Icon, soon: true },
 ];
 

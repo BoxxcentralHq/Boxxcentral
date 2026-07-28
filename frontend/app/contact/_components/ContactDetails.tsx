@@ -20,7 +20,7 @@ export default function ContactDetails() {
     <div className="flex h-full flex-col">
       <SiteImage
         src="/images/lounge-detail-2.jpg"
-        alt="Barman preparing drinks at the BoxxCentral bar"
+        alt="Backlit bar shelf stocked with spirits"
         aspect="aspect-[4/3]"
       />
 

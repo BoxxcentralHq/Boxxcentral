@@ -27,9 +27,7 @@ export function buildUrl(path: string, query?: Query): string {
 
 // NestJS error bodies: { message: string | string[], statusCode, error }
 export async function parseResponse<T>(res: Response): Promise<T> {
-  const isJson = res.headers
-    .get("content-type")
-    ?.includes("application/json");
+  const isJson = res.headers.get("content-type")?.includes("application/json");
   const body: unknown = isJson ? await res.json() : undefined;
 
   if (!res.ok) {
@@ -43,4 +41,3 @@ export async function parseResponse<T>(res: Response): Promise<T> {
 
   return body as T;
 }
-
