@@ -1,0 +1,59 @@
+# Staging app stack — lives at /srv/boxxcentral-staging/docker-compose.staging.yml
+# on the VPS, deployed by CI on every push to `development`. Same shape as
+# the production compose file — different image tags and host ports so the
+# two stacks can run side by side without colliding. MongoDB is NOT part of
+# this stack — same standalone Mongo container as production, just pointed
+# at a different database (boxxcentral_dev) via the STAGING_MONGODB_URI
+# secret, so staging can never touch real booking/payment data.
+
+services:
+  backend:
+    image: ghcr.io/boxxcentralhq/boxxcentral-backend:staging
+    restart: always
+    ports:
+      - "127.0.0.1:4001:4000"
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      # allows a locally-run frontend (cross-site vs *.boxxcentral.com) to
+      # authenticate against staging — production leaves this unset (defaults
+      # to 'lax'), since its frontend/API pair is same-site and doesn't need it
+      COOKIE_SAME_SITE: none
+      FRONTEND_URL: ${FRONTEND_URL}
+      MONGODB_URI: ${MONGODB_URI}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      FLW_SECRET_KEY: ${FLW_SECRET_KEY}
+      FLW_SECRET_HASH: ${FLW_SECRET_HASH}
+      ZEPTOMAIL_URL: ${ZEPTOMAIL_URL}
+      ZEPTOMAIL_TOKEN: ${ZEPTOMAIL_TOKEN}
+      MAIL_FROM: ${MAIL_FROM}
+      MAIL_FROM_NAME: ${MAIL_FROM_NAME}
+      MAIL_NOREPLY: ${MAIL_NOREPLY}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    networks:
+      - default
+      - boxxcentral_net
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:4000/api/v1').then(()=>process.exit(0)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  frontend:
+    image: ghcr.io/boxxcentralhq/boxxcentral-frontend:staging
+    restart: always
+    ports:
+      - "127.0.0.1:3001:3000"
+    depends_on:
+      - backend
+    networks:
+      - default
+
+networks:
+  default:
+  boxxcentral_net:
+    external: true

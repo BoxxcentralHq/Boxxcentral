@@ -1,8 +1,9 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
+import type { Connection } from 'mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AdminModule } from './admin/admin.module';
@@ -14,6 +15,8 @@ import { EmailModule } from './email/email.module';
 import { FlutterwaveModule } from './flutterwave/flutterwave.module';
 import { MenuModule } from './menu/menu.module';
 import { PaymentsModule } from './payments/payments.module';
+
+const dbLogger = new Logger('Database');
 
 @Module({
   imports: [
@@ -33,6 +36,18 @@ import { PaymentsModule } from './payments/payments.module';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         uri: configService.getOrThrow<string>('MONGODB_URI'),
+        connectionFactory: (connection: Connection) => {
+          connection.on('connected', () =>
+            dbLogger.log(`MongoDB connected — database "${connection.name}"`),
+          );
+          connection.on('error', (err: Error) =>
+            dbLogger.error(`MongoDB connection error: ${err.message}`),
+          );
+          connection.on('disconnected', () =>
+            dbLogger.warn('MongoDB disconnected'),
+          );
+          return connection;
+        },
       }),
     }),
     // Default rate limit: 20 requests / 10s per IP (login is stricter via @Throttle)
