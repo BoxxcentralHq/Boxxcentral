@@ -15,6 +15,10 @@ services:
     environment:
       NODE_ENV: production
       PORT: 4000
+      # allows a locally-run frontend (cross-site vs *.boxxcentral.com) to
+      # authenticate against staging — production leaves this unset (defaults
+      # to 'lax'), since its frontend/API pair is same-site and doesn't need it
+      COOKIE_SAME_SITE: none
       FRONTEND_URL: ${FRONTEND_URL}
       MONGODB_URI: ${MONGODB_URI}
       JWT_SECRET: ${JWT_SECRET}
