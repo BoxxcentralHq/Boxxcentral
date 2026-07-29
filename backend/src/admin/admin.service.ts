@@ -11,6 +11,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Admin, AdminDocument, AdminRole } from './schemas/admin.schema';
 import { CreateAdminDto } from './dto/create-admin.dto';
+import { CreateStaffDto } from './dto/create-staff.dto';
 
 export interface AuthTokens {
   accessToken: string;
@@ -84,7 +85,7 @@ export class AdminService {
     };
   }
 
-  async createAdmin(dto: CreateAdminDto) {
+  async createAdmin(dto: CreateStaffDto) {
     const existing = await this.adminModel.findOne({ email: dto.email });
     if (existing) {
       throw new ForbiddenException('An admin with this email already exists');
@@ -96,7 +97,7 @@ export class AdminService {
       name: dto.name,
       email: dto.email,
       passwordHash,
-      role: AdminRole.CINEMA_ADMIN,
+      role: dto.role,
     }).save();
 
     return this.toSafeAdmin(saved);

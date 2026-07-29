@@ -4,6 +4,7 @@ import { Document } from 'mongoose';
 export enum AdminRole {
   SUPER_ADMIN = 'super_admin',
   CINEMA_ADMIN = 'cinema_admin',
+  LOUNGE_ADMIN = 'lounge_admin',
 }
 
 export type AdminDocument = Admin & Document;

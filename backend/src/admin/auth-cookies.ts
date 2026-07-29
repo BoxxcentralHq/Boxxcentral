@@ -8,7 +8,6 @@ const REFRESH_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 // path-scoped so the refresh cookie only travels to admin auth endpoints
 const REFRESH_PATH = '/api/v1/admin';
 
-
 const sameSitePolicy: NonNullable<CookieOptions['sameSite']> =
   (process.env.COOKIE_SAME_SITE as CookieOptions['sameSite']) ?? 'lax';
 

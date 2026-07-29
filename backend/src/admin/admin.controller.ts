@@ -19,6 +19,7 @@ import { RolesGuard } from './guards/roles.guard';
 import { Roles } from './decorators/roles.decorator';
 import { AdminRole } from './schemas/admin.schema';
 import { CreateAdminDto } from './dto/create-admin.dto';
+import { CreateStaffDto } from './dto/create-staff.dto';
 import { LoginDto } from './dto/login.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import {
@@ -93,7 +94,7 @@ export class AdminController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(AdminRole.SUPER_ADMIN)
   @Post('admins')
-  async createAdmin(@Body() dto: CreateAdminDto) {
+  async createAdmin(@Body() dto: CreateStaffDto) {
     return this.adminService.createAdmin(dto);
   }
 
