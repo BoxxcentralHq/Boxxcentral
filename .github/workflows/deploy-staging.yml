@@ -5,17 +5,16 @@
 #   STAGING_MONGODB_URI           — same Mongo instance as prod, different
 #                                    db: mongodb://<user>:<pass>@mongo:27017/
 #                                    boxxcentral_dev?authSource=admin
-#   STAGING_JWT_SECRET, STAGING_JWT_REFRESH_SECRET
-#                                  — must differ from production, so a
-#                                    staging session token can never be
-#                                    replayed against the live site
 #   STAGING_FLW_SECRET_KEY, STAGING_FLW_SECRET_HASH
 #                                  — Flutterwave TEST/sandbox keys, never
 #                                    live payment keys
 #
 # Reused as-is from production — same VPS, same Mongo instance, same
-# Cloudinary/ZeptoMail accounts, no isolation need there:
+# Cloudinary/ZeptoMail accounts, no isolation need there. JWT secrets are
+# shared deliberately (staging and production accept each other's tokens —
+# accepted tradeoff, not an oversight):
 #   SERVER_HOST, SERVER_USER, SERVER_PRIVATE_KEY, GHCR_PAT,
+#   JWT_SECRET, JWT_REFRESH_SECRET,
 #   ZEPTOMAIL_URL, ZEPTOMAIL_TOKEN, MAIL_FROM, MAIL_FROM_NAME, MAIL_NOREPLY,
 #   CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
 
@@ -137,8 +136,8 @@ jobs:
         env:
           FRONTEND_URL: ${{ secrets.STAGING_FRONTEND_URL }}
           MONGODB_URI: ${{ secrets.STAGING_MONGODB_URI }}
-          JWT_SECRET: ${{ secrets.STAGING_JWT_SECRET }}
-          JWT_REFRESH_SECRET: ${{ secrets.STAGING_JWT_REFRESH_SECRET }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
           FLW_SECRET_KEY: ${{ secrets.STAGING_FLW_SECRET_KEY }}
           FLW_SECRET_HASH: ${{ secrets.STAGING_FLW_SECRET_HASH }}
           ZEPTOMAIL_URL: ${{ secrets.ZEPTOMAIL_URL }}
