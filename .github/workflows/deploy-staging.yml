@@ -114,7 +114,7 @@ jobs:
           cache-from: type=gha,scope=frontend-staging
           cache-to: type=gha,mode=max,scope=frontend-staging
 
-  deploy:
+  deploy-staging:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:

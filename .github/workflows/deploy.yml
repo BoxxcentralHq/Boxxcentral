@@ -94,7 +94,7 @@ jobs:
           cache-from: type=gha,scope=frontend
           cache-to: type=gha,mode=max,scope=frontend
 
-  deploy:
+  deploy-production:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
