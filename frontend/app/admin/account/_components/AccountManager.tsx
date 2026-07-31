@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Add01Icon, Delete02Icon, UserAccountIcon } from "@hugeicons/core-free-icons";
+import ConfirmDialog from "@/components/ConfirmDialog";
 import Reveal from "@/components/Reveal";
 import {
   Dialog,
@@ -145,6 +146,7 @@ function StaffAccounts({ profile }: { profile: { userId: string } }) {
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState<NewAdminForm>(emptyNewAdmin);
+  const [pendingDelete, setPendingDelete] = useState<Admin | null>(null);
 
   const isValid = form.name.trim() !== "" && form.email.trim() !== "" && form.password.length >= 8;
 
@@ -163,10 +165,13 @@ function StaffAccounts({ profile }: { profile: { userId: string } }) {
     );
   }
 
-  function handleDelete(admin: Admin) {
-    if (!window.confirm(`Remove ${admin.name}'s access? This can't be undone.`)) return;
-    deleteAdmin.mutate(admin.id, {
-      onSuccess: () => toast.success("Staff account removed"),
+  function confirmDelete() {
+    if (!pendingDelete) return;
+    deleteAdmin.mutate(pendingDelete.id, {
+      onSuccess: () => {
+        toast.success("Staff account removed");
+        setPendingDelete(null);
+      },
       onError: (error) => toastApiError(error, "Couldn't remove that account."),
     });
   }
@@ -219,7 +224,7 @@ function StaffAccounts({ profile }: { profile: { userId: string } }) {
                   {!isSelf && !isSuperAdmin && (
                     <button
                       type="button"
-                      onClick={() => handleDelete(admin)}
+                      onClick={() => setPendingDelete(admin)}
                       disabled={deleteAdmin.isPending}
                       aria-label={`Remove ${admin.name}`}
                       className="flex size-8 cursor-pointer items-center justify-center rounded-full border border-boxx-line text-boxx-dim transition-colors duration-200 hover:border-boxx-red hover:text-boxx-red disabled:pointer-events-none disabled:opacity-40"
@@ -313,6 +318,20 @@ function StaffAccounts({ profile }: { profile: { userId: string } }) {
           </div>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        onOpenChange={(open) => !open && setPendingDelete(null)}
+        title="Remove staff access?"
+        description={
+          pendingDelete
+            ? `${pendingDelete.name} will no longer be able to sign in. This can't be undone.`
+            : ""
+        }
+        confirmLabel="Remove access"
+        pending={deleteAdmin.isPending}
+        onConfirm={confirmDelete}
+      />
     </Reveal>
   );
 }

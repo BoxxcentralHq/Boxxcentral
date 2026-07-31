@@ -12,6 +12,8 @@ import {
   Mail01Icon,
   WhatsappIcon,
 } from "@hugeicons/core-free-icons";
+import ConfirmDialog from "@/components/ConfirmDialog";
+import EmptyState from "@/components/EmptyState";
 import Reveal from "@/components/Reveal";
 import { toast, toastApiError } from "@/lib/api/toast";
 import type { ContactMessage } from "@/lib/api/types";
@@ -20,7 +22,6 @@ import {
   useMarkMessageRead,
   useMessagesList,
 } from "@/lib/contact";
-import EmptyState from "@/components/EmptyState";
 import { cn } from "@/lib/utils";
 
 type Filter = "all" | "unread";
@@ -56,6 +57,7 @@ export default function MessagesManager() {
   const [filter, setFilter] = useState<Filter>("all");
   const [page, setPage] = useState(1);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<ContactMessage | null>(null);
 
   const { data, isLoading, isError } = useMessagesList({
     page,
@@ -87,14 +89,14 @@ export default function MessagesManager() {
     }
   }
 
-  function handleDelete(m: ContactMessage) {
-    if (!window.confirm(`Delete the message from ${m.name}? This can't be undone.`)) {
-      return;
-    }
-    deleteMessage.mutate(m._id, {
+  function confirmDelete() {
+    if (!pendingDelete) return;
+    const id = pendingDelete._id;
+    deleteMessage.mutate(id, {
       onSuccess: () => {
         toast.success("Message deleted");
-        setExpandedId((current) => (current === m._id ? null : current));
+        setExpandedId((current) => (current === id ? null : current));
+        setPendingDelete(null);
       },
       onError: (error) => toastApiError(error, "Couldn't delete that message."),
     });
@@ -228,7 +230,7 @@ export default function MessagesManager() {
                         )}
                         <button
                           type="button"
-                          onClick={() => handleDelete(m)}
+                          onClick={() => setPendingDelete(m)}
                           disabled={deleteMessage.isPending}
                           className="cursor-pointer rounded-full px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-boxx-dim transition-colors duration-200 hover:text-boxx-red disabled:pointer-events-none disabled:opacity-40"
                         >
@@ -287,6 +289,19 @@ export default function MessagesManager() {
           </div>
         )}
       </Reveal>
+
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        onOpenChange={(open) => !open && setPendingDelete(null)}
+        title="Delete this message?"
+        description={
+          pendingDelete
+            ? `The message from ${pendingDelete.name} will be removed for good. This can't be undone.`
+            : ""
+        }
+        pending={deleteMessage.isPending}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }

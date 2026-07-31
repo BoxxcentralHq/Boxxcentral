@@ -12,6 +12,7 @@ import {
   ViewIcon,
   ViewOffSlashIcon,
 } from "@hugeicons/core-free-icons";
+import ConfirmDialog from "@/components/ConfirmDialog";
 import Reveal from "@/components/Reveal";
 import {
   Dialog,
@@ -95,6 +96,7 @@ export default function MenuManager() {
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<MenuItem | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const filtered = useMemo(() => {
@@ -169,9 +171,13 @@ export default function MenuManager() {
     );
   }
 
-  function handleDelete(item: MenuItem) {
-    deleteItem.mutate(item._id, {
-      onSuccess: () => toast.success("Item deleted"),
+  function confirmDelete() {
+    if (!pendingDelete) return;
+    deleteItem.mutate(pendingDelete._id, {
+      onSuccess: () => {
+        toast.success("Item deleted");
+        setPendingDelete(null);
+      },
       onError: (error) => toastApiError(error, "Couldn't delete that item."),
     });
   }
@@ -381,7 +387,7 @@ export default function MenuManager() {
                         </button>
                         <button
                           type="button"
-                          onClick={() => handleDelete(item)}
+                          onClick={() => setPendingDelete(item)}
                           disabled={deleteItem.isPending}
                           aria-label={`Delete ${item.name}`}
                           className="flex size-8 cursor-pointer items-center justify-center rounded-full border border-boxx-line text-boxx-dim transition-colors duration-200 hover:border-boxx-red hover:text-boxx-red disabled:pointer-events-none disabled:opacity-40"
@@ -567,6 +573,19 @@ export default function MenuManager() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        onOpenChange={(open) => !open && setPendingDelete(null)}
+        title="Delete this item?"
+        description={
+          pendingDelete
+            ? `"${pendingDelete.name}" will be removed from the menu for good. This can't be undone.`
+            : ""
+        }
+        pending={deleteItem.isPending}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }

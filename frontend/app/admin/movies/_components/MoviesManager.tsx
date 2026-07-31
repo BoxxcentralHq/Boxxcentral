@@ -5,6 +5,7 @@ import Image from "next/image";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Add01Icon,
+  ClapperboardIcon,
   Delete02Icon,
   ImageAdd01Icon,
   PencilEdit01Icon,
@@ -12,6 +13,8 @@ import {
   ViewIcon,
   ViewOffSlashIcon,
 } from "@hugeicons/core-free-icons";
+import ConfirmDialog from "@/components/ConfirmDialog";
+import EmptyState from "@/components/EmptyState";
 import Reveal from "@/components/Reveal";
 import {
   Dialog,
@@ -33,7 +36,6 @@ import {
   useUpdateMovie,
 } from "@/lib/movies";
 import { cn } from "@/lib/utils";
-import EmptyState from "@/components/EmptyState";
 
 const fieldClass =
   "w-full rounded-xl border border-boxx-line bg-boxx-night px-4 py-3 text-sm text-boxx-white placeholder:text-boxx-dim outline-none transition-colors duration-200 focus:border-boxx-red focus-visible:ring-[3px] focus-visible:ring-ring";
@@ -62,7 +64,93 @@ const emptyForm: FormState = {
   posterFile: null,
 };
 
-/** The FilmBoxx movie catalog's admin surface — add, edit, hide, and remove titles. */
+/** One poster card in the catalog grid, with its own hover actions. */
+function MovieCard({
+  movie,
+  onToggleVisible,
+  onEdit,
+  onDelete,
+  togglePending,
+  deletePending,
+}: {
+  movie: Movie;
+  onToggleVisible: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+  togglePending: boolean;
+  deletePending: boolean;
+}) {
+  return (
+    <div className="overflow-hidden rounded-2xl border border-boxx-line bg-boxx-coal transition-colors duration-200 hover:border-boxx-red/30">
+      <div className="relative aspect-2/3 bg-boxx-night">
+        {movie.posterUrl ? (
+          <Image
+            src={movie.posterUrl}
+            alt={movie.title}
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+            className="object-cover"
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center">
+            <HugeiconsIcon icon={ClapperboardIcon} className="size-8 text-boxx-dim" />
+          </div>
+        )}
+        <Badge
+          variant={movie.visible ? "soft" : "outline"}
+          className="absolute top-2.5 left-2.5 text-[10px]"
+        >
+          {movie.visible ? "Visible" : "Hidden"}
+        </Badge>
+      </div>
+
+      <div className="p-4">
+        <p className="truncate font-heading text-sm tracking-wide text-boxx-white uppercase">
+          {movie.title}
+        </p>
+        <p className="mt-0.5 truncate text-xs text-boxx-dim">
+          {[movie.genre, movie.durationMins ? `${movie.durationMins} min` : null]
+            .filter(Boolean)
+            .join(" · ") || "No details yet"}
+        </p>
+
+        <div className="mt-3 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={onToggleVisible}
+            disabled={togglePending}
+            aria-label={movie.visible ? `Hide ${movie.title}` : `Show ${movie.title}`}
+            className="flex size-8 cursor-pointer items-center justify-center rounded-full border border-boxx-line text-boxx-mist transition-colors duration-200 hover:border-boxx-red hover:text-boxx-white disabled:pointer-events-none disabled:opacity-40"
+          >
+            <HugeiconsIcon
+              icon={movie.visible ? ViewOffSlashIcon : ViewIcon}
+              className="size-3.5"
+            />
+          </button>
+          <button
+            type="button"
+            onClick={onEdit}
+            aria-label={`Edit ${movie.title}`}
+            className="flex size-8 cursor-pointer items-center justify-center rounded-full border border-boxx-line text-boxx-mist transition-colors duration-200 hover:border-boxx-red hover:text-boxx-white"
+          >
+            <HugeiconsIcon icon={PencilEdit01Icon} className="size-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={onDelete}
+            disabled={deletePending}
+            aria-label={`Delete ${movie.title}`}
+            className="ml-auto flex size-8 cursor-pointer items-center justify-center rounded-full border border-boxx-line text-boxx-dim transition-colors duration-200 hover:border-boxx-red hover:text-boxx-red disabled:pointer-events-none disabled:opacity-40"
+          >
+            <HugeiconsIcon icon={Delete02Icon} className="size-3.5" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** The FilmBoxx movie catalog's admin surface — a poster grid, not a data table. */
 export default function MoviesManager() {
   const { data: movies, isLoading, isError } = useMoviesAdmin();
   const createMovie = useCreateMovie();
@@ -74,6 +162,7 @@ export default function MoviesManager() {
   const [editingMovie, setEditingMovie] = useState<Movie | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [posterPreview, setPosterPreview] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<Movie | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const filtered = useMemo(() => {
@@ -131,10 +220,13 @@ export default function MoviesManager() {
     );
   }
 
-  function handleDelete(movie: Movie) {
-    if (!window.confirm(`Delete "${movie.title}"? This can't be undone.`)) return;
-    deleteMovie.mutate(movie._id, {
-      onSuccess: () => toast.success("Movie deleted"),
+  function confirmDelete() {
+    if (!pendingDelete) return;
+    deleteMovie.mutate(pendingDelete._id, {
+      onSuccess: () => {
+        toast.success("Movie deleted");
+        setPendingDelete(null);
+      },
       onError: (error) => toastApiError(error, "Couldn't delete that movie."),
     });
   }
@@ -209,132 +301,46 @@ export default function MoviesManager() {
         </Button>
       </Reveal>
 
-      {/* Table */}
-      <Reveal
-        delay={100}
-        className="mt-6 rounded-2xl border border-boxx-line bg-boxx-coal"
-      >
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-boxx-line text-[10px] font-bold uppercase tracking-widest text-boxx-dim">
-                <th className="px-6 py-4 font-bold">Title</th>
-                <th className="px-4 py-4 font-bold">Genre</th>
-                <th className="px-4 py-4 font-bold">Duration</th>
-                <th className="px-4 py-4 font-bold">Status</th>
-                <th className="px-6 py-4 text-right font-bold">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {isLoading && (
-                <tr>
-                  <td colSpan={5} className="px-6 py-14 text-center text-sm text-boxx-dim">
-                    Loading movies…
-                  </td>
-                </tr>
-              )}
-              {isError && (
-                <tr>
-                  <td colSpan={5} className="px-6 py-14 text-center text-sm text-boxx-dim">
-                    Couldn&apos;t load the catalog. Try refreshing.
-                  </td>
-                </tr>
-              )}
-              {!isLoading && !isError &&
-                filtered.map((movie) => (
-                  <tr
-                    key={movie._id}
-                    className="border-b border-boxx-line/50 last:border-0"
-                  >
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="relative h-14 w-10 shrink-0 overflow-hidden rounded-lg border border-boxx-line bg-boxx-night">
-                          {movie.posterUrl && (
-                            <Image
-                              src={movie.posterUrl}
-                              alt={movie.title}
-                              fill
-                              sizes="40px"
-                              className="object-cover"
-                            />
-                          )}
-                        </div>
-                        <div className="min-w-0">
-                          <p className="font-semibold text-boxx-white">
-                            {movie.title}
-                          </p>
-                          {movie.synopsis && (
-                            <p className="mt-0.5 line-clamp-1 max-w-xs text-xs text-boxx-dim">
-                              {movie.synopsis}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4 text-boxx-mist">
-                      {movie.genre ?? "—"}
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-boxx-mist">
-                      {movie.durationMins !== undefined ? `${movie.durationMins} min` : "—"}
-                    </td>
-                    <td className="px-4 py-4">
-                      <Badge variant={movie.visible ? "soft" : "outline"} className="text-[10px]">
-                        {movie.visible ? "Visible" : "Hidden"}
-                      </Badge>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex justify-end gap-2">
-                        <button
-                          type="button"
-                          onClick={() => toggleVisible(movie)}
-                          disabled={updateMovie.isPending}
-                          aria-label={movie.visible ? `Hide ${movie.title}` : `Show ${movie.title}`}
-                          className="flex size-8 cursor-pointer items-center justify-center rounded-full border border-boxx-line text-boxx-mist transition-colors duration-200 hover:border-boxx-red hover:text-boxx-white disabled:pointer-events-none disabled:opacity-40"
-                        >
-                          <HugeiconsIcon
-                            icon={movie.visible ? ViewOffSlashIcon : ViewIcon}
-                            className="size-3.5"
-                          />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => openEditDialog(movie)}
-                          aria-label={`Edit ${movie.title}`}
-                          className="flex size-8 cursor-pointer items-center justify-center rounded-full border border-boxx-line text-boxx-mist transition-colors duration-200 hover:border-boxx-red hover:text-boxx-white"
-                        >
-                          <HugeiconsIcon icon={PencilEdit01Icon} className="size-3.5" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(movie)}
-                          disabled={deleteMovie.isPending}
-                          aria-label={`Delete ${movie.title}`}
-                          className="flex size-8 cursor-pointer items-center justify-center rounded-full border border-boxx-line text-boxx-dim transition-colors duration-200 hover:border-boxx-red hover:text-boxx-red disabled:pointer-events-none disabled:opacity-40"
-                        >
-                          <HugeiconsIcon icon={Delete02Icon} className="size-3.5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              {!isLoading && !isError && filtered.length === 0 && (
-                <tr>
-                  <td colSpan={5}>
-                    <EmptyState
-                      icon={Search01Icon}
-                      title="No movies match this view"
-                      description="Try a different search term."
-                    />
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+      {/* Poster grid */}
+      {isLoading && (
+        <p className="mt-14 text-center text-sm text-boxx-dim">Loading movies…</p>
+      )}
+      {isError && (
+        <p className="mt-14 text-center text-sm text-boxx-dim">
+          Couldn&apos;t load the catalog. Try refreshing.
+        </p>
+      )}
+      {!isLoading && !isError && filtered.length === 0 && (
+        <div className="mt-6 rounded-2xl border border-dashed border-boxx-line">
+          <EmptyState
+            icon={Search01Icon}
+            title="No movies match this view"
+            description="Try a different search term."
+          />
         </div>
-      </Reveal>
-      <p className="mt-3 text-xs tracking-[0.2em] text-boxx-dim uppercase">
-        {filtered.length} {filtered.length === 1 ? "movie" : "movies"}
-      </p>
+      )}
+      {!isLoading && !isError && filtered.length > 0 && (
+        <Reveal delay={100} className="mt-6">
+          <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            {filtered.map((movie) => (
+              <MovieCard
+                key={movie._id}
+                movie={movie}
+                onToggleVisible={() => toggleVisible(movie)}
+                onEdit={() => openEditDialog(movie)}
+                onDelete={() => setPendingDelete(movie)}
+                togglePending={updateMovie.isPending}
+                deletePending={deleteMovie.isPending}
+              />
+            ))}
+          </div>
+        </Reveal>
+      )}
+      {!isLoading && !isError && (
+        <p className="mt-6 text-xs tracking-[0.2em] text-boxx-dim uppercase">
+          {filtered.length} {filtered.length === 1 ? "movie" : "movies"}
+        </p>
+      )}
 
       {/* Add / edit dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -345,7 +351,7 @@ export default function MoviesManager() {
               <DialogDescription>
                 {editingMovie
                   ? "Update this title's details."
-                  : "Add the poster and details — you can publish or hide it anytime from the table."}
+                  : "Add the poster and details — you can publish or hide it anytime from the grid."}
               </DialogDescription>
             </DialogHeader>
 
@@ -436,6 +442,19 @@ export default function MoviesManager() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        onOpenChange={(open) => !open && setPendingDelete(null)}
+        title="Delete this movie?"
+        description={
+          pendingDelete
+            ? `"${pendingDelete.title}" will be removed from the catalog for good. This can't be undone.`
+            : ""
+        }
+        pending={deleteMovie.isPending}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }
