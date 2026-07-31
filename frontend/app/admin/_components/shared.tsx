@@ -1,11 +1,12 @@
-import type { BookingStatus } from "@/lib/admin-data";
+import type { BookingStatus } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 
 /** Shared building blocks for admin pages. */
 
 const statusStyles: Record<BookingStatus, string> = {
-  confirmed: "border-boxx-line text-boxx-white",
+  reserved: "border-boxx-line text-boxx-white",
   pending: "border-boxx-red/40 bg-boxx-red/10 text-boxx-red-glow",
+  completed: "border-boxx-line text-boxx-dim",
   cancelled: "border-boxx-line text-boxx-dim line-through",
 };
 

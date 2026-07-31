@@ -20,11 +20,11 @@ import {
 } from "@hugeicons/core-free-icons";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { menuCategories, type MenuCategory } from "@/lib/menu";
+import { MENU_CATEGORIES, type MenuCategory } from "@/lib/api/types";
 
 export type ViewMode = "grid" | "list";
 
-/** Filter-only concern — kept out of lib/menu.ts like experienceIcons in BookingForm. */
+/** Filter-only concern — kept out of lib/api/types.ts. */
 const categoryIcons: Record<MenuCategory, IconSvgElement> = {
   Food: RestaurantIcon,
   Pastries: CroissantIcon,
@@ -136,7 +136,7 @@ export default function MenuFilters({
         >
           All
         </button>
-        {menuCategories.map((cat) => (
+        {MENU_CATEGORIES.map((cat) => (
           <button
             key={cat}
             type="button"

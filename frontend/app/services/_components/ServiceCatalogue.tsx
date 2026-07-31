@@ -6,7 +6,6 @@ import Container from "@/components/Container";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { experiences } from "@/lib/experiences";
-import { bookingCta } from "@/lib/site";
 
 /**
  * Sticky offsets per card: each panel pins slightly lower than the one
@@ -71,12 +70,12 @@ export default function ServiceCatalogue() {
               </ul>
 
               <div className="mt-8 flex flex-wrap items-center gap-4">
-                {/* Pre-selects this experience on the booking form via the query param */}
-                <Button asChild>
-                  <Link href={`${bookingCta.href}?experience=${exp.slug}`}>
-                    Book {exp.name}
-                  </Link>
-                </Button>
+                {/* Only FilmBoxx is bookable — jumps straight to its booking form. */}
+                {exp.bookable && (
+                  <Button asChild>
+                    <Link href={`${exp.href}#book`}>Book {exp.name}</Link>
+                  </Button>
+                )}
                 <Button asChild variant="outline">
                   <Link href={exp.href}>
                     Explore {exp.name}

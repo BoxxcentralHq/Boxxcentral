@@ -9,7 +9,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import type { MenuItem } from "@/lib/menu";
+import type { MenuItem } from "@/lib/api/types";
+
+const naira = (amount: number) => `₦${amount.toLocaleString("en-NG")}`;
 
 type MenuItemDialogProps = {
   /** Last-selected item — kept truthy through the close animation so the
@@ -29,7 +31,11 @@ export default function MenuItemDialog({
       <DialogContent className="max-w-md">
         {item && (
           <div className="p-6">
-            <SiteImage alt={item.image.alt} aspect="aspect-[4/3]" />
+            <SiteImage
+              src={item.imageUrl}
+              alt={item.imageAlt ?? item.name}
+              aspect="aspect-[4/3]"
+            />
             <DialogHeader className="gap-3 p-0 pt-6">
               <span className="text-xs font-bold tracking-[0.2em] text-boxx-red uppercase">
                 {item.category}
@@ -37,7 +43,7 @@ export default function MenuItemDialog({
               <div className="flex items-start justify-between gap-4">
                 <DialogTitle>{item.name}</DialogTitle>
                 <span className="shrink-0 font-heading text-2xl text-boxx-red-glow">
-                  {item.price}
+                  {naira(item.price)}
                 </span>
               </div>
               <DialogDescription>{item.description}</DialogDescription>

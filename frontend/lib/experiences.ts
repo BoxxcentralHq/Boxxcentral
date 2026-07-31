@@ -75,7 +75,6 @@ export const experiences: Experience[] = [
     hero: {
       /* Secondary next to the page's "Book FilmBoxx" button (was a self-link) */
       cta: { label: "Ask about private events", href: "/contact" },
-      note: "Online booking with Paystack — coming soon",
       videoSrc: "/videos/filmboxx.mp4",
     },
     showcase: {

@@ -5,24 +5,30 @@ import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
 import Reveal from "@/components/Reveal";
 import SiteImage from "@/components/SiteImage";
 import { Badge } from "@/components/ui/badge";
-import type { MenuItem } from "@/lib/menu";
+import type { MenuItem } from "@/lib/api/types";
 import type { ViewMode } from "./MenuFilters";
 
 /** Caps the stagger so long lists don't push the last card's entrance out for ages. */
 const staggerDelay = (i: number) => Math.min(i, 8) * 60;
+const naira = (amount: number) => `₦${amount.toLocaleString("en-NG")}`;
 
 type MenuGridProps = {
   items: MenuItem[];
   view: ViewMode;
   onSelect: (item: MenuItem) => void;
+  /** True once the menu has items at all — distinguishes an empty search
+   *  from a menu that hasn't been populated yet. */
+  hasAnyItems?: boolean;
 };
 
-export default function MenuGrid({ items, view, onSelect }: MenuGridProps) {
+export default function MenuGrid({ items, view, onSelect, hasAnyItems = true }: MenuGridProps) {
   if (items.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-boxx-line py-20 text-center">
         <p className="text-sm text-boxx-dim">
-          Nothing matches that search — try another dish or drink.
+          {hasAnyItems
+            ? "Nothing matches that search — try another dish or drink."
+            : "The menu's being freshened up — check back soon."}
         </p>
       </div>
     );
@@ -32,7 +38,7 @@ export default function MenuGrid({ items, view, onSelect }: MenuGridProps) {
     return (
       <ul className="divide-y divide-boxx-line overflow-hidden rounded-2xl border border-boxx-line bg-boxx-coal">
         {items.map((item, i) => (
-          <li key={item.id}>
+          <li key={item._id}>
             <Reveal delay={staggerDelay(i)}>
               <button
                 type="button"
@@ -40,7 +46,8 @@ export default function MenuGrid({ items, view, onSelect }: MenuGridProps) {
                 className="group flex w-full items-center gap-4 p-4 text-left transition-colors duration-200 hover:bg-boxx-slate sm:p-5"
               >
                 <SiteImage
-                  alt={item.image.alt}
+                  src={item.imageUrl}
+                  alt={item.imageAlt ?? item.name}
                   aspect="aspect-square"
                   className="size-16 shrink-0 sm:size-20"
                   sizes="80px"
@@ -62,7 +69,7 @@ export default function MenuGrid({ items, view, onSelect }: MenuGridProps) {
                 </div>
                 <div className="flex shrink-0 items-center gap-3">
                   <span className="font-heading text-base text-boxx-red-glow sm:text-lg">
-                    {item.price}
+                    {naira(item.price)}
                   </span>
                   <HugeiconsIcon
                     icon={ArrowRight01Icon}
@@ -81,7 +88,7 @@ export default function MenuGrid({ items, view, onSelect }: MenuGridProps) {
   return (
     <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
       {items.map((item, i) => (
-        <Reveal key={item.id} delay={staggerDelay(i)}>
+        <Reveal key={item._id} delay={staggerDelay(i)}>
           <button
             type="button"
             onClick={() => onSelect(item)}
@@ -89,7 +96,8 @@ export default function MenuGrid({ items, view, onSelect }: MenuGridProps) {
           >
             <div className="relative">
               <SiteImage
-                alt={item.image.alt}
+                src={item.imageUrl}
+                alt={item.imageAlt ?? item.name}
                 aspect="aspect-[4/3]"
                 className="rounded-none border-0"
               />
@@ -105,7 +113,7 @@ export default function MenuGrid({ items, view, onSelect }: MenuGridProps) {
                   {item.name}
                 </h3>
                 <span className="shrink-0 font-heading text-lg text-boxx-red-glow">
-                  {item.price}
+                  {naira(item.price)}
                 </span>
               </div>
               <p className="mt-2 line-clamp-2 text-sm text-boxx-dim">

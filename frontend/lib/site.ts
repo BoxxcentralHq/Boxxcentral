@@ -63,5 +63,5 @@ export const navLinks = [
 
 export const bookingCta = {
   label: "Book now",
-  href: "/book",
+  href: "/filmboxx#book",
 } as const;

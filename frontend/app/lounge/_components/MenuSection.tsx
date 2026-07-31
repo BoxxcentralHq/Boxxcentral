@@ -4,13 +4,17 @@ import { useMemo, useState } from "react";
 import Container from "@/components/Container";
 import Reveal from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
-import { menuItems, type MenuCategory, type MenuItem } from "@/lib/menu";
+import type { MenuCategory, MenuItem } from "@/lib/api/types";
 import MenuFilters, { type ViewMode } from "./MenuFilters";
 import MenuGrid from "./MenuGrid";
 import MenuItemDialog from "./MenuItemDialog";
 
+type MenuSectionProps = {
+  items: MenuItem[];
+};
+
 /** The Lounge's menu: searchable, filterable by category, grid or list view. */
-export default function MenuSection() {
+export default function MenuSection({ items }: MenuSectionProps) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<MenuCategory | "All">("All");
   const [view, setView] = useState<ViewMode>("grid");
@@ -20,7 +24,7 @@ export default function MenuSection() {
 
   const filteredItems = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return menuItems.filter((item) => {
+    return items.filter((item) => {
       const matchesCategory = category === "All" || item.category === category;
       const matchesQuery =
         q === "" ||
@@ -28,7 +32,7 @@ export default function MenuSection() {
         item.description.toLowerCase().includes(q);
       return matchesCategory && matchesQuery;
     });
-  }, [query, category]);
+  }, [items, query, category]);
 
   const handleSelect = (item: MenuItem) => {
     setActiveItem(item);
@@ -59,7 +63,12 @@ export default function MenuSection() {
         </Reveal>
 
         <div className="mt-10">
-          <MenuGrid items={filteredItems} view={view} onSelect={handleSelect} />
+          <MenuGrid
+            items={filteredItems}
+            view={view}
+            onSelect={handleSelect}
+            hasAnyItems={items.length > 0}
+          />
         </div>
       </Container>
 

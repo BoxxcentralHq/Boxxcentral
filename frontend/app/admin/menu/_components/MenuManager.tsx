@@ -1,12 +1,16 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Add01Icon,
   Delete02Icon,
+  ImageAdd01Icon,
   PencilEdit01Icon,
   Search01Icon,
+  ViewIcon,
+  ViewOffSlashIcon,
 } from "@hugeicons/core-free-icons";
 import Reveal from "@/components/Reveal";
 import {
@@ -27,16 +31,20 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { toast, toastApiError } from "@/lib/api/toast";
+import { MENU_CATEGORIES, type MenuCategory, type MenuItem } from "@/lib/api/types";
 import {
-  menuCategories,
-  menuItems as initialMenuItems,
-  type MenuCategory,
-  type MenuItem,
+  useCreateMenuItem,
+  useDeleteMenuItem,
+  useMenuItemsAdmin,
+  useUpdateMenuItem,
 } from "@/lib/menu";
 import { cn } from "@/lib/utils";
 
 /** The only tags seen in the menu data — kept as toggles rather than free text. */
 const availableTags = ["Popular", "Spicy", "Alcoholic", "Non-alcoholic"] as const;
+
+const naira = (amount: number) => `₦${amount.toLocaleString("en-NG")}`;
 
 const fieldClass =
   "w-full rounded-xl border border-boxx-line bg-boxx-night px-4 py-3 text-sm text-boxx-white placeholder:text-boxx-dim outline-none transition-colors duration-200 focus:border-boxx-red focus-visible:ring-[3px] focus-visible:ring-ring";
@@ -49,49 +57,49 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-/** `"Suya Platter"` → `"suya-platter"` — the same id shape as the seed data. */
-function slugify(value: string) {
-  return value
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
 type FormState = {
   name: string;
   category: MenuCategory;
   price: string;
   description: string;
   tags: string[];
+  visible: boolean;
+  imageFile: File | null;
 };
 
 const emptyForm: FormState = {
   name: "",
-  category: menuCategories[0],
+  category: MENU_CATEGORIES[0],
   price: "",
   description: "",
   tags: [],
+  visible: true,
+  imageFile: null,
 };
 
 /**
- * The Lounge menu's admin surface — add, edit, and remove items over the
- * placeholder dataset. Mutates local state only.
- * TODO: call the menu API once the backend endpoint lands (lib/api/types.ts
- * already carries the real MenuItem contract for that swap).
+ * The Lounge menu's admin surface — add, edit, hide, and remove items
+ * against the real /menu API. Images upload as multipart form data.
  */
 export default function MenuManager() {
-  const [items, setItems] = useState<MenuItem[]>(initialMenuItems);
+  const { data: items, isLoading, isError } = useMenuItemsAdmin();
+  const createItem = useCreateMenuItem();
+  const updateItem = useUpdateMenuItem();
+  const deleteItem = useDeleteMenuItem();
+
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<MenuCategory | "All">("All");
 
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const filtered = useMemo(() => {
+    const list = items ?? [];
     const q = query.trim().toLowerCase();
-    return items.filter((item) => {
+    return list.filter((item) => {
       const matchesCategory = category === "All" || item.category === category;
       const matchesQuery =
         q === "" ||
@@ -101,24 +109,35 @@ export default function MenuManager() {
     });
   }, [items, query, category]);
 
+  // revoke the object URL created for a locally-picked file on unmount/replace
+  useEffect(() => {
+    return () => {
+      if (imagePreview?.startsWith("blob:")) URL.revokeObjectURL(imagePreview);
+    };
+  }, [imagePreview]);
+
   function openAddDialog() {
-    setEditingId(null);
+    setEditingItem(null);
     setForm({
       ...emptyForm,
-      category: category === "All" ? menuCategories[0] : category,
+      category: category === "All" ? MENU_CATEGORIES[0] : category,
     });
+    setImagePreview(null);
     setDialogOpen(true);
   }
 
   function openEditDialog(item: MenuItem) {
-    setEditingId(item.id);
+    setEditingItem(item);
     setForm({
       name: item.name,
       category: item.category,
-      price: item.price,
+      price: String(item.price),
       description: item.description,
       tags: item.tags ?? [],
+      visible: item.visible,
+      imageFile: null,
     });
+    setImagePreview(item.imageUrl ?? null);
     setDialogOpen(true);
   }
 
@@ -131,61 +150,78 @@ export default function MenuManager() {
     }));
   }
 
-  function removeItem(id: string) {
-    setItems((prev) => prev.filter((item) => item.id !== id));
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setForm((f) => ({ ...f, imageFile: file }));
+    setImagePreview(URL.createObjectURL(file));
   }
 
-  function handleSave() {
-    const name = form.name.trim();
-    const price = form.price.trim();
-    const description = form.description.trim();
-    if (!name || !price || !description) return;
-
-    if (editingId) {
-      setItems((prev) =>
-        prev.map((item) =>
-          item.id === editingId
-            ? {
-                ...item,
-                name,
-                category: form.category,
-                price,
-                description,
-                tags: form.tags.length ? form.tags : undefined,
-                image: { alt: name },
-              }
-            : item,
-        ),
-      );
-    } else {
-      const baseId = slugify(name) || `item-${Date.now()}`;
-      let id = baseId;
-      let suffix = 2;
-      while (items.some((item) => item.id === id)) {
-        id = `${baseId}-${suffix}`;
-        suffix += 1;
-      }
-      setItems((prev) => [
-        ...prev,
-        {
-          id,
-          name,
-          category: form.category,
-          price,
-          description,
-          tags: form.tags.length ? form.tags : undefined,
-          image: { alt: name },
-        },
-      ]);
-    }
-
-    setDialogOpen(false);
+  function toggleVisible(item: MenuItem) {
+    updateItem.mutate(
+      { id: item._id, input: { visible: !item.visible } },
+      {
+        onSuccess: () =>
+          toast.success(item.visible ? "Item hidden" : "Item is now visible"),
+        onError: (error) => toastApiError(error, "Couldn't update visibility."),
+      },
+    );
   }
 
+  function handleDelete(item: MenuItem) {
+    deleteItem.mutate(item._id, {
+      onSuccess: () => toast.success("Item deleted"),
+      onError: (error) => toastApiError(error, "Couldn't delete that item."),
+    });
+  }
+
+  const priceValue = Number(form.price);
   const isValid =
     form.name.trim() !== "" &&
+    form.description.trim() !== "" &&
     form.price.trim() !== "" &&
-    form.description.trim() !== "";
+    !Number.isNaN(priceValue) &&
+    priceValue > 0 &&
+    (editingItem !== null || form.imageFile !== null);
+
+  function handleSave() {
+    if (!isValid) return;
+
+    const shared = {
+      name: form.name.trim(),
+      category: form.category,
+      price: priceValue,
+      description: form.description.trim(),
+      tags: form.tags,
+      ...(form.imageFile ? { image: form.imageFile } : {}),
+    };
+
+    if (editingItem) {
+      updateItem.mutate(
+        { id: editingItem._id, input: shared },
+        {
+          onSuccess: () => {
+            toast.success("Item updated");
+            setDialogOpen(false);
+          },
+          onError: (error) => toastApiError(error, "Couldn't save changes."),
+        },
+      );
+    } else {
+      createItem.mutate(
+        { ...shared, image: form.imageFile as File, visible: form.visible },
+        {
+          onSuccess: () => {
+            toast.success("Item added");
+            setDialogOpen(false);
+          },
+          onError: (error) => toastApiError(error, "Couldn't add that item."),
+        },
+      );
+    }
+  }
+
+  const saving = createItem.isPending || updateItem.isPending;
 
   return (
     <div>
@@ -217,7 +253,7 @@ export default function MenuManager() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="All">All categories</SelectItem>
-              {menuCategories.map((cat) => (
+              {MENU_CATEGORIES.map((cat) => (
                 <SelectItem key={cat} value={cat}>
                   {cat}
                 </SelectItem>
@@ -245,74 +281,123 @@ export default function MenuManager() {
                 <th className="px-4 py-4 font-bold">Category</th>
                 <th className="px-4 py-4 font-bold">Price</th>
                 <th className="px-4 py-4 font-bold">Tags</th>
+                <th className="px-4 py-4 font-bold">Status</th>
                 <th className="px-6 py-4 text-right font-bold">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filtered.map((item) => (
-                <tr
-                  key={item.id}
-                  className="border-b border-boxx-line/50 last:border-0"
-                >
-                  <td className="px-6 py-4">
-                    <p className="font-semibold text-boxx-white">
-                      {item.name}
-                    </p>
-                    <p className="mt-0.5 line-clamp-1 max-w-xs text-xs text-boxx-dim">
-                      {item.description}
-                    </p>
-                  </td>
-                  <td className="px-4 py-4 text-boxx-mist">
-                    {item.category}
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-boxx-mist">
-                    {item.price}
-                  </td>
-                  <td className="px-4 py-4">
-                    <div className="flex flex-wrap gap-1.5">
-                      {(item.tags ?? []).map((tag) => (
-                        <Badge
-                          key={tag}
-                          variant="outline"
-                          className="text-[10px]"
-                        >
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex justify-end gap-2">
-                      <button
-                        type="button"
-                        onClick={() => openEditDialog(item)}
-                        aria-label={`Edit ${item.name}`}
-                        className="flex size-8 cursor-pointer items-center justify-center rounded-full border border-boxx-line text-boxx-mist transition-colors duration-200 hover:border-boxx-red hover:text-boxx-white"
-                      >
-                        <HugeiconsIcon
-                          icon={PencilEdit01Icon}
-                          className="size-3.5"
-                        />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => removeItem(item.id)}
-                        aria-label={`Delete ${item.name}`}
-                        className="flex size-8 cursor-pointer items-center justify-center rounded-full border border-boxx-line text-boxx-dim transition-colors duration-200 hover:border-boxx-red hover:text-boxx-red"
-                      >
-                        <HugeiconsIcon
-                          icon={Delete02Icon}
-                          className="size-3.5"
-                        />
-                      </button>
-                    </div>
+              {isLoading && (
+                <tr>
+                  <td colSpan={6} className="px-6 py-14 text-center text-sm text-boxx-dim">
+                    Loading menu…
                   </td>
                 </tr>
-              ))}
-              {filtered.length === 0 && (
+              )}
+              {isError && (
+                <tr>
+                  <td colSpan={6} className="px-6 py-14 text-center text-sm text-boxx-dim">
+                    Couldn&apos;t load the menu. Try refreshing.
+                  </td>
+                </tr>
+              )}
+              {!isLoading && !isError &&
+                filtered.map((item) => (
+                  <tr
+                    key={item._id}
+                    className="border-b border-boxx-line/50 last:border-0"
+                  >
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="relative size-11 shrink-0 overflow-hidden rounded-lg border border-boxx-line bg-boxx-night">
+                          {item.imageUrl && (
+                            <Image
+                              src={item.imageUrl}
+                              alt={item.imageAlt ?? item.name}
+                              fill
+                              sizes="44px"
+                              className="object-cover"
+                            />
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-semibold text-boxx-white">
+                            {item.name}
+                          </p>
+                          <p className="mt-0.5 line-clamp-1 max-w-xs text-xs text-boxx-dim">
+                            {item.description}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 text-boxx-mist">
+                      {item.category}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-boxx-mist">
+                      {naira(item.price)}
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="flex flex-wrap gap-1.5">
+                        {item.tags.map((tag) => (
+                          <Badge
+                            key={tag}
+                            variant="outline"
+                            className="text-[10px]"
+                          >
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                    </td>
+                    <td className="px-4 py-4">
+                      <Badge variant={item.visible ? "soft" : "outline"} className="text-[10px]">
+                        {item.visible ? "Visible" : "Hidden"}
+                      </Badge>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex justify-end gap-2">
+                        <button
+                          type="button"
+                          onClick={() => toggleVisible(item)}
+                          disabled={updateItem.isPending}
+                          aria-label={item.visible ? `Hide ${item.name}` : `Show ${item.name}`}
+                          className="flex size-8 cursor-pointer items-center justify-center rounded-full border border-boxx-line text-boxx-mist transition-colors duration-200 hover:border-boxx-red hover:text-boxx-white disabled:pointer-events-none disabled:opacity-40"
+                        >
+                          <HugeiconsIcon
+                            icon={item.visible ? ViewOffSlashIcon : ViewIcon}
+                            className="size-3.5"
+                          />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => openEditDialog(item)}
+                          aria-label={`Edit ${item.name}`}
+                          className="flex size-8 cursor-pointer items-center justify-center rounded-full border border-boxx-line text-boxx-mist transition-colors duration-200 hover:border-boxx-red hover:text-boxx-white"
+                        >
+                          <HugeiconsIcon
+                            icon={PencilEdit01Icon}
+                            className="size-3.5"
+                          />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(item)}
+                          disabled={deleteItem.isPending}
+                          aria-label={`Delete ${item.name}`}
+                          className="flex size-8 cursor-pointer items-center justify-center rounded-full border border-boxx-line text-boxx-dim transition-colors duration-200 hover:border-boxx-red hover:text-boxx-red disabled:pointer-events-none disabled:opacity-40"
+                        >
+                          <HugeiconsIcon
+                            icon={Delete02Icon}
+                            className="size-3.5"
+                          />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              {!isLoading && !isError && filtered.length === 0 && (
                 <tr>
                   <td
-                    colSpan={5}
+                    colSpan={6}
                     className="px-6 py-14 text-center text-sm text-boxx-dim"
                   >
                     No menu items match this view.
@@ -332,15 +417,48 @@ export default function MenuManager() {
         <DialogContent className="max-w-lg">
           <div className="p-6">
             <DialogHeader className="gap-1.5 p-0">
-              <DialogTitle>{editingId ? "Edit item" : "Add item"}</DialogTitle>
+              <DialogTitle>{editingItem ? "Edit item" : "Add item"}</DialogTitle>
               <DialogDescription>
-                {editingId
+                {editingItem
                   ? "Update this dish or drink's details."
-                  : "New items appear on the public menu instantly — the image stays a branded placeholder until real photography is added."}
+                  : "New items appear on the public menu instantly (unless hidden)."}
               </DialogDescription>
             </DialogHeader>
 
             <div className="mt-6 space-y-5">
+              <div className="space-y-2">
+                <FieldLabel>Photo</FieldLabel>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-xl border border-dashed border-boxx-line bg-boxx-night transition-colors duration-200 hover:border-boxx-red/40"
+                >
+                  {imagePreview ? (
+                    <Image
+                      src={imagePreview}
+                      alt=""
+                      fill
+                      sizes="450px"
+                      className="object-cover"
+                    />
+                  ) : (
+                    <span className="flex flex-col items-center gap-2 text-boxx-dim">
+                      <HugeiconsIcon icon={ImageAdd01Icon} className="size-6" />
+                      <span className="text-xs font-bold uppercase tracking-wider">
+                        Upload photo
+                      </span>
+                    </span>
+                  )}
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+              </div>
+
               <div className="space-y-2">
                 <FieldLabel>Name</FieldLabel>
                 <Input
@@ -365,7 +483,7 @@ export default function MenuManager() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {menuCategories.map((cat) => (
+                      {MENU_CATEGORIES.map((cat) => (
                         <SelectItem key={cat} value={cat}>
                           {cat}
                         </SelectItem>
@@ -374,13 +492,16 @@ export default function MenuManager() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <FieldLabel>Price</FieldLabel>
+                  <FieldLabel>Price (₦)</FieldLabel>
                   <Input
+                    type="number"
+                    min={0}
+                    step={100}
                     value={form.price}
                     onChange={(e) =>
                       setForm((f) => ({ ...f, price: e.target.value }))
                     }
-                    placeholder="₦0,000"
+                    placeholder="6500"
                   />
                 </div>
               </div>
@@ -419,14 +540,26 @@ export default function MenuManager() {
                   ))}
                 </div>
               </div>
+
+              <label className="flex items-center gap-3 text-sm text-boxx-mist">
+                <input
+                  type="checkbox"
+                  checked={form.visible}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, visible: e.target.checked }))
+                  }
+                  className="size-4 rounded border-boxx-line accent-boxx-red"
+                />
+                Visible on the public menu
+              </label>
             </div>
 
             <DialogFooter className="mt-8 p-0">
               <Button variant="outline" onClick={() => setDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleSave} disabled={!isValid}>
-                {editingId ? "Save changes" : "Add item"}
+              <Button onClick={handleSave} disabled={!isValid || saving}>
+                {saving ? "Saving…" : editingItem ? "Save changes" : "Add item"}
               </Button>
             </DialogFooter>
           </div>
