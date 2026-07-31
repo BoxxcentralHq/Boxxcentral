@@ -1,30 +1,5 @@
-import Link from "next/link";
 import Reveal from "@/components/Reveal";
-import OverviewStats from "./_components/OverviewStats";
-import RecentBookings from "./_components/RecentBookings";
-import RecentMessages from "./_components/RecentMessages";
-import { PanelLabel } from "./_components/shared";
-
-/** Header row for an overview panel, with a link to the full page. */
-function PanelHeader({
-  label,
-  href,
-}: {
-  label: string;
-  href: string;
-}) {
-  return (
-    <div className="flex items-center justify-between border-b border-boxx-line px-6 py-5">
-      <PanelLabel>{label}</PanelLabel>
-      <Link
-        href={href}
-        className="text-[10px] font-bold uppercase tracking-widest text-boxx-mist transition-colors duration-200 hover:text-boxx-red"
-      >
-        View all →
-      </Link>
-    </div>
-  );
-}
+import OverviewDashboard from "./_components/OverviewDashboard";
 
 export default function AdminOverviewPage() {
   return (
@@ -38,30 +13,7 @@ export default function AdminOverviewPage() {
         </h1>
       </Reveal>
 
-      {/* Stat tiles */}
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <OverviewStats />
-      </div>
-
-      <div className="mt-10 grid items-start gap-6 xl:grid-cols-3">
-        {/* Recent bookings */}
-        <Reveal
-          delay={100}
-          className="rounded-2xl border border-boxx-line bg-boxx-coal xl:col-span-2"
-        >
-          <PanelHeader label="Recent bookings" href="/admin/bookings" />
-          <RecentBookings />
-        </Reveal>
-
-        {/* Latest messages */}
-        <Reveal
-          delay={160}
-          className="rounded-2xl border border-boxx-line bg-boxx-coal"
-        >
-          <PanelHeader label="Latest messages" href="/admin/messages" />
-          <RecentMessages />
-        </Reveal>
-      </div>
+      <OverviewDashboard />
     </div>
   );
 }

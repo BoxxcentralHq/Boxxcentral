@@ -25,10 +25,11 @@ export type MessagesQuery = {
 };
 
 /** super_admin-only paginated inbox. */
-export function useMessagesList(query: MessagesQuery) {
+export function useMessagesList(query: MessagesQuery, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: [...ADMIN_MESSAGES_KEY, query] as const,
     queryFn: () => api.get<MessagesPage>("/contact", query),
+    enabled: options?.enabled,
   });
 }
 

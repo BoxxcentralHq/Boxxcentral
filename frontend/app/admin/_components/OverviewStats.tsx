@@ -2,14 +2,19 @@
 
 import { format, formatDistanceToNowStrict, parseISO } from "date-fns";
 import Reveal from "@/components/Reveal";
+import type { AdminRole } from "@/lib/api/types";
 import { useBookingsList } from "@/lib/bookings";
 import { useMessagesList } from "@/lib/contact";
+import { canAccess } from "@/lib/roles";
 import { PanelLabel } from "./shared";
 
 const today = format(new Date(), "yyyy-MM-dd");
 
-/** The overview stat tiles — real data from /bookings and /contact. */
-export default function OverviewStats() {
+/** The overview stat tiles — real data from /bookings and /contact, scoped to what this role can see. */
+export default function OverviewStats({ role }: { role: AdminRole }) {
+  const showBookings = canAccess(role, "bookings");
+  const showMessages = canAccess(role, "messages");
+
   const { data: todayData, isLoading: todayLoading } = useBookingsList({
     date: today,
     limit: 100,
@@ -18,10 +23,10 @@ export default function OverviewStats() {
     status: "pending",
     limit: 1,
   });
-  const { data: unreadData, isLoading: unreadLoading } = useMessagesList({
-    unread: true,
-    limit: 1,
-  });
+  const { data: unreadData, isLoading: unreadLoading } = useMessagesList(
+    { unread: true, limit: 1 },
+    { enabled: showMessages },
+  );
 
   const todaysBookings = todayData?.bookings ?? [];
   const bookingsToday = todayData?.meta.total ?? 0;
@@ -34,28 +39,36 @@ export default function OverviewStats() {
   const newestUnread = unreadData?.messages[0];
 
   const stats = [
-    {
-      label: "Bookings today",
-      value: todayLoading ? "—" : String(bookingsToday),
-      note: nextToday ? `next at ${nextToday.timeSlot}` : "none scheduled",
-    },
-    {
-      label: "Guests expected",
-      value: todayLoading ? "—" : String(guestsExpected),
-      note: "today, across all bookings",
-    },
-    {
-      label: "Pending approvals",
-      value: pendingLoading ? "—" : String(pendingCount),
-      note: "awaiting payment",
-    },
-    {
-      label: "Unread messages",
-      value: unreadLoading ? "—" : String(unreadCount),
-      note: newestUnread
-        ? `newest ${formatDistanceToNowStrict(parseISO(newestUnread.createdAt), { addSuffix: true })}`
-        : "inbox zero",
-    },
+    ...(showBookings
+      ? [
+          {
+            label: "Bookings today",
+            value: todayLoading ? "—" : String(bookingsToday),
+            note: nextToday ? `next at ${nextToday.timeSlot}` : "none scheduled",
+          },
+          {
+            label: "Guests expected",
+            value: todayLoading ? "—" : String(guestsExpected),
+            note: "today, across all bookings",
+          },
+          {
+            label: "Pending approvals",
+            value: pendingLoading ? "—" : String(pendingCount),
+            note: "awaiting payment",
+          },
+        ]
+      : []),
+    ...(showMessages
+      ? [
+          {
+            label: "Unread messages",
+            value: unreadLoading ? "—" : String(unreadCount),
+            note: newestUnread
+              ? `newest ${formatDistanceToNowStrict(parseISO(newestUnread.createdAt), { addSuffix: true })}`
+              : "inbox zero",
+          },
+        ]
+      : []),
   ];
 
   return (

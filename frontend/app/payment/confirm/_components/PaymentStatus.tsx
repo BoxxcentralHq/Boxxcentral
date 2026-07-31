@@ -86,7 +86,7 @@ export default function PaymentStatus() {
     );
   }
 
-  if ((isLoading && !data) || isError) {
+  if ((isLoading && !data) || isError || !data) {
     return (
       <StatusCard
         icon={isError ? Alert02Icon : Clock01Icon}
