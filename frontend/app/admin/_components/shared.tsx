@@ -10,6 +10,13 @@ const statusStyles: Record<BookingStatus, string> = {
   cancelled: "border-boxx-line text-boxx-dim line-through",
 };
 
+const statusLabels: Record<BookingStatus, string> = {
+  pending: "Awaiting payment",
+  reserved: "Confirmed",
+  completed: "Completed",
+  cancelled: "Cancelled",
+};
+
 export function StatusBadge({ status }: { status: BookingStatus }) {
   return (
     <span
@@ -18,7 +25,7 @@ export function StatusBadge({ status }: { status: BookingStatus }) {
         statusStyles[status],
       )}
     >
-      {status}
+      {statusLabels[status]}
     </span>
   );
 }

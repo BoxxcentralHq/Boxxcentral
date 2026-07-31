@@ -61,10 +61,11 @@ export type BookingsQuery = {
 };
 
 /** Staff-only paginated booking list. */
-export function useBookingsList(query: BookingsQuery) {
+export function useBookingsList(query: BookingsQuery, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: [...ADMIN_BOOKINGS_KEY, query] as const,
     queryFn: () => api.get<BookingsPage>("/bookings", query),
+    enabled: options?.enabled,
   });
 }
 

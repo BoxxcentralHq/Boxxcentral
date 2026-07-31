@@ -10,10 +10,11 @@ import type { MenuCategory, MenuItem } from "@/lib/api/types";
 const ADMIN_MENU_KEY = ["admin", "menu"] as const;
 
 /** super_admin / lounge_admin — full list, including hidden items. */
-export function useMenuItemsAdmin() {
+export function useMenuItemsAdmin(options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ADMIN_MENU_KEY,
     queryFn: () => api.get<MenuItem[]>("/menu/all"),
+    enabled: options?.enabled,
   });
 }
 

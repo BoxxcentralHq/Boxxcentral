@@ -20,6 +20,13 @@ const STATUS_STYLES: Record<PaymentStatus, string> = {
   refunded: "border-boxx-line text-boxx-dim",
 };
 
+const STATUS_LABELS: Record<PaymentStatus, string> = {
+  pending: "Pending",
+  success: "Successful",
+  failed: "Failed",
+  refunded: "Refunded",
+};
+
 function PaymentStatusBadge({ status }: { status: PaymentStatus }) {
   return (
     <span
@@ -28,7 +35,7 @@ function PaymentStatusBadge({ status }: { status: PaymentStatus }) {
         STATUS_STYLES[status],
       )}
     >
-      {status}
+      {STATUS_LABELS[status]}
     </span>
   );
 }
