@@ -8,12 +8,17 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import type { IconSvgElement } from "@hugeicons/react";
 import {
   Calendar03Icon,
+  ClapperboardIcon,
   DashboardSquare01Icon,
   Logout03Icon,
   Message01Icon,
+  RestaurantIcon,
   Settings01Icon,
+  UserAccountIcon,
+  Wallet01Icon,
 } from "@hugeicons/core-free-icons";
 import { useLogout, useProfile } from "@/lib/auth";
+import { canAccess, sectionForPath, type AdminSection } from "@/lib/roles";
 import { site } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
@@ -21,32 +26,24 @@ type NavItem = {
   label: string;
   href: string;
   icon: IconSvgElement;
-  /** Not built yet — rendered inert with a "soon" tag. */
-  soon?: boolean;
+  /** Omitted means every signed-in role can see this item. */
+  section?: AdminSection;
 };
 
 const navItems: NavItem[] = [
   { label: "Overview", href: "/admin", icon: DashboardSquare01Icon },
-  { label: "Bookings", href: "/admin/bookings", icon: Calendar03Icon },
-  { label: "Messages", href: "/admin/messages", icon: Message01Icon },
-  { label: "Settings", href: "/admin/settings", icon: Settings01Icon, soon: true },
+  { label: "Bookings", href: "/admin/bookings", icon: Calendar03Icon, section: "bookings" },
+  { label: "Movies", href: "/admin/movies", icon: ClapperboardIcon, section: "movies" },
+  { label: "Messages", href: "/admin/messages", icon: Message01Icon, section: "messages" },
+  { label: "Menu", href: "/admin/menu", icon: RestaurantIcon, section: "menu" },
+  { label: "Payments", href: "/admin/payments", icon: Wallet01Icon, section: "payments" },
+  { label: "Settings", href: "/admin/settings", icon: Settings01Icon, section: "settings" },
+  { label: "Account", href: "/admin/account", icon: UserAccountIcon },
 ];
 
 function NavLink({ item, active }: { item: NavItem; active: boolean }) {
   const base =
     "flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-semibold uppercase tracking-[0.15em] transition-colors duration-200";
-
-  if (item.soon) {
-    return (
-      <span className={cn(base, "cursor-not-allowed text-boxx-dim")}>
-        <HugeiconsIcon icon={item.icon} aria-hidden className="size-4.5" />
-        {item.label}
-        <span className="ml-auto rounded-full border border-boxx-line px-2 py-0.5 text-[10px] tracking-widest">
-          Soon
-        </span>
-      </span>
-    );
-  }
 
   return (
     <Link
@@ -82,6 +79,13 @@ export default function AdminShell({
     if (isError) router.replace("/login");
   }, [isError, router]);
 
+  // Deep-linking into a section this role can't use bounces back to the overview.
+  useEffect(() => {
+    if (!profile) return;
+    const section = sectionForPath(pathname);
+    if (section && !canAccess(profile.role, section)) router.replace("/admin");
+  }, [profile, pathname, router]);
+
   function handleSignOut() {
     logout.mutate();
   }
@@ -94,9 +98,13 @@ export default function AdminShell({
     );
   }
 
+  const visibleNavItems = navItems.filter(
+    (item) => !item.section || canAccess(profile.role, item.section),
+  );
+
   const sidebarNav = (
     <nav className="flex flex-col gap-1.5">
-      {navItems.map((item) => (
+      {visibleNavItems.map((item) => (
         <NavLink key={item.href} item={item} active={pathname === item.href} />
       ))}
     </nav>

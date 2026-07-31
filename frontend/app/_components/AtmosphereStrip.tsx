@@ -7,17 +7,17 @@ import { cn } from "@/lib/utils";
 const gallery = [
   {
     src: "/images/gallery-1.jpg",
-    alt: "Audience in the cinema, lights down",
+    alt: "Cinema seating with popcorn and the screen lit up",
     aspect: "aspect-[4/3]",
   },
   {
     src: "/images/gallery-2.jpg",
-    alt: "Bowling alley lanes at night",
+    alt: "Bowling lanes at night",
     aspect: "aspect-[3/4]",
   },
   {
     src: "/images/gallery-3.jpg",
-    alt: "Guest with a cocktail in the lounge",
+    alt: "A cocktail and a cheesy bake on the table",
     aspect: "aspect-[16/9]",
   },
   {
@@ -27,7 +27,7 @@ const gallery = [
   },
   {
     src: "/images/gallery-5.jpg",
-    alt: "Friends sharing popcorn at the movies",
+    alt: "BoxxCentral popcorn, ready for the show",
     aspect: "aspect-[3/4]",
   },
   {

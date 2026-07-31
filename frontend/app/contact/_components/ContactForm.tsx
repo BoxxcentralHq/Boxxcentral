@@ -2,10 +2,10 @@
 
 import { useState, type FormEvent } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Send, WhatsappIcon } from "@hugeicons/core-free-icons";
+import { Send } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/lib/api/toast";
-import { contact, site } from "@/lib/site";
+import { toast, toastApiError } from "@/lib/api/toast";
+import { useCreateContactMessage } from "@/lib/contact";
 import { cn } from "@/lib/utils";
 
 const topics = [
@@ -35,35 +35,38 @@ function FieldLabel({
   );
 }
 
-/**
- * No live inbox to POST to yet, so — like the booking form — this hands the
- * message straight to WhatsApp, pre-filled, rather than pretending to send
- * it into a void.
- */
 export default function ContactForm() {
   const [topic, setTopic] = useState<string>(topics[0]);
   const [name, setName] = useState("");
-  const [reach, setReach] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [message, setMessage] = useState("");
+
+  const createMessage = useCreateContactMessage();
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const lines = [
-      `Hello ${site.name}! ${topic}.`,
-      "",
-      `Name: ${name}`,
-      `Reach me at: ${reach}`,
-      "",
-      message.trim(),
-    ];
-    window.open(
-      `${contact.whatsapp}?text=${encodeURIComponent(lines.join("\n"))}`,
-      "_blank",
-      "noopener,noreferrer",
-    );
-    toast.success(
-      "Opening WhatsApp — send it over and we'll take it from there.",
+    createMessage.mutate(
+      {
+        name: name.trim(),
+        email: email.trim(),
+        phone: phone.trim() || undefined,
+        subject: topic,
+        message: message.trim(),
+      },
+      {
+        onSuccess: () => {
+          toast.success("Message sent — we'll reply within the day.");
+          setName("");
+          setEmail("");
+          setPhone("");
+          setMessage("");
+          setTopic(topics[0]);
+        },
+        onError: (error) =>
+          toastApiError(error, "Couldn't send your message. Please try again."),
+      },
     );
   };
 
@@ -97,19 +100,33 @@ export default function ContactForm() {
             />
           </div>
           <div className="space-y-2">
-            <FieldLabel htmlFor="contact-reach">Email or phone</FieldLabel>
+            <FieldLabel htmlFor="contact-email">Email</FieldLabel>
             <input
-              id="contact-reach"
-              name="reach"
-              type="text"
+              id="contact-email"
+              name="email"
+              type="email"
               required
               autoComplete="email"
               placeholder="Where we can reach you"
-              value={reach}
-              onChange={(e) => setReach(e.target.value)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className={fieldClass}
             />
           </div>
+        </div>
+
+        <div className="space-y-2">
+          <FieldLabel htmlFor="contact-phone">Phone (optional)</FieldLabel>
+          <input
+            id="contact-phone"
+            name="phone"
+            type="tel"
+            autoComplete="tel"
+            placeholder="+234 ..."
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            className={fieldClass}
+          />
         </div>
 
         <div className="space-y-2">
@@ -154,8 +171,8 @@ export default function ContactForm() {
         </div>
 
         <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center">
-          <Button type="submit" size="lg">
-            Send
+          <Button type="submit" size="lg" disabled={createMessage.isPending}>
+            {createMessage.isPending ? "Sending…" : "Send"}
             <HugeiconsIcon icon={Send} className="size-4" />
           </Button>
         </div>

@@ -1,6 +1,6 @@
 // contracts mirroring the NestJS backend's responses
 
-export type AdminRole = "super_admin" | "cinema_admin";
+export type AdminRole = "super_admin" | "cinema_admin" | "lounge_admin";
 
 export type Admin = {
   id: string;
@@ -18,16 +18,31 @@ export type Profile = {
 
 export type LoginResponse = { admin: Admin };
 
+export type CreateAdminBody = {
+  name: string;
+  email: string;
+  password: string;
+  role: "cinema_admin" | "lounge_admin";
+};
+
+export type ChangePasswordBody = {
+  currentPassword: string;
+  newPassword: string;
+};
+
 export type CinemaSettings = {
   basePrice: number;
   includedGuests: number;
   maxGuests: number;
   extraSeatPrice: number;
   sessionDurationHours: number;
+  /** Percentage, e.g. 7.5 — divide by 100 before applying to a subtotal. */
   vatRate: number;
   timeSlots: string[];
   bookingEnabled: boolean;
 };
+
+export type UpdateCinemaSettingsBody = Partial<CinemaSettings>;
 
 export type Movie = {
   _id: string;
@@ -69,6 +84,16 @@ export type MenuItem = {
 };
 
 export type BookingStatus = "pending" | "reserved" | "cancelled" | "completed";
+
+export type CreateBookingBody = {
+  guestName: string;
+  guestEmail: string;
+  guestPhone: string;
+  date: string; // "YYYY-MM-DD"
+  timeSlot: string; // "HH:mm", must match one of CinemaSettings.timeSlots
+  guests: number;
+  notes?: string;
+};
 
 export type Booking = {
   _id: string;
@@ -141,6 +166,14 @@ export type ContactMessage = {
   message: string;
   read: boolean;
   createdAt: string;
+};
+
+export type CreateContactMessageBody = {
+  name: string;
+  email: string;
+  phone?: string;
+  subject?: string;
+  message: string;
 };
 
 export type MonthlyRevenue = { month: string; revenue: number };

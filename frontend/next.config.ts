@@ -10,6 +10,8 @@ const nextConfig: NextConfig = {
      * for anything that doesn't opt in.
      */
     qualities: [75, 100],
+    // menu item photos are uploaded to Cloudinary by the backend
+    remotePatterns: [{ protocol: "https", hostname: "res.cloudinary.com" }],
   },
 };
 
