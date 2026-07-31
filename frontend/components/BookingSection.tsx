@@ -154,8 +154,10 @@ export default function BookingSection({ experience }: { experience: Experience 
           console.log("Create booking response:", data);
           window.location.href = data.paymentLink;
         },
-        onError: (error) =>
-          toastApiError(error, "Couldn't create your booking. Please try again."),
+        onError: (error) => {
+          console.log("Create booking error:", error);
+          toastApiError(error, "Couldn't create your booking. Please try again.");
+        },
       },
     );
   }
