@@ -1,8 +1,10 @@
 "use client";
 
 import { useMemo } from "react";
+import { RestaurantIcon } from "@hugeicons/core-free-icons";
 import { Badge } from "@/components/ui/badge";
 import { useMenuItemsAdmin } from "@/lib/menu";
+import EmptyState from "@/components/EmptyState";
 
 const naira = (amount: number) => `₦${amount.toLocaleString("en-NG")}`;
 
@@ -28,7 +30,13 @@ export default function RecentMenuItems() {
   }
 
   if (recent.length === 0) {
-    return <p className="px-6 py-10 text-center text-sm text-boxx-dim">No menu items yet.</p>;
+    return (
+      <EmptyState
+        icon={RestaurantIcon}
+        title="No menu items yet"
+        description="Add a dish or drink to get started."
+      />
+    );
   }
 
   return (

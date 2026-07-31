@@ -20,6 +20,7 @@ import {
   useMarkMessageRead,
   useMessagesList,
 } from "@/lib/contact";
+import EmptyState from "@/components/EmptyState";
 import { cn } from "@/lib/utils";
 
 type Filter = "all" | "unread";
@@ -250,8 +251,12 @@ export default function MessagesManager() {
               );
             })}
           {!isLoading && !isError && messages.length === 0 && (
-            <li className="px-6 py-14 text-center text-sm text-boxx-dim">
-              Inbox zero — nothing here.
+            <li>
+              <EmptyState
+                icon={Mail01Icon}
+                title="Inbox zero"
+                description="Nothing to read here right now."
+              />
             </li>
           )}
         </ul>

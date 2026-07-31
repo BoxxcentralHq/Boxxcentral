@@ -151,6 +151,7 @@ export default function BookingSection({ experience }: { experience: Experience 
       },
       {
         onSuccess: (data) => {
+          console.log("Create booking response:", data);
           window.location.href = data.paymentLink;
         },
         onError: (error) =>

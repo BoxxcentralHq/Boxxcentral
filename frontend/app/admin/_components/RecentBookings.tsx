@@ -1,7 +1,9 @@
 "use client";
 
 import { format, parseISO } from "date-fns";
+import { Calendar03Icon } from "@hugeicons/core-free-icons";
 import { useBookingsList } from "@/lib/bookings";
+import EmptyState from "@/components/EmptyState";
 import { StatusBadge } from "./shared";
 
 /** Latest bookings for the overview panel — first page, newest first. */
@@ -37,8 +39,12 @@ export default function RecentBookings() {
           )}
           {!isLoading && !isError && bookings.length === 0 && (
             <tr>
-              <td colSpan={4} className="px-6 py-10 text-center text-sm text-boxx-dim">
-                No bookings yet.
+              <td colSpan={4}>
+                <EmptyState
+                  icon={Calendar03Icon}
+                  title="No bookings yet"
+                  description="New bookings will show up here."
+                />
               </td>
             </tr>
           )}

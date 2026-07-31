@@ -1,7 +1,8 @@
 "use client";
 
 import { HugeiconsIcon } from "@hugeicons/react";
-import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
+import { ArrowRight01Icon, RestaurantIcon, Search01Icon } from "@hugeicons/core-free-icons";
+import EmptyState from "@/components/EmptyState";
 import Reveal from "@/components/Reveal";
 import SiteImage from "@/components/SiteImage";
 import { Badge } from "@/components/ui/badge";
@@ -24,12 +25,20 @@ type MenuGridProps = {
 export default function MenuGrid({ items, view, onSelect, hasAnyItems = true }: MenuGridProps) {
   if (items.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-boxx-line py-20 text-center">
-        <p className="text-sm text-boxx-dim">
-          {hasAnyItems
-            ? "Nothing matches that search — try another dish or drink."
-            : "The menu's being freshened up — check back soon."}
-        </p>
+      <div className="rounded-2xl border border-dashed border-boxx-line">
+        {hasAnyItems ? (
+          <EmptyState
+            icon={Search01Icon}
+            title="Nothing matches that search"
+            description="Try another dish, drink, or category."
+          />
+        ) : (
+          <EmptyState
+            icon={RestaurantIcon}
+            title="The menu's being freshened up"
+            description="Check back soon."
+          />
+        )}
       </div>
     );
   }

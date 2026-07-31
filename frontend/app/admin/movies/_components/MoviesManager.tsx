@@ -33,6 +33,7 @@ import {
   useUpdateMovie,
 } from "@/lib/movies";
 import { cn } from "@/lib/utils";
+import EmptyState from "@/components/EmptyState";
 
 const fieldClass =
   "w-full rounded-xl border border-boxx-line bg-boxx-night px-4 py-3 text-sm text-boxx-white placeholder:text-boxx-dim outline-none transition-colors duration-200 focus:border-boxx-red focus-visible:ring-[3px] focus-visible:ring-ring";
@@ -318,8 +319,12 @@ export default function MoviesManager() {
                 ))}
               {!isLoading && !isError && filtered.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-6 py-14 text-center text-sm text-boxx-dim">
-                    No movies match this view.
+                  <td colSpan={5}>
+                    <EmptyState
+                      icon={Search01Icon}
+                      title="No movies match this view"
+                      description="Try a different search term."
+                    />
                   </td>
                 </tr>
               )}

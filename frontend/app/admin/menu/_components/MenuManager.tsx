@@ -40,6 +40,7 @@ import {
   useUpdateMenuItem,
 } from "@/lib/menu";
 import { cn } from "@/lib/utils";
+import EmptyState from "@/components/EmptyState";
 
 /** The only tags seen in the menu data — kept as toggles rather than free text. */
 const availableTags = ["Popular", "Spicy", "Alcoholic", "Non-alcoholic"] as const;
@@ -396,11 +397,12 @@ export default function MenuManager() {
                 ))}
               {!isLoading && !isError && filtered.length === 0 && (
                 <tr>
-                  <td
-                    colSpan={6}
-                    className="px-6 py-14 text-center text-sm text-boxx-dim"
-                  >
-                    No menu items match this view.
+                  <td colSpan={6}>
+                    <EmptyState
+                      icon={Search01Icon}
+                      title="No menu items match this view"
+                      description="Try a different search or category."
+                    />
                   </td>
                 </tr>
               )}

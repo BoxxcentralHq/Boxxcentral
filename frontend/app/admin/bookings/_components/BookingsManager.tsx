@@ -13,6 +13,7 @@ import {
   useCompleteBooking,
 } from "@/lib/bookings";
 import { cn } from "@/lib/utils";
+import EmptyState from "@/components/EmptyState";
 import { StatusBadge } from "../../_components/shared";
 
 type StatusFilter = "all" | BookingStatus;
@@ -230,11 +231,12 @@ export default function BookingsManager() {
                 ))}
               {!isLoading && !isError && filtered.length === 0 && (
                 <tr>
-                  <td
-                    colSpan={6}
-                    className="px-6 py-14 text-center text-sm text-boxx-dim"
-                  >
-                    No bookings match this view.
+                  <td colSpan={6}>
+                    <EmptyState
+                      icon={Search01Icon}
+                      title="No bookings match this view"
+                      description="Try a different status filter or search term."
+                    />
                   </td>
                 </tr>
               )}

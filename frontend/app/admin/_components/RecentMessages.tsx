@@ -1,7 +1,9 @@
 "use client";
 
 import { formatDistanceToNowStrict, parseISO } from "date-fns";
+import { Mail01Icon } from "@hugeicons/core-free-icons";
 import { useMessagesList } from "@/lib/contact";
+import EmptyState from "@/components/EmptyState";
 
 /** Latest contact messages for the overview panel — first page, newest first. */
 export default function RecentMessages() {
@@ -24,9 +26,11 @@ export default function RecentMessages() {
 
   if (messages.length === 0) {
     return (
-      <p className="px-6 py-10 text-center text-sm text-boxx-dim">
-        No messages yet.
-      </p>
+      <EmptyState
+        icon={Mail01Icon}
+        title="No messages yet"
+        description="Contact form enquiries will show up here."
+      />
     );
   }
 

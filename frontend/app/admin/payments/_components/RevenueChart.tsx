@@ -1,7 +1,9 @@
 "use client";
 
 import { useId, useState } from "react";
+import { Wallet01Icon } from "@hugeicons/core-free-icons";
 import type { MonthlyRevenue } from "@/lib/api/types";
+import EmptyState from "@/components/EmptyState";
 
 const CHART_RED = "#fa0306";
 const GRID_COLOR = "#333333"; // boxx-line — one step off the boxx-coal card surface
@@ -38,9 +40,11 @@ export default function RevenueChart({ data }: { data: MonthlyRevenue[] }) {
 
   if (data.length === 0) {
     return (
-      <p className="py-12 text-center text-sm text-boxx-dim">
-        No revenue recorded yet.
-      </p>
+      <EmptyState
+        icon={Wallet01Icon}
+        title="No revenue yet"
+        description="Completed bookings will show up here."
+      />
     );
   }
 

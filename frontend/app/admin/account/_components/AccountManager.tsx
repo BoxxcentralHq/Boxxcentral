@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Add01Icon, Delete02Icon } from "@hugeicons/core-free-icons";
+import { Add01Icon, Delete02Icon, UserAccountIcon } from "@hugeicons/core-free-icons";
 import Reveal from "@/components/Reveal";
 import {
   Dialog,
@@ -31,6 +31,7 @@ import {
   useProfile,
 } from "@/lib/auth";
 import type { Admin, AdminRole } from "@/lib/api/types";
+import EmptyState from "@/components/EmptyState";
 
 function FieldLabel({ htmlFor, children }: { htmlFor?: string; children: React.ReactNode }) {
   return (
@@ -231,7 +232,11 @@ function StaffAccounts({ profile }: { profile: { userId: string } }) {
             );
           })}
         {!isLoading && !isError && (admins ?? []).length === 0 && (
-          <p className="py-8 text-center text-sm text-boxx-dim">No staff accounts yet.</p>
+          <EmptyState
+            icon={UserAccountIcon}
+            title="No staff accounts yet"
+            description="Add a cinema or lounge admin to get started."
+          />
         )}
       </div>
 

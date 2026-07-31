@@ -8,6 +8,7 @@ import Reveal from "@/components/Reveal";
 import type { Payment, PaymentStatus } from "@/lib/api/types";
 import { usePaymentsList } from "@/lib/payments";
 import { cn } from "@/lib/utils";
+import EmptyState from "@/components/EmptyState";
 
 const PAGE_SIZE = 10;
 const naira = (amount: number) => `₦${amount.toLocaleString("en-NG")}`;
@@ -144,8 +145,12 @@ export default function PaymentsManager() {
                 ))}
               {!isLoading && !isError && payments.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-6 py-14 text-center text-sm text-boxx-dim">
-                    No payments match this view.
+                  <td colSpan={7}>
+                    <EmptyState
+                      icon={Search01Icon}
+                      title="No payments match this view"
+                      description="Try a different search term."
+                    />
                   </td>
                 </tr>
               )}
