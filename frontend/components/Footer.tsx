@@ -6,9 +6,8 @@ import {
   Mail01Icon,
 } from "@hugeicons/core-free-icons";
 import Reveal from "@/components/Reveal";
-import { Button } from "@/components/ui/button";
 import { experiences } from "@/lib/experiences";
-import { bookingCta, contact, navLinks, site, socials } from "@/lib/site";
+import { contact, navLinks, site, socials } from "@/lib/site";
 import Image from "next/image";
 
 /** Uppercase micro-label used for footer column titles. */

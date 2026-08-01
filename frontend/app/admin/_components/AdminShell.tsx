@@ -78,6 +78,7 @@ export default function AdminShell({
   const { data: profile, isError } = useProfile();
   const logout = useLogout();
   const [navOpen, setNavOpen] = useState(false);
+  const [prevPathname, setPrevPathname] = useState(pathname);
 
   useEffect(() => {
     if (isError) router.replace("/login");
@@ -91,7 +92,10 @@ export default function AdminShell({
   }, [profile, pathname, router]);
 
   // A route change means a nav link was just used — close the mobile drawer.
-  useEffect(() => setNavOpen(false), [pathname]);
+  if (pathname !== prevPathname) {
+    setPrevPathname(pathname);
+    setNavOpen(false);
+  }
 
   // Lock body scroll and allow Escape to dismiss while the mobile drawer is up.
   useEffect(() => {
