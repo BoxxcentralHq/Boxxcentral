@@ -45,7 +45,7 @@ export default function OverviewDashboard() {
         <OverviewStats role={profile.role} />
       </div>
 
-      <div className="mt-10 grid items-start gap-6 xl:grid-cols-3">
+      <div className="mt-10 grid gap-6 xl:grid-cols-3">
         {showBookings && (
           <Reveal
             delay={100}
@@ -59,7 +59,7 @@ export default function OverviewDashboard() {
         {showMessages && (
           <Reveal
             delay={160}
-            className="rounded-2xl border border-boxx-line bg-boxx-coal"
+            className="flex flex-col rounded-2xl border border-boxx-line bg-boxx-coal"
           >
             <PanelHeader label="Latest messages" href="/admin/messages" />
             <RecentMessages />

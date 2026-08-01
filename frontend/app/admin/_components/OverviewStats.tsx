@@ -16,8 +16,6 @@ export default function OverviewStats({ role }: { role: AdminRole }) {
   const showBookings = canAccess(role, "bookings");
   const showMessages = canAccess(role, "messages");
   const showMenu = canAccess(role, "menu");
-  // lounge_admin has neither bookings nor messages — menu stats are the
-  // only numbers they'd otherwise see, so this is their overview.
   const showMenuStats = showMenu && !showBookings;
 
   const { data: todayData, isLoading: todayLoading } = useBookingsList(
@@ -35,13 +33,14 @@ export default function OverviewStats({ role }: { role: AdminRole }) {
   const { data: menuItems, isLoading: menuLoading } = useMenuItemsAdmin({
     enabled: showMenuStats,
   });
-
-  const todaysBookings = todayData?.bookings ?? [];
-  const bookingsToday = todayData?.meta.total ?? 0;
-  const guestsExpected = todaysBookings.reduce((sum, b) => sum + b.guests, 0);
-  const nextToday = todaysBookings
-    .filter((b) => b.status !== "cancelled")
-    .sort((a, b) => a.timeSlot.localeCompare(b.timeSlot))[0];
+  const activeTodaysBookings = (todayData?.bookings ?? []).filter(
+    (b) => b.status !== "cancelled",
+  );
+  const bookingsToday = activeTodaysBookings.length;
+  const guestsExpected = activeTodaysBookings.reduce((sum, b) => sum + b.guests, 0);
+  const nextToday = [...activeTodaysBookings].sort((a, b) =>
+    a.timeSlot.localeCompare(b.timeSlot),
+  )[0];
   const pendingCount = pendingData?.meta.total ?? 0;
   const unreadCount = unreadData?.meta.total ?? 0;
   const newestUnread = unreadData?.messages[0];

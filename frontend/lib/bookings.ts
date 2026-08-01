@@ -34,12 +34,13 @@ export function useUpdateCinemaSettings() {
   });
 }
 
-/** Which of that day's time slots are still free. Skipped until a date is picked. */
-export function useAvailability(date: string | undefined) {
+/** Which of that room's time slots are still free that day. Skipped until both are picked. */
+export function useAvailability(date: string | undefined, room: string | undefined) {
   return useQuery({
-    queryKey: ["bookings", "availability", date] as const,
-    queryFn: () => api.get<Availability>("/bookings/availability", { date: date! }),
-    enabled: Boolean(date),
+    queryKey: ["bookings", "availability", date, room] as const,
+    queryFn: () =>
+      api.get<Availability>("/bookings/availability", { date: date!, room: room! }),
+    enabled: Boolean(date) && Boolean(room),
   });
 }
 

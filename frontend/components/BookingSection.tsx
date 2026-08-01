@@ -6,6 +6,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Calendar03Icon,
   Clock01Icon,
+  Door01Icon,
   MinusSignIcon,
   PlusSignIcon,
   UserGroupIcon,
@@ -78,15 +79,9 @@ function StepHeading({ step, title }: { step: number; title: string }) {
   );
 }
 
-/**
- * Booking flow embedded on the FilmBoxx page — the only bookable experience.
- * Creates the booking against the real API, then redirects the guest to the
- * Flutterwave payment link the backend returns. Pricing and time slots are
- * driven by /cinema/settings; the price shown here is an estimate — the
- * server always computes and owns the real total.
- */
 export default function BookingSection({ experience }: { experience: Experience }) {
   const { data: settings, isLoading: settingsLoading, isError: settingsError } = useCinemaSettings();
+  const [room, setRoom] = useState("");
   const [date, setDate] = useState<Date | undefined>();
   const [dateOpen, setDateOpen] = useState(false);
   const [time, setTime] = useState("");
@@ -97,7 +92,7 @@ export default function BookingSection({ experience }: { experience: Experience 
   const [notes, setNotes] = useState("");
 
   const dateParam = date ? format(date, "yyyy-MM-dd") : undefined;
-  const { data: availability } = useAvailability(dateParam);
+  const { data: availability } = useAvailability(dateParam, room || undefined);
   const createBooking = useCreateBooking();
 
   const maxGuests = settings?.maxGuests ?? 50;
@@ -123,12 +118,12 @@ export default function BookingSection({ experience }: { experience: Experience 
     if (!settings) return null;
     const extraGuests = Math.max(0, guests - settings.includedGuests);
     const subtotal = settings.basePrice + extraGuests * settings.extraSeatPrice;
-    // vatRate is a percentage (e.g. 7.5), not a fraction — confirmed against staging.
-    const vatAmount = subtotal * (settings.vatRate / 100);
+    const vatAmount = Math.round(subtotal * (settings.vatRate / 100));
     return { subtotal, vatAmount, totalPrice: subtotal + vatAmount };
   }, [settings, guests]);
 
   const isValid =
+    room !== "" &&
     date !== undefined &&
     time !== "" &&
     name.trim() !== "" &&
@@ -146,6 +141,7 @@ export default function BookingSection({ experience }: { experience: Experience 
         guestPhone: phone.trim(),
         date: dateParam,
         timeSlot: time,
+        room,
         guests,
         notes: notes.trim() || undefined,
       },
@@ -207,11 +203,46 @@ export default function BookingSection({ experience }: { experience: Experience 
           <div className="mt-12 grid items-start gap-12 lg:grid-cols-[1fr_22rem] lg:gap-16">
             <Reveal variant="left" className="space-y-14">
               <form id={FORM_ID} onSubmit={handleSubmit} className="space-y-14">
-                {/* Step 1 — when */}
+                {/* Step 1 — where and when */}
                 <fieldset>
-                  <legend className="sr-only">Pick a date and time</legend>
-                  <StepHeading step={1} title="Pick a date & time" />
-                  <div className="mt-6 grid gap-6 sm:grid-cols-2">
+                  <legend className="sr-only">Pick a room, date, and time</legend>
+                  <StepHeading step={1} title="Pick a room, date & time" />
+                  <div className="mt-6 grid gap-6 sm:grid-cols-3">
+                    <div className="space-y-2">
+                      <FieldLabel htmlFor="booking-room">Room</FieldLabel>
+                      <Select
+                        value={room}
+                        onValueChange={(v) => {
+                          setRoom(v);
+                          setTime("");
+                        }}
+                        disabled={!settings?.rooms?.length}
+                      >
+                        <SelectTrigger
+                          id="booking-room"
+                          className={cn(
+                            "w-full rounded-xl border-boxx-line bg-boxx-coal px-4 text-sm data-[size=default]:h-11",
+                            room ? "text-boxx-white" : "text-boxx-dim",
+                          )}
+                        >
+                          <span className="flex flex-1 items-center gap-2">
+                            <HugeiconsIcon
+                              icon={Door01Icon}
+                              aria-hidden
+                              className="size-4 shrink-0 text-boxx-dim"
+                            />
+                            <SelectValue placeholder="Make your choice" />
+                          </span>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {(settings?.rooms ?? []).map((r) => (
+                            <SelectItem key={r} value={r}>
+                              {r}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                     <div className="space-y-2">
                       <FieldLabel htmlFor="booking-date">Date</FieldLabel>
                       <Popover open={dateOpen} onOpenChange={setDateOpen}>
@@ -252,7 +283,7 @@ export default function BookingSection({ experience }: { experience: Experience 
                       <Select
                         value={time}
                         onValueChange={setTime}
-                        disabled={!date || slots.length === 0}
+                        disabled={!room || !date || slots.length === 0}
                       >
                         <SelectTrigger
                           id="booking-time"
@@ -268,7 +299,13 @@ export default function BookingSection({ experience }: { experience: Experience 
                               className="size-4 shrink-0 text-boxx-dim"
                             />
                             <SelectValue
-                              placeholder={date ? "Select a time" : "Pick a date first"}
+                              placeholder={
+                                !room
+                                  ? "Pick a room first"
+                                  : !date
+                                    ? "Pick a date first"
+                                    : "Select a time"
+                              }
                             />
                           </span>
                         </SelectTrigger>
@@ -411,6 +448,17 @@ export default function BookingSection({ experience }: { experience: Experience 
                 </div>
 
                 <dl className="mt-6 space-y-3 border-t border-boxx-line pt-6 text-sm">
+                  <div className="flex items-center gap-3">
+                    <HugeiconsIcon
+                      icon={Door01Icon}
+                      aria-hidden
+                      className="size-4 shrink-0 text-boxx-dim"
+                    />
+                    <dt className="sr-only">Room</dt>
+                    <dd className={room ? "text-boxx-white" : "text-boxx-dim"}>
+                      {room || "Room not set"}
+                    </dd>
+                  </div>
                   <div className="flex items-center gap-3">
                     <HugeiconsIcon
                       icon={Calendar03Icon}

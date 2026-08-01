@@ -16,7 +16,7 @@ export function usePaymentVerify(idOrRef: string | undefined) {
     queryFn: () => api.get<PaymentVerification>(`/payments/${idOrRef}/verify`),
     enabled: Boolean(idOrRef),
     refetchInterval: (query) =>
-      query.state.data?.localStatus === "pending" ? 3000 : false,
+      query.state.data?.gatewayStatus === "pending" ? 3000 : false,
   });
 }
 

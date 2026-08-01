@@ -28,6 +28,10 @@ export class CinemaSettings {
   @Prop({ type: [String], default: ['11:00', '15:00', '19:00'] })
   timeSlots: string[];
 
+  // physical rooms — each is booked/checked for conflicts independently
+  @Prop({ type: [String], default: ['Cinema 1', 'Cinema 2'] })
+  rooms: string[];
+
   @Prop({ default: true })
   bookingEnabled: boolean;
 }

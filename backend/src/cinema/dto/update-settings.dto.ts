@@ -1,9 +1,11 @@
 import {
+  ArrayMinSize,
   IsArray,
   IsBoolean,
   IsInt,
   IsNumber,
   IsOptional,
+  IsString,
   Matches,
   Max,
   Min,
@@ -45,6 +47,12 @@ export class UpdateSettingsDto {
   @IsArray()
   @Matches(/^([01]\d|2[0-3]):[0-5]\d$/, { each: true })
   timeSlots?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @ArrayMinSize(1)
+  @IsString({ each: true })
+  rooms?: string[];
 
   @IsOptional()
   @IsBoolean()

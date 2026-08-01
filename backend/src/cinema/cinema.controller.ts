@@ -48,6 +48,7 @@ export class CinemaController {
       sessionDurationHours: s.sessionDurationHours,
       vatRate: s.vatRate,
       timeSlots: s.timeSlots,
+      rooms: s.rooms,
       bookingEnabled: s.bookingEnabled,
     };
   }

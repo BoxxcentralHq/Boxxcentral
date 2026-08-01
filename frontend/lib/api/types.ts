@@ -39,6 +39,8 @@ export type CinemaSettings = {
   /** Percentage, e.g. 7.5 — divide by 100 before applying to a subtotal. */
   vatRate: number;
   timeSlots: string[];
+  /** Physical rooms — each is checked/booked independently, e.g. ["Cinema 1", "Cinema 2"]. */
+  rooms: string[];
   bookingEnabled: boolean;
 };
 
@@ -91,6 +93,7 @@ export type CreateBookingBody = {
   guestPhone: string;
   date: string; // "YYYY-MM-DD"
   timeSlot: string; // "HH:mm", must match one of CinemaSettings.timeSlots
+  room: string; // must match one of CinemaSettings.rooms
   guests: number;
   notes?: string;
 };
@@ -104,6 +107,7 @@ export type Booking = {
   guestPhone: string;
   date: string;
   timeSlot: string;
+  room: string;
   guests: number;
   subtotal: number;
   vatAmount: number;
@@ -115,6 +119,7 @@ export type Booking = {
 
 export type Availability = {
   date: string;
+  room: string;
   bookingEnabled: boolean;
   slots: { time: string; available: boolean }[];
 };
@@ -125,6 +130,7 @@ export type CreateBookingResponse = {
     | "bookingRef"
     | "date"
     | "timeSlot"
+    | "room"
     | "guests"
     | "subtotal"
     | "vatAmount"

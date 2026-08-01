@@ -18,6 +18,19 @@ import { PaymentsModule } from './payments/payments.module';
 
 const dbLogger = new Logger('Database');
 
+function extractMessage(body: unknown): string | undefined {
+  if (body && typeof body === 'object' && 'message' in body) {
+    const m = body.message;
+    if (typeof m === 'string') return m;
+    if (Array.isArray(m)) return m.join('. ');
+  }
+  return undefined;
+}
+
+function getLocals(res: unknown): Record<string, unknown> | undefined {
+  return (res as { locals?: Record<string, unknown> }).locals;
+}
+
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -26,6 +39,33 @@ const dbLogger = new Logger('Database');
         level: process.env.LOG_LEVEL ?? 'info',
         // never log credentials or session cookies
         redact: ['req.headers.authorization', 'req.headers.cookie'],
+        serializers: {
+          req: (req: { method: string; url: string }) => ({
+            method: req.method,
+            url: req.url,
+          }),
+          res: (res: { statusCode: number }) => ({
+            statusCode: res.statusCode,
+          }),
+        },
+        // the actual NestJS response/exception message, not a generic string
+        customSuccessMessage: (req, res, responseTime) => {
+          const body = getLocals(res)?.responseBody;
+          return (
+            extractMessage(body) ??
+            `${req.method} ${req.url} ${res.statusCode} (${responseTime}ms)`
+          );
+        },
+        customErrorMessage: (req, res, error) => {
+          const response = (
+            error as { getResponse?: () => unknown }
+          ).getResponse?.();
+          return (
+            extractMessage(response) ??
+            error.message ??
+            `${req.method} ${req.url} ${res.statusCode}`
+          );
+        },
         transport:
           process.env.NODE_ENV === 'production'
             ? undefined // raw JSON in production

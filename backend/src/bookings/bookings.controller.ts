@@ -29,10 +29,10 @@ export class BookingsController {
     return this.bookingsService.createBooking(dto);
   }
 
-  // public: slot availability for the booking form
+  // public: slot availability for the booking form, scoped to one room
   @Get('availability')
-  availability(@Query('date') date: string) {
-    return this.bookingsService.getAvailability(date);
+  availability(@Query('date') date: string, @Query('room') room: string) {
+    return this.bookingsService.getAvailability(date, room);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

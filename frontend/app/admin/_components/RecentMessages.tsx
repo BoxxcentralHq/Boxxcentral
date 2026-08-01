@@ -12,13 +12,15 @@ export default function RecentMessages() {
 
   if (isLoading) {
     return (
-      <p className="px-6 py-10 text-center text-sm text-boxx-dim">Loading…</p>
+      <p className="flex flex-1 items-center justify-center px-6 py-10 text-center text-sm text-boxx-dim">
+        Loading…
+      </p>
     );
   }
 
   if (isError) {
     return (
-      <p className="px-6 py-10 text-center text-sm text-boxx-dim">
+      <p className="flex flex-1 items-center justify-center px-6 py-10 text-center text-sm text-boxx-dim">
         Couldn&apos;t load messages.
       </p>
     );
@@ -26,16 +28,18 @@ export default function RecentMessages() {
 
   if (messages.length === 0) {
     return (
-      <EmptyState
-        icon={Mail01Icon}
-        title="No messages yet"
-        description="Contact form enquiries will show up here."
-      />
+      <div className="flex flex-1 flex-col justify-center">
+        <EmptyState
+          icon={Mail01Icon}
+          title="No messages yet"
+          description="Contact form enquiries will show up here."
+        />
+      </div>
     );
   }
 
   return (
-    <ul>
+    <ul className="flex-1">
       {messages.map((m) => (
         <li
           key={m._id}

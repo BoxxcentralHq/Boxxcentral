@@ -73,12 +73,7 @@ export default function PaymentStatus() {
         body="This page is meant to be reached from the payment redirect. If you just paid and landed here another way, check your email for confirmation or message us directly."
       >
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-          <Button asChild size="lg">
-            <a href={contact.whatsapp} target="_blank" rel="noopener noreferrer">
-              Message us
-            </a>
-          </Button>
-          <Button asChild variant="outline" size="lg">
+          <Button asChild variant="default" size="lg">
             <Link href="/">Back home</Link>
           </Button>
         </div>
@@ -106,7 +101,30 @@ export default function PaymentStatus() {
     );
   }
 
-  if (data.localStatus === "pending") {
+  if (data.localStatus === "refunded") {
+    return (
+      <StatusCard
+        icon={Alert02Icon}
+        tone="danger"
+        title="Payment refunded"
+        body="Your booking wasn't confirmed. No charge should be outstanding — try booking again, or message us if you think this is a mistake."
+      >
+        <p className="mt-4 font-mono text-xs text-boxx-dim">Reference: {reference}</p>
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+          <Button asChild size="lg">
+            <Link href="/filmboxx#book">Try again</Link>
+          </Button>
+          <Button asChild variant="outline" size="lg">
+            <a href={contact.whatsapp} target="_blank" rel="noopener noreferrer">
+              Message us
+            </a>
+          </Button>
+        </div>
+      </StatusCard>
+    );
+  }
+
+  if (data.gatewayStatus === "pending") {
     return (
       <StatusCard
         icon={Clock01Icon}
@@ -120,7 +138,7 @@ export default function PaymentStatus() {
     );
   }
 
-  if (data.localStatus === "success") {
+  if (data.gatewayStatus === "successful") {
     return (
       <StatusCard
         icon={CheckmarkCircle02Icon}
@@ -143,7 +161,7 @@ export default function PaymentStatus() {
     <StatusCard
       icon={Alert02Icon}
       tone="danger"
-      title={data.localStatus === "refunded" ? "Payment refunded" : "Payment didn't go through"}
+      title="Payment didn't go through"
       body="Your booking wasn't confirmed. No charge should be outstanding — try booking again, or message us if you think this is a mistake."
     >
       <p className="mt-4 font-mono text-xs text-boxx-dim">Reference: {reference}</p>

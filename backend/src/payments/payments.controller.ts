@@ -30,7 +30,6 @@ export class PaymentsController {
     return this.paymentsService.handleWebhook(payload, signature);
   }
 
-  /** Public: the post-payment redirect page polls this (slim response). */
   @Get(':idOrRef/verify')
   verifyStatus(@Param('idOrRef') idOrRef: string) {
     return this.paymentsService.verifyTransactionStatus(idOrRef);

@@ -27,6 +27,10 @@ export class CreateBookingDto {
   @Matches(/^([01]\d|2[0-3]):[0-5]\d$/, { message: 'timeSlot must be HH:mm' })
   timeSlot: string;
 
+  @IsString()
+  @IsNotEmpty()
+  room: string;
+
   @Type(() => Number)
   @IsInt()
   @Min(1)

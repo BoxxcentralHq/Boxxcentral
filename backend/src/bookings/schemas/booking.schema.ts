@@ -43,6 +43,10 @@ export class Booking {
   @Prop({ required: true })
   timeSlot: string;
 
+  // which physical room — e.g. "Cinema 1"; validated against CinemaSettings.rooms
+  @Prop({ required: true })
+  room: string;
+
   @Prop({ required: true, min: 1, default: 1 })
   guests: number;
 
@@ -69,9 +73,11 @@ export class Booking {
 
 export const BookingSchema = SchemaFactory.createForClass(Booking);
 
-// DB-enforced double-booking guard: one active FilmBoxx booking per slot
+// DB-enforced double-booking guard: one active FilmBoxx booking per
+// (date, timeSlot, room) — two different rooms can be booked for the same
+// slot, but the same room can't be double-booked
 BookingSchema.index(
-  { experience: 1, date: 1, timeSlot: 1 },
+  { experience: 1, date: 1, timeSlot: 1, room: 1 },
   {
     unique: true,
     partialFilterExpression: {

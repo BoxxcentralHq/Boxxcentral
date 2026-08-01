@@ -78,6 +78,9 @@ export class BookingsService {
     if (!settings.timeSlots.includes(dto.timeSlot)) {
       throw new BadRequestException('Invalid time slot');
     }
+    if (!settings.rooms.includes(dto.room)) {
+      throw new BadRequestException('Invalid room');
+    }
     if (this.isPastDate(dto.date)) {
       throw new BadRequestException('Booking date is in the past');
     }
@@ -107,6 +110,7 @@ export class BookingsService {
         guestPhone: dto.guestPhone,
         date: dto.date,
         timeSlot: dto.timeSlot,
+        room: dto.room,
         guests: dto.guests,
         subtotal,
         vatAmount,
@@ -127,14 +131,15 @@ export class BookingsService {
       bookingId: booking._id,
     }).save();
 
-    const frontendUrl =
-      this.configService.get<string>('FRONTEND_URL') ?? 'http://localhost:3000';
+    const frontendUrl = (
+      this.configService.get<string>('FRONTEND_URL') ?? 'http://localhost:3000'
+    ).split(',')[0];
 
     const payment = await this.flutterwaveService.initializePayment({
       tx_ref: bookingRef,
       amount: totalPrice,
       currency: 'NGN',
-      redirect_url: `${frontendUrl}/filmboxx/payment-status`,
+      redirect_url: `${frontendUrl}/payment/confirm`,
       meta: { bookingId: String(booking._id), experience: 'filmboxx' },
       customer: {
         email: dto.guestEmail,
@@ -143,7 +148,7 @@ export class BookingsService {
       },
       customizations: {
         title: 'FilmBoxx Private Cinema',
-        description: `Private cinema — ${dto.date} at ${dto.timeSlot}`,
+        description: `Private cinema — ${dto.room}, ${dto.date} at ${dto.timeSlot}`,
       },
     });
 
@@ -152,6 +157,7 @@ export class BookingsService {
         bookingRef,
         date: booking.date,
         timeSlot: booking.timeSlot,
+        room: booking.room,
         guests: booking.guests,
         subtotal,
         vatAmount,
@@ -161,18 +167,23 @@ export class BookingsService {
     };
   }
 
-  async getAvailability(date: string) {
+  async getAvailability(date: string, room: string) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
       throw new BadRequestException('date must be YYYY-MM-DD');
     }
 
     const settings = await this.cinemaService.getSettings();
+    if (!settings.rooms.includes(room)) {
+      throw new BadRequestException('Invalid room');
+    }
     await this.expireStalePending();
 
+    // scoped to this room only — the same slot is free in every other room
     const active = await this.bookingModel
       .find({
         experience: 'filmboxx',
         date,
+        room,
         status: { $in: [BookingStatus.PENDING, BookingStatus.RESERVED] },
       })
       .select('timeSlot');
@@ -180,6 +191,7 @@ export class BookingsService {
 
     return {
       date,
+      room,
       bookingEnabled: settings.bookingEnabled,
       slots: settings.timeSlots.map((time) => ({
         time,
