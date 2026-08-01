@@ -12,7 +12,7 @@ import type {
 export function useCreateContactMessage() {
   return useMutation({
     mutationFn: (body: CreateContactMessageBody) =>
-      api.post<ContactMessage>("/contact", body),
+      api.post<void>("/contact", body),
   });
 }
 

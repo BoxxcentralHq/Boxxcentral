@@ -25,39 +25,52 @@ export class BookingsController {
   @UseGuards(ThrottlerGuard)
   @Throttle({ default: { ttl: 60000, limit: 5 } })
   @Post()
-  create(@Body() dto: CreateBookingDto) {
-    return this.bookingsService.createBooking(dto);
+  async create(@Body() dto: CreateBookingDto) {
+    const result = await this.bookingsService.createBooking(dto);
+    return {
+      message: 'Booking created — redirecting to payment',
+      data: result,
+    };
   }
 
   // public: slot availability for the booking form, scoped to one room
   @Get('availability')
-  availability(@Query('date') date: string, @Query('room') room: string) {
-    return this.bookingsService.getAvailability(date, room);
+  async availability(@Query('date') date: string, @Query('room') room: string) {
+    const result = await this.bookingsService.getAvailability(date, room);
+    return { message: 'Availability fetched', data: result };
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(AdminRole.SUPER_ADMIN, AdminRole.CINEMA_ADMIN)
   @Get()
-  findAll(
+  async findAll(
     @Query('page') page?: number,
     @Query('limit') limit?: number,
     @Query('date') date?: string,
     @Query('status') status?: BookingStatus,
   ) {
-    return this.bookingsService.findAll({ page, limit, date, status });
+    const result = await this.bookingsService.findAll({
+      page,
+      limit,
+      date,
+      status,
+    });
+    return { message: 'Bookings fetched', data: result };
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(AdminRole.SUPER_ADMIN, AdminRole.CINEMA_ADMIN)
   @Patch(':id/cancel')
-  cancel(@Param('id') id: string) {
-    return this.bookingsService.cancel(id);
+  async cancel(@Param('id') id: string) {
+    const booking = await this.bookingsService.cancel(id);
+    return { message: 'Booking cancelled', data: booking };
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(AdminRole.SUPER_ADMIN, AdminRole.CINEMA_ADMIN)
   @Patch(':id/complete')
-  complete(@Param('id') id: string) {
-    return this.bookingsService.complete(id);
+  async complete(@Param('id') id: string) {
+    const booking = await this.bookingsService.complete(id);
+    return { message: 'Booking marked complete', data: booking };
   }
 }

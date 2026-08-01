@@ -23,40 +23,45 @@ export class PaymentsController {
   /** Public: Flutterwave calls this. Auth is the verif-hash signature. */
   @Post('webhook/flutterwave')
   @HttpCode(200)
-  handleWebhook(
+  async handleWebhook(
     @Headers('verif-hash') signature: string,
     @Body() payload: FlutterwaveWebhookPayload,
   ) {
-    return this.paymentsService.handleWebhook(payload, signature);
+    const result = await this.paymentsService.handleWebhook(payload, signature);
+    return { message: 'Webhook processed', data: result };
   }
 
   @Get(':idOrRef/verify')
-  verifyStatus(@Param('idOrRef') idOrRef: string) {
-    return this.paymentsService.verifyTransactionStatus(idOrRef);
+  async verifyStatus(@Param('idOrRef') idOrRef: string) {
+    const result = await this.paymentsService.verifyTransactionStatus(idOrRef);
+    return { message: 'Payment status fetched', data: result };
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(AdminRole.SUPER_ADMIN)
   @Get()
-  findAll(
+  async findAll(
     @Query('page') page?: number,
     @Query('limit') limit?: number,
     @Query('search') search?: string,
   ) {
-    return this.paymentsService.findAll({ page, limit, search });
+    const result = await this.paymentsService.findAll({ page, limit, search });
+    return { message: 'Payments fetched', data: result };
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(AdminRole.SUPER_ADMIN)
   @Get('analytics/monthly')
-  getMonthlyRevenue() {
-    return this.paymentsService.getMonthlyRevenue();
+  async getMonthlyRevenue() {
+    const revenue = await this.paymentsService.getMonthlyRevenue();
+    return { message: 'Revenue fetched', data: revenue };
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(AdminRole.SUPER_ADMIN)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.paymentsService.findOne(id);
+  async findOne(@Param('id') id: string) {
+    const payment = await this.paymentsService.findOne(id);
+    return { message: 'Payment fetched', data: payment };
   }
 }

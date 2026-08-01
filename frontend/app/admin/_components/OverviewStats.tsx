@@ -41,9 +41,9 @@ export default function OverviewStats({ role }: { role: AdminRole }) {
   const nextToday = [...activeTodaysBookings].sort((a, b) =>
     a.timeSlot.localeCompare(b.timeSlot),
   )[0];
-  const pendingCount = pendingData?.meta.total ?? 0;
-  const unreadCount = unreadData?.meta.total ?? 0;
-  const newestUnread = unreadData?.messages[0];
+  const pendingCount = pendingData?.meta?.total ?? 0;
+  const unreadCount = unreadData?.meta?.total ?? 0;
+  const newestUnread = unreadData?.messages?.[0];
   const hiddenMenuItems = (menuItems ?? []).filter((item) => !item.visible).length;
   const menuCategoryCount = new Set((menuItems ?? []).map((item) => item.category)).size;
 

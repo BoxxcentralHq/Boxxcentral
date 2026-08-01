@@ -25,6 +25,15 @@ export function buildUrl(path: string, query?: Query): string {
   return qs ? `${url}?${qs}` : url;
 }
 
+// every response body — success and error alike — is wrapped in this envelope
+export type ApiEnvelope<T> = {
+  success: boolean;
+  message: string;
+  data: T;
+  error: null;
+  timestamp: string;
+};
+
 // NestJS error bodies: { message: string | string[], statusCode, error }
 export async function parseResponse<T>(res: Response): Promise<T> {
   const isJson = res.headers.get("content-type")?.includes("application/json");
@@ -39,5 +48,5 @@ export async function parseResponse<T>(res: Response): Promise<T> {
     throw new ApiError(res.status, message);
   }
 
-  return body as T;
+  return (body as ApiEnvelope<T>).data;
 }

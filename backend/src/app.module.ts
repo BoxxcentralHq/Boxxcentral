@@ -18,19 +18,6 @@ import { PaymentsModule } from './payments/payments.module';
 
 const dbLogger = new Logger('Database');
 
-function extractMessage(body: unknown): string | undefined {
-  if (body && typeof body === 'object' && 'message' in body) {
-    const m = body.message;
-    if (typeof m === 'string') return m;
-    if (Array.isArray(m)) return m.join('. ');
-  }
-  return undefined;
-}
-
-function getLocals(res: unknown): Record<string, unknown> | undefined {
-  return (res as { locals?: Record<string, unknown> }).locals;
-}
-
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -48,23 +35,19 @@ function getLocals(res: unknown): Record<string, unknown> | undefined {
             statusCode: res.statusCode,
           }),
         },
-        // the actual NestJS response/exception message, not a generic string
-        customSuccessMessage: (req, res, responseTime) => {
-          const body = getLocals(res)?.responseBody;
+        // TransformInterceptor / HttpExceptionFilter stash the real
+        // response message on res.locals.apiMessage — use that as the log line
+        customSuccessMessage: (_req, res) => {
           return (
-            extractMessage(body) ??
-            `${req.method} ${req.url} ${res.statusCode} (${responseTime}ms)`
+            (res as { locals?: { apiMessage?: string } }).locals?.apiMessage ??
+            'Request completed'
           );
         },
-        customErrorMessage: (req, res, error) => {
-          const response = (
-            error as { getResponse?: () => unknown }
-          ).getResponse?.();
-          return (
-            extractMessage(response) ??
-            error.message ??
-            `${req.method} ${req.url} ${res.statusCode}`
-          );
+        // 4xx -> warn, 5xx / errors -> error, everything else -> info
+        customLogLevel: (_req, res, err) => {
+          if (err || res.statusCode >= 500) return 'error';
+          if (res.statusCode >= 400) return 'warn';
+          return 'info';
         },
         transport:
           process.env.NODE_ENV === 'production'

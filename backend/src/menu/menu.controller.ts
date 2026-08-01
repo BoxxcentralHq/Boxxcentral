@@ -36,44 +36,49 @@ export class MenuController {
 
   // public: the Lounge page's menu grid
   @Get()
-  listVisible() {
-    return this.menuService.listVisible();
+  async listVisible() {
+    const items = await this.menuService.listVisible();
+    return { message: 'Menu items fetched', data: items };
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(AdminRole.SUPER_ADMIN, AdminRole.LOUNGE_ADMIN)
   @Get('all')
-  listAll() {
-    return this.menuService.listAll();
+  async listAll() {
+    const items = await this.menuService.listAll();
+    return { message: 'Menu items fetched', data: items };
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(AdminRole.SUPER_ADMIN, AdminRole.LOUNGE_ADMIN)
   @Post()
   @UseInterceptors(FileInterceptor('image'))
-  create(
+  async create(
     @Body() dto: CreateMenuItemDto,
     @UploadedFile(imagePipe) image?: Express.Multer.File,
   ) {
-    return this.menuService.create(dto, image);
+    const item = await this.menuService.create(dto, image);
+    return { message: 'Menu item added', data: item };
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(AdminRole.SUPER_ADMIN, AdminRole.LOUNGE_ADMIN)
   @Patch(':id')
   @UseInterceptors(FileInterceptor('image'))
-  update(
+  async update(
     @Param('id') id: string,
     @Body() dto: UpdateMenuItemDto,
     @UploadedFile(imagePipe) image?: Express.Multer.File,
   ) {
-    return this.menuService.update(id, dto, image);
+    const item = await this.menuService.update(id, dto, image);
+    return { message: 'Menu item updated', data: item };
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(AdminRole.SUPER_ADMIN, AdminRole.LOUNGE_ADMIN)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.menuService.remove(id);
+  async remove(@Param('id') id: string) {
+    const result = await this.menuService.remove(id);
+    return { message: result.message, data: null };
   }
 }

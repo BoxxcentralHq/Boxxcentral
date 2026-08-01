@@ -40,7 +40,8 @@ export class AdminController {
 
   @Post('setup')
   async setup(@Body() createAdminDto: CreateAdminDto) {
-    return this.adminService.createInitialAdmin(createAdminDto);
+    const admin = await this.adminService.createInitialAdmin(createAdminDto);
+    return { message: 'Admin account created', data: admin };
   }
 
   /** Sets httpOnly auth cookies; tokens never appear in the response body. */
@@ -57,7 +58,7 @@ export class AdminController {
       loginDto.password,
     );
     setAuthCookies(res, accessToken, refreshToken);
-    return { admin };
+    return { message: 'Login successful', data: { admin } };
   }
 
   @UseGuards(ThrottlerGuard)
@@ -72,7 +73,7 @@ export class AdminController {
     const { accessToken, refreshToken, admin } =
       await this.adminService.refresh(cookies?.[REFRESH_TOKEN_COOKIE]);
     setAuthCookies(res, accessToken, refreshToken);
-    return { admin };
+    return { message: 'Session refreshed', data: { admin } };
   }
 
   @UseGuards(JwtAuthGuard)
@@ -82,27 +83,29 @@ export class AdminController {
     const user = req.user as JwtUser;
     const result = await this.adminService.logout(user.userId);
     clearAuthCookies(res);
-    return result;
+    return { message: result.message, data: null };
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   getProfile(@Req() req: Request) {
-    return req.user;
+    return { message: 'Profile fetched', data: req.user };
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(AdminRole.SUPER_ADMIN)
   @Post('admins')
   async createAdmin(@Body() dto: CreateStaffDto) {
-    return this.adminService.createAdmin(dto);
+    const admin = await this.adminService.createAdmin(dto);
+    return { message: 'Staff account created', data: admin };
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(AdminRole.SUPER_ADMIN)
   @Get('admins')
   async listAdmins() {
-    return this.adminService.listAdmins();
+    const admins = await this.adminService.listAdmins();
+    return { message: 'Admins fetched', data: admins };
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -110,17 +113,19 @@ export class AdminController {
   @Delete('admins/:id')
   async removeAdmin(@Req() req: Request, @Param('id') id: string) {
     const user = req.user as JwtUser;
-    return this.adminService.removeAdmin(id, user.userId);
+    const result = await this.adminService.removeAdmin(id, user.userId);
+    return { message: result.message, data: null };
   }
 
   @UseGuards(JwtAuthGuard)
   @Patch('change-password')
   async changePassword(@Req() req: Request, @Body() dto: ChangePasswordDto) {
     const user = req.user as JwtUser;
-    return this.adminService.changePassword(
+    const result = await this.adminService.changePassword(
       user.userId,
       dto.currentPassword,
       dto.newPassword,
     );
+    return { message: result.message, data: null };
   }
 }

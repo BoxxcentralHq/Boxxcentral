@@ -1,6 +1,7 @@
 import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsIn,
   IsNotEmpty,
   IsNumber,
@@ -46,4 +47,10 @@ export class CreateMenuItemDto {
   @IsArray()
   @IsString({ each: true })
   tags?: string[];
+
+  // multipart form fields arrive as strings
+  @IsOptional()
+  @Transform(({ value }) => value === 'true' || value === true)
+  @IsBoolean()
+  visible?: boolean;
 }

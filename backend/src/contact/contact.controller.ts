@@ -25,36 +25,40 @@ export class ContactController {
   @UseGuards(ThrottlerGuard)
   @Throttle({ default: { ttl: 60000, limit: 3 } })
   @Post()
-  create(@Body() dto: CreateMessageDto) {
-    return this.contactService.create(dto);
+  async create(@Body() dto: CreateMessageDto) {
+    const result = await this.contactService.create(dto);
+    return { message: result.message, data: null };
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(AdminRole.SUPER_ADMIN)
   @Get()
-  findAll(
+  async findAll(
     @Query('page') page?: number,
     @Query('limit') limit?: number,
     @Query('unread') unread?: string,
   ) {
-    return this.contactService.findAll({
+    const result = await this.contactService.findAll({
       page,
       limit,
       unread: unread === 'true',
     });
+    return { message: 'Messages fetched', data: result };
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(AdminRole.SUPER_ADMIN)
   @Patch(':id/read')
-  markRead(@Param('id') id: string) {
-    return this.contactService.markRead(id);
+  async markRead(@Param('id') id: string) {
+    const message = await this.contactService.markRead(id);
+    return { message: 'Message marked read', data: message };
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(AdminRole.SUPER_ADMIN)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.contactService.remove(id);
+  async remove(@Param('id') id: string) {
+    const result = await this.contactService.remove(id);
+    return { message: result.message, data: null };
   }
 }

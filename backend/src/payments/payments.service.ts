@@ -112,18 +112,20 @@ export class PaymentsService {
         { new: true },
       );
 
-      // A failed email must never make the webhook fail — Flutterwave
-      // would retry and we'd double-process.
       if (booking) {
         try {
           await this.emailService.sendBookingConfirmation({
             guestName: booking.guestName,
             guestEmail: booking.guestEmail,
+            guestPhone: booking.guestPhone,
             bookingRef: booking.bookingRef,
             experience: booking.experience,
+            room: booking.room,
             date: booking.date,
             timeSlot: booking.timeSlot,
             guests: booking.guests,
+            subtotal: booking.subtotal,
+            vatAmount: booking.vatAmount,
             totalPrice: booking.totalPrice,
           });
         } catch (emailError) {

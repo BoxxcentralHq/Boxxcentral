@@ -365,7 +365,7 @@ export default function MenuManager() {
                         <button
                           type="button"
                           onClick={() => toggleVisible(item)}
-                          disabled={updateItem.isPending}
+                          disabled={updateItem.isPending && updateItem.variables?.id === item._id}
                           aria-label={item.visible ? `Hide ${item.name}` : `Show ${item.name}`}
                           className="flex size-8 cursor-pointer items-center justify-center rounded-full border border-boxx-line text-boxx-mist transition-colors duration-200 hover:border-boxx-red hover:text-boxx-white disabled:pointer-events-none disabled:opacity-40"
                         >

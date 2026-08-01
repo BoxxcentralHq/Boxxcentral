@@ -19,11 +19,6 @@ export const site = {
 
 export const contact = {
   address: "Fadeyi Estate off Ilesa Road,Oshogbo, Osun State,Nigeria",
-  /**
-   * What the map searches for. Name-first so Google pins the actual venue
-   * listing rather than a rough street geocode; swap for exact coordinates
-   * ("7.7827,4.5418") if the pin ever needs fine-tuning.
-   */
   mapQuery:
     "BoxxCentral, Fadeyi Estate off Ilesa Road, Osogbo, Osun State, Nigeria",
   phone: "+234 706 349 2072",

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import ExperiencePage from "@/components/ExperiencePage";
+import MenuJsonLd from "@/components/MenuJsonLd";
 import { getMenuItems } from "@/lib/api/server";
 import { getExperience } from "@/lib/experiences";
 import MenuSection from "./_components/MenuSection";
@@ -16,6 +17,7 @@ export default async function LoungePage() {
   const items = await getMenuItems();
   return (
     <>
+      <MenuJsonLd items={items ?? []} />
       <ExperiencePage experience={lounge} />
       <MenuSection items={items ?? []} />
     </>

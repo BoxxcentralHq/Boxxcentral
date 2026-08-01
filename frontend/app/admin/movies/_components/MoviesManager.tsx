@@ -329,7 +329,7 @@ export default function MoviesManager() {
                 onToggleVisible={() => toggleVisible(movie)}
                 onEdit={() => openEditDialog(movie)}
                 onDelete={() => setPendingDelete(movie)}
-                togglePending={updateMovie.isPending}
+                togglePending={updateMovie.isPending && updateMovie.variables?.id === movie._id}
                 deletePending={deleteMovie.isPending}
               />
             ))}
