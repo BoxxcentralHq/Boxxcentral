@@ -12,7 +12,7 @@ type CacheOpts = {
 export async function serverFetch<T>(
   path: string,
   query?: Query,
-  { revalidate = 60 }: CacheOpts = {},
+  { revalidate = 30 }: CacheOpts = {},
 ): Promise<T | null> {
   try {
     const res = await fetch(buildUrl(path, query), {
