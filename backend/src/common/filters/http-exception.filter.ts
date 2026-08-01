@@ -27,15 +27,20 @@ export class HttpExceptionFilter implements ExceptionFilter {
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
     let message: string | string[];
+    let data: unknown = null;
 
     if (exception instanceof HttpException) {
       const exceptionResponse = exception.getResponse();
-      message =
-        typeof exceptionResponse === 'object' &&
-        exceptionResponse !== null &&
-        'message' in exceptionResponse
-          ? (exceptionResponse as { message: string | string[] }).message
-          : (exceptionResponse as string);
+      if (typeof exceptionResponse === 'object' && exceptionResponse !== null) {
+        const body = exceptionResponse as {
+          message?: string | string[];
+          data?: unknown;
+        };
+        message = body.message ?? 'An error occurred';
+        data = body.data ?? null;
+      } else {
+        message = exceptionResponse;
+      }
     } else {
       message = 'An unexpected error occurred. Please try again later.';
     }
@@ -56,7 +61,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     response.status(status).json({
       success: false,
       message: apiMessage,
-      data: null,
+      data,
       error: {
         statusCode: status,
         type: exception instanceof Error ? exception.name : 'Error',
