@@ -1,7 +1,7 @@
 import type { MenuItem } from "@/lib/api/types";
 import { site } from "@/lib/site";
 
-/** Structured data for the Lounge menu — grouped by category, built from live data. */
+/** Structured data for LoungeBoxx menu — grouped by category, built from live data. */
 export default function MenuJsonLd({ items }: { items: MenuItem[] }) {
   if (items.length === 0) return null;
 

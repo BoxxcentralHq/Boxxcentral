@@ -20,7 +20,7 @@ export default function VisitUs() {
           <SectionHeading
             eyebrow="Visit us"
             title="Come see it for yourself"
-            lede="Walk in for the lounge, book ahead for the cinema — either way, we're easy to find."
+            lede="Walk in for LoungeBoxx, book ahead for the cinema — either way, we're easy to find."
           />
 
           <div className="mt-8 flex items-start gap-2.5 text-sm text-boxx-white">

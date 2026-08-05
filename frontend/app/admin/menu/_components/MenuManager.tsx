@@ -34,7 +34,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast, toastApiError } from "@/lib/api/toast";
-import { MENU_CATEGORIES, type MenuCategory, type MenuItem } from "@/lib/api/types";
+import {
+  MENU_CATEGORIES,
+  type MenuCategory,
+  type MenuItem,
+} from "@/lib/api/types";
 import {
   useCreateMenuItem,
   useDeleteMenuItem,
@@ -45,7 +49,12 @@ import { cn } from "@/lib/utils";
 import Pagination from "../../_components/Pagination";
 
 /** The only tags seen in the menu data — kept as toggles rather than free text. */
-const availableTags = ["Popular", "Spicy", "Alcoholic", "Non-alcoholic"] as const;
+const availableTags = [
+  "Popular",
+  "Spicy",
+  "Alcoholic",
+  "Non-alcoholic",
+] as const;
 
 const PAGE_SIZE = 10;
 const naira = (amount: number) => `₦${amount.toLocaleString("en-NG")}`;
@@ -82,7 +91,7 @@ const emptyForm: FormState = {
 };
 
 /**
- * The Lounge menu's admin surface — add, edit, hide, and remove items
+ * LoungeBoxx menu's admin surface — add, edit, hide, and remove items
  * against the real /menu API. Images upload as multipart form data.
  */
 export default function MenuManager() {
@@ -307,19 +316,26 @@ export default function MenuManager() {
             <tbody>
               {isLoading && (
                 <tr>
-                  <td colSpan={6} className="px-6 py-14 text-center text-sm text-boxx-dim">
+                  <td
+                    colSpan={6}
+                    className="px-6 py-14 text-center text-sm text-boxx-dim"
+                  >
                     Loading menu…
                   </td>
                 </tr>
               )}
               {isError && (
                 <tr>
-                  <td colSpan={6} className="px-6 py-14 text-center text-sm text-boxx-dim">
+                  <td
+                    colSpan={6}
+                    className="px-6 py-14 text-center text-sm text-boxx-dim"
+                  >
                     Couldn&apos;t load the menu. Try refreshing.
                   </td>
                 </tr>
               )}
-              {!isLoading && !isError &&
+              {!isLoading &&
+                !isError &&
                 paginated.map((item) => (
                   <tr
                     key={item._id}
@@ -368,7 +384,10 @@ export default function MenuManager() {
                       </div>
                     </td>
                     <td className="px-4 py-4">
-                      <Badge variant={item.visible ? "soft" : "outline"} className="text-[10px]">
+                      <Badge
+                        variant={item.visible ? "soft" : "outline"}
+                        className="text-[10px]"
+                      >
                         {item.visible ? "Visible" : "Hidden"}
                       </Badge>
                     </td>
@@ -377,8 +396,15 @@ export default function MenuManager() {
                         <button
                           type="button"
                           onClick={() => toggleVisible(item)}
-                          disabled={updateItem.isPending && updateItem.variables?.id === item._id}
-                          aria-label={item.visible ? `Hide ${item.name}` : `Show ${item.name}`}
+                          disabled={
+                            updateItem.isPending &&
+                            updateItem.variables?.id === item._id
+                          }
+                          aria-label={
+                            item.visible
+                              ? `Hide ${item.name}`
+                              : `Show ${item.name}`
+                          }
                           className="flex size-8 cursor-pointer items-center justify-center rounded-full border border-boxx-line text-boxx-mist transition-colors duration-200 hover:border-boxx-red hover:text-boxx-white disabled:pointer-events-none disabled:opacity-40"
                         >
                           <HugeiconsIcon
@@ -441,7 +467,9 @@ export default function MenuManager() {
         <DialogContent className="max-w-lg">
           <div className="p-6">
             <DialogHeader className="gap-1.5 p-0">
-              <DialogTitle>{editingItem ? "Edit item" : "Add item"}</DialogTitle>
+              <DialogTitle>
+                {editingItem ? "Edit item" : "Add item"}
+              </DialogTitle>
               <DialogDescription>
                 {editingItem
                   ? "Update this dish or drink's details."

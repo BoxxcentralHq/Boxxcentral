@@ -159,7 +159,7 @@ body {
   }
 }
 
-/* Hides the scrollbar on a horizontally-scrollable strip (e.g. the lounge
+/* Hides the scrollbar on a horizontally-scrollable strip (e.g. LoungeBoxx
  * menu's category filter) while keeping it scrollable by touch/wheel. */
 .no-scrollbar {
   scrollbar-width: none; /* Firefox */
