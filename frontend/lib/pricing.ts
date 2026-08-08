@@ -56,15 +56,5 @@ export const filmboxxPackagePricing: PricingGroup = {
   addOn: "Extra guest — ₦10,000 each",
 };
 
-export const publicCinemaPricing: PricingGroup = {
-  eyebrow: "Public screening",
-  title: "Public Cinema Screening",
-  lede: "Open seating, posted whenever a room isn't privately booked.",
-  plans: [
-    {
-      name: "Per Person",
-      price: 10000,
-      note: "Includes complimentary popcorn and drink",
-    },
-  ],
-};
+/** Price for a public-screening ticket — see MovieBookingDialog. */
+export const publicScreeningPricePerPerson = 10000;
