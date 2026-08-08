@@ -2,8 +2,7 @@ import { contact, site, socials } from "@/lib/site";
 
 const DAYS = {
   "Monday – Thursday": ["Monday", "Tuesday", "Wednesday", "Thursday"],
-  "Friday – Saturday": ["Friday", "Saturday"],
-  Sunday: ["Sunday"],
+  "Friday – Sunday": ["Friday", "Saturday", "Sunday"],
 } as const;
 
 // "10:00 – 22:00" -> ["10:00", "22:00"]; a midnight close is written as

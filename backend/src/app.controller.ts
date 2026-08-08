@@ -11,7 +11,6 @@ import { AppService } from './app.service';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  // root + health are infra-facing — they stay stable across API versions
   @Version(VERSION_NEUTRAL)
   @Get()
   getRoot() {
