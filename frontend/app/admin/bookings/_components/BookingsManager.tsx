@@ -3,7 +3,8 @@
 import { useMemo, useState } from "react";
 import { format, parseISO } from "date-fns";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { ArrowLeft01Icon, ArrowRight01Icon, Search01Icon } from "@hugeicons/core-free-icons";
+import { Search01Icon } from "@hugeicons/core-free-icons";
+import EmptyState from "@/components/EmptyState";
 import Reveal from "@/components/Reveal";
 import { toastApiError, toast } from "@/lib/api/toast";
 import type { BookingStatus } from "@/lib/api/types";
@@ -13,7 +14,7 @@ import {
   useCompleteBooking,
 } from "@/lib/bookings";
 import { cn } from "@/lib/utils";
-import EmptyState from "@/components/EmptyState";
+import Pagination from "../../_components/Pagination";
 import { StatusBadge } from "../../_components/shared";
 
 type StatusFilter = "all" | BookingStatus;
@@ -244,30 +245,13 @@ export default function BookingsManager() {
           </table>
         </div>
 
-        {meta && meta.totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-boxx-line px-6 py-4 text-xs text-boxx-dim">
-            <span>
-              Page {meta.page} of {meta.totalPages} · {meta.total} total
-            </span>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                disabled={page <= 1}
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                className="flex size-8 items-center justify-center rounded-full border border-boxx-line text-boxx-mist transition-colors duration-200 hover:border-boxx-red hover:text-boxx-white disabled:pointer-events-none disabled:opacity-40"
-              >
-                <HugeiconsIcon icon={ArrowLeft01Icon} className="size-3.5" />
-              </button>
-              <button
-                type="button"
-                disabled={page >= meta.totalPages}
-                onClick={() => setPage((p) => Math.min(meta.totalPages, p + 1))}
-                className="flex size-8 items-center justify-center rounded-full border border-boxx-line text-boxx-mist transition-colors duration-200 hover:border-boxx-red hover:text-boxx-white disabled:pointer-events-none disabled:opacity-40"
-              >
-                <HugeiconsIcon icon={ArrowRight01Icon} className="size-3.5" />
-              </button>
-            </div>
-          </div>
+        {meta && (
+          <Pagination
+            page={page}
+            totalPages={meta.totalPages}
+            total={meta.total}
+            onPageChange={setPage}
+          />
         )}
       </Reveal>
     </div>

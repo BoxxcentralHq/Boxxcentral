@@ -36,6 +36,9 @@ import {
   useUpdateMovie,
 } from "@/lib/movies";
 import { cn } from "@/lib/utils";
+import Pagination from "../../_components/Pagination";
+
+const PAGE_SIZE = 10;
 
 const fieldClass =
   "w-full rounded-xl border border-boxx-line bg-boxx-night px-4 py-3 text-sm text-boxx-white placeholder:text-boxx-dim outline-none transition-colors duration-200 focus:border-boxx-red focus-visible:ring-[3px] focus-visible:ring-ring";
@@ -158,6 +161,7 @@ export default function MoviesManager() {
   const deleteMovie = useDeleteMovie();
 
   const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingMovie, setEditingMovie] = useState<Movie | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
@@ -175,6 +179,9 @@ export default function MoviesManager() {
         (m.genre ?? "").toLowerCase().includes(q),
     );
   }, [movies, query]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   useEffect(() => {
     return () => {
@@ -288,7 +295,10 @@ export default function MoviesManager() {
           <input
             type="search"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setPage(1);
+            }}
             placeholder="Search movies…"
             aria-label="Search movies"
             className="w-full rounded-full border border-boxx-line bg-boxx-coal py-2.5 pl-11 pr-4 text-sm text-boxx-white placeholder:text-boxx-dim outline-none transition-colors duration-200 focus:border-boxx-red focus-visible:ring-[3px] focus-visible:ring-ring"
@@ -322,7 +332,7 @@ export default function MoviesManager() {
       {!isLoading && !isError && filtered.length > 0 && (
         <Reveal delay={100} className="mt-6">
           <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-            {filtered.map((movie) => (
+            {paginated.map((movie) => (
               <MovieCard
                 key={movie._id}
                 movie={movie}
@@ -334,12 +344,13 @@ export default function MoviesManager() {
               />
             ))}
           </div>
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            total={filtered.length}
+            onPageChange={setPage}
+          />
         </Reveal>
-      )}
-      {!isLoading && !isError && (
-        <p className="mt-6 text-xs tracking-[0.2em] text-boxx-dim uppercase">
-          {filtered.length} {filtered.length === 1 ? "movie" : "movies"}
-        </p>
       )}
 
       {/* Add / edit dialog */}

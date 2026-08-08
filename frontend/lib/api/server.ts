@@ -1,18 +1,14 @@
-// server-component fetches for PUBLIC data only — admin screens are
-// client components and use lib/api/client.ts with cookie auth
 import { buildUrl, parseResponse, Query } from "./core";
 import type { Availability, CinemaSettings, MenuItem, Movie } from "./types";
 
 type CacheOpts = {
-  // seconds between revalidations; 0 = always fresh (no-store)
   revalidate?: number;
 };
 
-// fails soft: a down backend renders the page without the data, not a crash
 export async function serverFetch<T>(
   path: string,
   query?: Query,
-  { revalidate = 60 }: CacheOpts = {},
+  { revalidate = 30 }: CacheOpts = {},
 ): Promise<T | null> {
   try {
     const res = await fetch(buildUrl(path, query), {

@@ -122,37 +122,47 @@ export default function MenuFilters({
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
-          aria-pressed={category === "All"}
-          onClick={() => onCategoryChange("All")}
-          className={cn(
-            "flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 text-xs font-bold tracking-wider uppercase transition-colors duration-200",
-            category === "All"
-              ? "border-boxx-red bg-boxx-red text-boxx-white"
-              : "border-boxx-line text-boxx-mist hover:border-boxx-dim hover:text-boxx-white",
-          )}
+      <div className="relative">
+        <div
+          role="group"
+          aria-label="Filter by category"
+          className="no-scrollbar flex snap-x snap-mandatory gap-2 overflow-x-auto scroll-smooth pb-1"
         >
-          All
-        </button>
-        {MENU_CATEGORIES.map((cat) => (
           <button
-            key={cat}
             type="button"
-            aria-pressed={category === cat}
-            onClick={() => onCategoryChange(cat)}
+            aria-pressed={category === "All"}
+            onClick={() => onCategoryChange("All")}
             className={cn(
-              "flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 text-xs font-bold tracking-wider uppercase transition-colors duration-200",
-              category === cat
+              "flex shrink-0 snap-start items-center gap-1.5 rounded-full border px-4 py-2 text-xs font-bold tracking-wider uppercase transition-colors duration-200",
+              category === "All"
                 ? "border-boxx-red bg-boxx-red text-boxx-white"
                 : "border-boxx-line text-boxx-mist hover:border-boxx-dim hover:text-boxx-white",
             )}
           >
-            <HugeiconsIcon icon={categoryIcons[cat]} aria-hidden className="size-3.5" />
-            {cat}
+            All
           </button>
-        ))}
+          {MENU_CATEGORIES.map((cat) => (
+            <button
+              key={cat}
+              type="button"
+              aria-pressed={category === cat}
+              onClick={() => onCategoryChange(cat)}
+              className={cn(
+                "flex shrink-0 snap-start items-center gap-1.5 rounded-full border px-4 py-2 text-xs font-bold tracking-wider uppercase transition-colors duration-200",
+                category === cat
+                  ? "border-boxx-red bg-boxx-red text-boxx-white"
+                  : "border-boxx-line text-boxx-mist hover:border-boxx-dim hover:text-boxx-white",
+              )}
+            >
+              <HugeiconsIcon icon={categoryIcons[cat]} aria-hidden className="size-3.5" />
+              {cat}
+            </button>
+          ))}
+        </div>
+
+        {/* Edge fades hint there's more to scroll — same technique as AtmosphereStrip */}
+        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-linear-to-r from-boxx-night to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-linear-to-l from-boxx-night to-transparent" />
       </div>
 
       <p className="text-xs tracking-[0.2em] text-boxx-dim uppercase">

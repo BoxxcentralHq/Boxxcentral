@@ -12,7 +12,11 @@ import type { Experience } from "@/lib/experiences";
  * Story + media section shared by every sub-brand page. Copy, media, and
  * column order all come from the experience's `showcase` data.
  */
-export default function ExperienceShowcase({ experience }: { experience: Experience }) {
+export default function ExperienceShowcase({
+  experience,
+}: {
+  experience: Experience;
+}) {
   const { showcase } = experience;
   const [wide, detailA, detailB] = showcase.media;
 
@@ -28,12 +32,13 @@ export default function ExperienceShowcase({ experience }: { experience: Experie
           <div className="mt-10">
             <HighlightList items={experience.highlights} />
           </div>
-          {/* Only FilmBoxx is bookable — jumps to the form further down this page. */}
+          {/* 
           {experience.bookable && (
             <Button asChild size="lg" className="mt-10">
               <Link href="#book">Book {experience.name}</Link>
             </Button>
           )}
+              */}
         </Reveal>
 
         <Reveal
@@ -43,8 +48,18 @@ export default function ExperienceShowcase({ experience }: { experience: Experie
         >
           <SiteImage src={wide.src} alt={wide.alt} aspect="aspect-video" />
           <div className="grid grid-cols-2 gap-4">
-            <SiteImage src={detailA.src} alt={detailA.alt} aspect="aspect-square" sizes="(max-width: 768px) 50vw, 25vw" />
-            <SiteImage src={detailB.src} alt={detailB.alt} aspect="aspect-square" sizes="(max-width: 768px) 50vw, 25vw" />
+            <SiteImage
+              src={detailA.src}
+              alt={detailA.alt}
+              aspect="aspect-square"
+              sizes="(max-width: 768px) 50vw, 25vw"
+            />
+            <SiteImage
+              src={detailB.src}
+              alt={detailB.alt}
+              aspect="aspect-square"
+              sizes="(max-width: 768px) 50vw, 25vw"
+            />
           </div>
         </Reveal>
       </Container>

@@ -8,9 +8,9 @@ import MenuSection from "./_components/MenuSection";
 const lounge = getExperience("lounge");
 
 export const metadata: Metadata = {
-  title: "The Lounge",
+  title: "LoungeBoxx",
   description:
-    "The Lounge is the warm center of BoxxCentral — drinks, small plates, and conversation.",
+    "LoungeBoxx is the warm center of BoxxCentral — drinks, small plates, and conversation.",
 };
 
 export default async function LoungePage() {

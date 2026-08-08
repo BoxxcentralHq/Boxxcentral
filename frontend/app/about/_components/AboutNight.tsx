@@ -17,7 +17,7 @@ const steps = [
     body: "Carry the energy to BowlBoxx. A few frames, a running scoreboard, and at least one friendship briefly on the line.",
   },
   {
-    title: "Land in the Lounge",
+    title: "Land in LoungeBoxx",
     body: "Finish where the light is warm. Drinks, small plates, and the slow replay of everything that just happened.",
   },
 ] as const;
