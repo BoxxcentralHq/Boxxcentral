@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import ExperiencePage from "@/components/ExperiencePage";
 import MovieShowcase from "@/components/MovieShowcase";
+import PricingSection from "@/components/PricingSection";
 import { getMovies } from "@/lib/api/server";
 import { getExperience } from "@/lib/experiences";
+import { filmboxxPackagePricing, publicCinemaPricing } from "@/lib/pricing";
 
 const filmboxx = getExperience("filmboxx");
 
@@ -17,6 +19,8 @@ export default async function FilmboxxPage() {
   return (
     <ExperiencePage experience={filmboxx}>
       <MovieShowcase movies={movies} />
+      <PricingSection {...filmboxxPackagePricing} />
+      <PricingSection {...publicCinemaPricing} />
     </ExperiencePage>
   );
 }
