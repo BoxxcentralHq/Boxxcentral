@@ -191,6 +191,22 @@ export type PageMeta = {
   totalPages: number;
 };
 
+export type MembershipFeature = {
+  label: string;
+};
+
+export type MembershipPlan = {
+  id: string;
+  title: string;
+  duration: string;
+  price: number;
+  featured?: boolean;
+  subtitle?: string;
+  description?: string;
+  features: MembershipFeature[];
+  buttonText?: string;
+};
+
 export type BookingsPage = { bookings: Booking[]; meta: PageMeta };
 export type PaymentsPage = { payments: Payment[]; meta: PageMeta };
 export type MessagesPage = { messages: ContactMessage[]; meta: PageMeta };
