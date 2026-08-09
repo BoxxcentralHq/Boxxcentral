@@ -1,3 +1,5 @@
+import type { IconSvgElement } from "@hugeicons/react";
+
 // contracts mirroring the NestJS backend's responses
 
 export type AdminRole = "super_admin" | "cinema_admin" | "lounge_admin";
@@ -189,6 +191,24 @@ export type PageMeta = {
   page: number;
   limit: number;
   totalPages: number;
+};
+
+export type PricingFeature = {
+  label: string;
+};
+
+/** A single tier within a service's pricing carousel (GymBoxx, BowlBoxx, FilmBoxx). */
+export type PricingPlan = {
+  id: string;
+  title: string;
+  icon?: IconSvgElement;
+  duration: string;
+  price: number;
+  featured?: boolean;
+  subtitle?: string;
+  description?: string;
+  features: PricingFeature[];
+  buttonText?: string;
 };
 
 export type BookingsPage = { bookings: Booking[]; meta: PageMeta };
