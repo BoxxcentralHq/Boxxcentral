@@ -15,8 +15,8 @@ export default function AdminMenuPage() {
         Manage the menu
       </h1>
       <p className="mt-3 max-w-xl text-sm leading-relaxed text-boxx-mist">
-        Add, edit, and remove dishes and drinks — changes here are what
-        guests see on the Lounge menu.
+        Add, edit, and remove dishes and drinks — changes here are what guests
+        see on LoungeBoxx menu.
       </p>
 
       <div className="mt-8">

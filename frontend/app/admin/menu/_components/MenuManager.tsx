@@ -13,6 +13,7 @@ import {
   ViewOffSlashIcon,
 } from "@hugeicons/core-free-icons";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import EmptyState from "@/components/EmptyState";
 import Reveal from "@/components/Reveal";
 import {
   Dialog,
@@ -33,7 +34,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast, toastApiError } from "@/lib/api/toast";
-import { MENU_CATEGORIES, type MenuCategory, type MenuItem } from "@/lib/api/types";
+import {
+  MENU_CATEGORIES,
+  type MenuCategory,
+  type MenuItem,
+} from "@/lib/api/types";
 import {
   useCreateMenuItem,
   useDeleteMenuItem,
@@ -41,11 +46,17 @@ import {
   useUpdateMenuItem,
 } from "@/lib/menu";
 import { cn } from "@/lib/utils";
-import EmptyState from "@/components/EmptyState";
+import Pagination from "../../_components/Pagination";
 
 /** The only tags seen in the menu data — kept as toggles rather than free text. */
-const availableTags = ["Popular", "Spicy", "Alcoholic", "Non-alcoholic"] as const;
+const availableTags = [
+  "Popular",
+  "Spicy",
+  "Alcoholic",
+  "Non-alcoholic",
+] as const;
 
+const PAGE_SIZE = 10;
 const naira = (amount: number) => `₦${amount.toLocaleString("en-NG")}`;
 
 const fieldClass =
@@ -80,7 +91,7 @@ const emptyForm: FormState = {
 };
 
 /**
- * The Lounge menu's admin surface — add, edit, hide, and remove items
+ * LoungeBoxx menu's admin surface — add, edit, hide, and remove items
  * against the real /menu API. Images upload as multipart form data.
  */
 export default function MenuManager() {
@@ -91,6 +102,7 @@ export default function MenuManager() {
 
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<MenuCategory | "All">("All");
+  const [page, setPage] = useState(1);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
@@ -111,6 +123,9 @@ export default function MenuManager() {
       return matchesCategory && matchesQuery;
     });
   }, [items, query, category]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   // revoke the object URL created for a locally-picked file on unmount/replace
   useEffect(() => {
@@ -244,7 +259,10 @@ export default function MenuManager() {
             <input
               type="search"
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setPage(1);
+              }}
               placeholder="Search dishes and drinks…"
               aria-label="Search menu items"
               className="w-full rounded-full border border-boxx-line bg-boxx-coal py-2.5 pl-11 pr-4 text-sm text-boxx-white placeholder:text-boxx-dim outline-none transition-colors duration-200 focus:border-boxx-red focus-visible:ring-[3px] focus-visible:ring-ring"
@@ -253,7 +271,10 @@ export default function MenuManager() {
 
           <Select
             value={category}
-            onValueChange={(v) => setCategory(v as MenuCategory | "All")}
+            onValueChange={(v) => {
+              setCategory(v as MenuCategory | "All");
+              setPage(1);
+            }}
           >
             <SelectTrigger className="w-full rounded-full border-boxx-line bg-boxx-coal px-4 text-sm sm:w-52">
               <SelectValue />
@@ -295,20 +316,27 @@ export default function MenuManager() {
             <tbody>
               {isLoading && (
                 <tr>
-                  <td colSpan={6} className="px-6 py-14 text-center text-sm text-boxx-dim">
+                  <td
+                    colSpan={6}
+                    className="px-6 py-14 text-center text-sm text-boxx-dim"
+                  >
                     Loading menu…
                   </td>
                 </tr>
               )}
               {isError && (
                 <tr>
-                  <td colSpan={6} className="px-6 py-14 text-center text-sm text-boxx-dim">
+                  <td
+                    colSpan={6}
+                    className="px-6 py-14 text-center text-sm text-boxx-dim"
+                  >
                     Couldn&apos;t load the menu. Try refreshing.
                   </td>
                 </tr>
               )}
-              {!isLoading && !isError &&
-                filtered.map((item) => (
+              {!isLoading &&
+                !isError &&
+                paginated.map((item) => (
                   <tr
                     key={item._id}
                     className="border-b border-boxx-line/50 last:border-0"
@@ -356,7 +384,10 @@ export default function MenuManager() {
                       </div>
                     </td>
                     <td className="px-4 py-4">
-                      <Badge variant={item.visible ? "soft" : "outline"} className="text-[10px]">
+                      <Badge
+                        variant={item.visible ? "soft" : "outline"}
+                        className="text-[10px]"
+                      >
                         {item.visible ? "Visible" : "Hidden"}
                       </Badge>
                     </td>
@@ -365,8 +396,15 @@ export default function MenuManager() {
                         <button
                           type="button"
                           onClick={() => toggleVisible(item)}
-                          disabled={updateItem.isPending && updateItem.variables?.id === item._id}
-                          aria-label={item.visible ? `Hide ${item.name}` : `Show ${item.name}`}
+                          disabled={
+                            updateItem.isPending &&
+                            updateItem.variables?.id === item._id
+                          }
+                          aria-label={
+                            item.visible
+                              ? `Hide ${item.name}`
+                              : `Show ${item.name}`
+                          }
                           className="flex size-8 cursor-pointer items-center justify-center rounded-full border border-boxx-line text-boxx-mist transition-colors duration-200 hover:border-boxx-red hover:text-boxx-white disabled:pointer-events-none disabled:opacity-40"
                         >
                           <HugeiconsIcon
@@ -415,17 +453,23 @@ export default function MenuManager() {
             </tbody>
           </table>
         </div>
+
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          total={filtered.length}
+          onPageChange={setPage}
+        />
       </Reveal>
-      <p className="mt-3 text-xs tracking-[0.2em] text-boxx-dim uppercase">
-        {filtered.length} {filtered.length === 1 ? "item" : "items"}
-      </p>
 
       {/* Add / edit dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-lg">
           <div className="p-6">
             <DialogHeader className="gap-1.5 p-0">
-              <DialogTitle>{editingItem ? "Edit item" : "Add item"}</DialogTitle>
+              <DialogTitle>
+                {editingItem ? "Edit item" : "Add item"}
+              </DialogTitle>
               <DialogDescription>
                 {editingItem
                   ? "Update this dish or drink's details."

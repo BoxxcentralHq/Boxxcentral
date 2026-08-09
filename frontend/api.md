@@ -15,7 +15,7 @@ BoxxCentral is one umbrella brand over four experiences:
 | **Lounge**   | Bar/lounge                                                         | No — has a real backend-managed menu, but no ordering/payment |
 
 So the backend has exactly one money-moving flow (FilmBoxx bookings → Flutterwave), and
-two content-management surfaces that aren't transactional (the movie catalog, the lounge
+two content-management surfaces that aren't transactional (the movie catalog, LoungeBoxx
 menu). Everything else is either auth/admin plumbing or read-only public content.
 
 ## 2. Environments
@@ -194,7 +194,7 @@ super admin (or, for the very first account ever, a one-time `/admin/setup` call
 
 | Method & Path      | Auth                          | Notes                                                                                          |
 | ------------------ | ----------------------------- | ---------------------------------------------------------------------------------------------- |
-| `GET /menu`        | none                          | Visible items only — what the Lounge page renders                                              |
+| `GET /menu`        | none                          | Visible items only — what LoungeBoxx page renders                                              |
 | `GET /menu/all`    | `super_admin`, `lounge_admin` | Includes hidden items                                                                          |
 | `POST /menu`       | `super_admin`, `lounge_admin` | Multipart. Fields: `name, category, price, description, imageAlt?, tags?` + file field `image` |
 | `PATCH /menu/:id`  | `super_admin`, `lounge_admin` | Same fields, all optional, plus `visible`                                                      |

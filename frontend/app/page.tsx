@@ -11,7 +11,7 @@ import ExperienceGrid from "./_components/ExperienceGrid";
 import VisitUs from "./_components/VisitUs";
 import AboutCta from "./about/_components/AboutCta";
 
-export default function HomePage() {
+export default async function HomePage() {
   return (
     <>
       <PageHero

@@ -5,7 +5,7 @@
  * Copy is placeholder-grade and awaits client sign-off. Photos are real
  * BoxxCentral facility shots (see /public/images); videos are still
  * Pexels stand-ins until footage arrives — swap the files in /public/videos.
- * The lounge has no confirmed sub-brand name yet ("LoungeBoxx"?) — its
+ * LoungeBoxx has no confirmed sub-brand name yet ("LoungeBoxx"?) — its
  * `name` is deliberately generic until the client confirms.
  */
 
@@ -185,13 +185,13 @@ export const experiences: Experience[] = [
   },
   {
     slug: "lounge",
-    name: "The Lounge", // TODO: confirm sub-brand name with client (LoungeBoxx?)
+    name: "LoungeBoxx", // TODO: confirm sub-brand name with client (LoungeBoxx?)
     kind: "Lounge",
     tagline: "Slow down. Sip. Stay a while.",
     summary:
       "The warm center of BoxxCentral — drinks, small plates, and conversation before or after everything else.",
     story:
-      "The Lounge is where BoxxCentral breathes. Come down from a film, a game, or a workout — or skip straight here. Warm light, good drinks, and a menu made for lingering.",
+      "LoungeBoxx is where BoxxCentral breathes. Come down from a film, a game, or a workout — or skip straight here. Warm light, good drinks, and a menu made for lingering.",
     highlights: [
       "Signature drinks and small plates",
       "Warm, intimate atmosphere",

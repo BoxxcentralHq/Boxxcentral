@@ -25,16 +25,15 @@ export default function AboutStory() {
             <p>
               {site.name} was built on a simple idea: a great night out
               shouldn&apos;t need three addresses. A private film with your
-              people, a few frames of bowling, a proper workout, a slow drink
-              in good light — all of it lives here.
+              people, a few frames of bowling, a proper workout, a slow drink in
+              good light — all of it lives here.
             </p>
             <p>
               So we put four worlds under one roof in the heart of Osogbo.
-              FilmBoxx is a cinema you book for yourself and your crowd.
-              GymBoxx is a studio where the work actually gets done. BowlBoxx
-              turns an ordinary evening into a rivalry. And the Lounge is
-              where every one of those nights lands — warm light, good
-              drinks, no rush.
+              FilmBoxx is a cinema you book for yourself and your crowd. GymBoxx
+              is a studio where the work actually gets done. BowlBoxx turns an
+              ordinary evening into a rivalry. And LoungeBoxx is where every one
+              of those nights lands — warm light, good drinks, no rush.
             </p>
             <p>
               Each experience carries its own name and its own character, but

@@ -25,9 +25,8 @@ export const contact = {
   whatsapp: "https://wa.me/2347063492072",
   email: "info@boxxcentral.com",
   hours: [
-    { days: "Monday – Thursday", time: "10:00 – 22:00" },
-    { days: "Friday – Saturday", time: "10:00 – 00:00" },
-    { days: "Sunday", time: "12:00 – 22:00" },
+    { days: "Monday – Thursday", time: "2pm – 10pm" },
+    { days: "Friday – Sunday", time: "12pm – 10pm" },
   ],
 } as const;
 
