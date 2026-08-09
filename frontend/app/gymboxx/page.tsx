@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import ExperiencePage from "@/components/ExperiencePage";
-import PricingSection from "@/components/PricingSection";
+import PricingCarousel from "@/components/pricing/PricingCarousel";
 import { getExperience } from "@/lib/experiences";
-import { gymboxxPricing } from "@/lib/pricing";
-import MembershipCarousel from "@/components/membership/MembershipCarousel";
-import { gymMembershipPlans } from "@/lib/gym-membership";
+import { gymboxxPlans } from "@/lib/gymboxx-plans";
 
 const gymboxx = getExperience("gymboxx");
 
@@ -17,13 +15,14 @@ export const metadata: Metadata = {
 export default function GymboxxPage() {
   return (
     <ExperiencePage experience={gymboxx}>
-      {/* <PricingSection {...gymboxxPricing} /> */}
-      <MembershipCarousel
+      <PricingCarousel
         eyebrow="Membership"
         title="Choose Your Membership"
-        lede="Whether you're just getting started or training all year round, we have a membership that suits your goals."
-        plans={gymMembershipPlans}
-    />
+        lede="Whether you're just getting started or training all year round, there's a plan that fits."
+        plans={gymboxxPlans}
+        ctaHref="/contact"
+        ctaLabel="Ask About Membership"
+      />
     </ExperiencePage>
   );
 }

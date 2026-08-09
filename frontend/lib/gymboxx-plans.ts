@@ -1,48 +1,49 @@
-import type { MembershipPlan } from "./api/types";
+import {
+  Award01Icon,
+  Dumbbell01Icon,
+  Medal01Icon,
+  Target01Icon,
+  Timer01Icon,
+  WorkoutRunIcon,
+} from "@hugeicons/core-free-icons";
+import type { PricingPlan } from "./api/types";
 
-export const gymMembershipPlans: MembershipPlan[] = [
+export const gymboxxPlans: PricingPlan[] = [
   {
     id: "1-week",
     title: "1 Week",
+    icon: Dumbbell01Icon,
     duration: "7 Days",
     price: 15000,
-
-    description: "Perfect for trying out GymBoxx.",
-
+    description: "Try the studio before committing.",
     features: [
       { label: "Unlimited gym access" },
       { label: "Premium equipment" },
       { label: "Locker access" },
     ],
   },
-
   {
     id: "2-weeks",
     title: "2 Weeks",
+    icon: Timer01Icon,
     duration: "14 Days",
     price: 25000,
-
-    description: "Great for short-term training.",
-
+    description: "A short block to build momentum.",
     features: [
       { label: "Unlimited gym access" },
       { label: "Premium equipment" },
       { label: "Locker access" },
     ],
   },
-
   {
     id: "1-month",
     title: "1 Month",
+    icon: Target01Icon,
     duration: "30 Days",
     price: 45000,
-
     featured: true,
-
     subtitle: "Most Popular",
-
-    description: "The best value for most members.",
-
+    description: "Full access, no long-term commitment.",
     features: [
       { label: "Unlimited gym access" },
       { label: "Premium equipment" },
@@ -50,15 +51,13 @@ export const gymMembershipPlans: MembershipPlan[] = [
       { label: "Priority support" },
     ],
   },
-
   {
     id: "3-months",
     title: "3 Months",
+    icon: WorkoutRunIcon,
     duration: "90 Days",
     price: 115000,
-
-    description: "Stay consistent and save more.",
-
+    description: "Settle into a rhythm and save along the way.",
     features: [
       { label: "Unlimited gym access" },
       { label: "Premium equipment" },
@@ -66,15 +65,13 @@ export const gymMembershipPlans: MembershipPlan[] = [
       { label: "Priority support" },
     ],
   },
-
   {
     id: "6-months",
     title: "6 Months",
+    icon: Medal01Icon,
     duration: "180 Days",
     price: 230000,
-
-    description: "Built for long-term commitment.",
-
+    description: "Built for training that sticks.",
     features: [
       { label: "Unlimited gym access" },
       { label: "Premium equipment" },
@@ -82,15 +79,13 @@ export const gymMembershipPlans: MembershipPlan[] = [
       { label: "Priority support" },
     ],
   },
-
   {
     id: "1-year",
     title: "1 Year",
+    icon: Award01Icon,
     duration: "365 Days",
     price: 430000,
-
-    description: "Maximum value for dedicated members.",
-
+    description: "The best rate for members training all year.",
     features: [
       { label: "Unlimited gym access" },
       { label: "Premium equipment" },
