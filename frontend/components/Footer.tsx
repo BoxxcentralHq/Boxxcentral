@@ -4,6 +4,7 @@ import {
   Call02Icon,
   Location01Icon,
   Mail01Icon,
+  Time01Icon,
 } from "@hugeicons/core-free-icons";
 import Reveal from "@/components/Reveal";
 import { experiences } from "@/lib/experiences";
@@ -116,6 +117,14 @@ export default function Footer() {
                 />
                 {contact.email}
               </a>
+            </li>
+            <li className="flex items-start gap-2.5">
+              <HugeiconsIcon
+                icon={Time01Icon}
+                aria-hidden
+                className="mt-0.5 size-4 shrink-0 text-boxx-dim"
+              />
+              <span>GymBoxx hours: 7am – 9pm daily</span>
             </li>
           </ul>
         </Reveal>
