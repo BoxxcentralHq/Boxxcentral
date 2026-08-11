@@ -63,7 +63,7 @@ export const experiences: Experience[] = [
     highlights: [
       "Private screening room for your group",
       "Cinema-grade picture and sound",
-      "Sessions bookable online, paid securely with Paystack",
+      "Sessions bookable online, paid securely with Flutterwave",
       "Lounge and refreshments a few steps away",
     ],
     href: "/filmboxx",

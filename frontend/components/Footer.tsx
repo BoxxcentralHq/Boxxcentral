@@ -4,6 +4,7 @@ import {
   Call02Icon,
   Location01Icon,
   Mail01Icon,
+  Time01Icon,
 } from "@hugeicons/core-free-icons";
 import Reveal from "@/components/Reveal";
 import { experiences } from "@/lib/experiences";

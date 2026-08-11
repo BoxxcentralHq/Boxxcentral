@@ -2,6 +2,7 @@ import {
   InstagramIcon,
   NewTwitterIcon,
   TiktokIcon,
+  WhatsappIcon,
 } from "@hugeicons/core-free-icons";
 
 /**
@@ -45,6 +46,11 @@ export const socials = [
     label: "TikTok",
     href: "https://tiktok.com/@boxxcentral",
     icon: TiktokIcon,
+  },
+  {
+    label: "WhatsApp",
+    href: contact.whatsapp,
+    icon: WhatsappIcon,
   },
 ] as const;
 
