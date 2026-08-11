@@ -1,4 +1,7 @@
 import { HugeiconsIcon } from "@hugeicons/react";
+import {
+  Time01Icon,
+} from "@hugeicons/core-free-icons";
 import { ArrowUpRight01Icon } from "@hugeicons/core-free-icons";
 import SiteImage from "@/components/SiteImage";
 import { contact, socials } from "@/lib/site";
@@ -50,6 +53,16 @@ export default function ContactDetails() {
                   <span>{h.time}</span>
                 </li>
               ))}
+            <li className="flex justify-between gap-4">
+              <span className="text-boxx-white flex gap-2.5">
+              <HugeiconsIcon
+                icon={Time01Icon}
+                aria-hidden
+                className="mt-0.5 size-4 shrink-0 text-boxx-white"
+              />
+                GymBoxx hours:</span>
+              <span>7am – 9pm daily</span>
+            </li>
             </ul>
           </Detail>
         </div>
