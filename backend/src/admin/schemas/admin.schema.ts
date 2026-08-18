@@ -5,6 +5,7 @@ export enum AdminRole {
   SUPER_ADMIN = 'super_admin',
   CINEMA_ADMIN = 'cinema_admin',
   LOUNGE_ADMIN = 'lounge_admin',
+  GYM_ADMIN = 'gym_admin',
 }
 
 export type AdminDocument = Admin & Document;

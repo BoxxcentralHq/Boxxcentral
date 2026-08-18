@@ -49,11 +49,16 @@ const ROLE_LABELS: Record<AdminRole, string> = {
   super_admin: "Super admin",
   cinema_admin: "Cinema admin",
   lounge_admin: "Lounge admin",
+  gym_admin: "Gym admin",
 };
 
-const CREATABLE_ROLES: { value: "cinema_admin" | "lounge_admin"; label: string }[] = [
+const CREATABLE_ROLES: {
+  value: "cinema_admin" | "lounge_admin" | "gym_admin";
+  label: string;
+}[] = [
   { value: "cinema_admin", label: ROLE_LABELS.cinema_admin },
   { value: "lounge_admin", label: ROLE_LABELS.lounge_admin },
+  { value: "gym_admin", label: ROLE_LABELS.gym_admin },
 ];
 
 function ChangePasswordCard() {
@@ -136,7 +141,12 @@ function ChangePasswordCard() {
   );
 }
 
-type NewAdminForm = { name: string; email: string; password: string; role: "cinema_admin" | "lounge_admin" };
+type NewAdminForm = {
+  name: string;
+  email: string;
+  password: string;
+  role: "cinema_admin" | "lounge_admin" | "gym_admin";
+};
 const emptyNewAdmin: NewAdminForm = { name: "", email: "", password: "", role: "cinema_admin" };
 
 function StaffAccounts({ profile }: { profile: { userId: string } }) {

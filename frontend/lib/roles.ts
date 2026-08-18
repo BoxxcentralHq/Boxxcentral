@@ -6,6 +6,7 @@ export type AdminSection =
   | "movies"
   | "messages"
   | "menu"
+  | "gym"
   | "payments"
   | "settings";
 
@@ -14,6 +15,7 @@ const SECTION_ACCESS: Record<AdminSection, AdminRole[]> = {
   movies: ["super_admin", "cinema_admin"],
   messages: ["super_admin"],
   menu: ["super_admin", "lounge_admin"],
+  gym: ["super_admin", "gym_admin"],
   payments: ["super_admin"],
   settings: ["super_admin"],
 };
@@ -29,6 +31,7 @@ const SECTION_BY_PATH: [prefix: string, section: AdminSection][] = [
   ["/admin/movies", "movies"],
   ["/admin/messages", "messages"],
   ["/admin/menu", "menu"],
+  ["/admin/gym", "gym"],
   ["/admin/payments", "payments"],
   ["/admin/settings", "settings"],
 ];

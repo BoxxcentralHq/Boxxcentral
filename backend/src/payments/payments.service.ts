@@ -16,6 +16,11 @@ import {
   BookingDocument,
   BookingStatus,
 } from '../bookings/schemas/booking.schema';
+import {
+  GymSubscription,
+  GymSubscriptionDocument,
+  GymSubscriptionStatus,
+} from '../gym/schemas/gym-subscription.schema';
 import { FlutterwaveService } from '../flutterwave/flutterwave.service';
 import { FlutterwaveWebhookPayload } from '../flutterwave/types/flutterwave.types';
 import { EmailService } from '../email/email.service';
@@ -27,6 +32,8 @@ export class PaymentsService {
   constructor(
     @InjectModel(Payment.name) private paymentModel: Model<PaymentDocument>,
     @InjectModel(Booking.name) private bookingModel: Model<BookingDocument>,
+    @InjectModel(GymSubscription.name)
+    private gymSubscriptionModel: Model<GymSubscriptionDocument>,
     private flutterwaveService: FlutterwaveService,
     private emailService: EmailService,
   ) {}
@@ -136,6 +143,33 @@ export class PaymentsService {
       }
     }
 
+    if (payment.subscriptionId) {
+      // payment confirmed only gets the subscription to "paid" — the pass
+      // itself doesn't start counting until front desk activates it
+      const subscription = await this.gymSubscriptionModel.findByIdAndUpdate(
+        payment.subscriptionId,
+        { status: GymSubscriptionStatus.PAID },
+        { new: true },
+      );
+
+      if (subscription) {
+        try {
+          await this.emailService.sendMembershipPaymentReceipt({
+            memberName: subscription.memberName,
+            memberEmail: subscription.memberEmail,
+            subscriptionRef: subscription.subscriptionRef,
+            planName: subscription.planName,
+            durationDays: subscription.durationDays,
+            price: subscription.price,
+          });
+        } catch (emailError) {
+          this.logger.error(
+            `[Webhook] Email dispatch failed for ${txRef}: ${(emailError as Error).message}`,
+          );
+        }
+      }
+    }
+
     this.logger.log(
       `[Webhook] SUCCESS: ${txRef} — ledger and booking updated.`,
     );
@@ -165,6 +199,7 @@ export class PaymentsService {
       gatewayStatus: flwData.status,
       amount: flwData.amount,
       currency: flwData.currency,
+      category: payment.category,
     };
   }
 

@@ -139,12 +139,17 @@ export default function PaymentStatus() {
   }
 
   if (data.gatewayStatus === "successful") {
+    const isGymSubscription = data.category === "gym_subscription_payment";
     return (
       <StatusCard
         icon={CheckmarkCircle02Icon}
         tone="success"
         title="Payment confirmed"
-        body="Your booking is locked in — we've sent the details to your email. See you soon."
+        body={
+          isGymSubscription
+            ? "We've sent your receipt by email. Your membership doesn't start counting yet — come by the gym and show your reference at the front desk to activate it."
+            : "Your booking is locked in — we've sent the details to your email. See you soon."
+        }
       >
         <p className="mt-4 text-sm text-boxx-white">
           {naira(data.amount)} {data.currency}

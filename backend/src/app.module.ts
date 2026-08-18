@@ -13,6 +13,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { ContactModule } from './contact/contact.module';
 import { EmailModule } from './email/email.module';
 import { FlutterwaveModule } from './flutterwave/flutterwave.module';
+import { GymModule } from './gym/gym.module';
 import { MenuModule } from './menu/menu.module';
 import { PaymentsModule } from './payments/payments.module';
 
@@ -84,6 +85,7 @@ const dbLogger = new Logger('Database');
     BookingsModule,
     ContactModule,
     MenuModule,
+    GymModule,
   ],
   controllers: [AppController],
   providers: [AppService],

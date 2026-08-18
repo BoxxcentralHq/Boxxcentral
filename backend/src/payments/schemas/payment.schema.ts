@@ -31,7 +31,7 @@ export class Payment {
 
   @Prop({
     required: true,
-    enum: ['booking_payment', 'refund'],
+    enum: ['booking_payment', 'gym_subscription_payment', 'refund'],
     default: 'booking_payment',
   })
   category: string;
@@ -48,6 +48,9 @@ export class Payment {
 
   @Prop({ type: Types.ObjectId, ref: 'Booking' })
   bookingId?: Types.ObjectId;
+
+  @Prop({ type: Types.ObjectId, ref: 'GymSubscription' })
+  subscriptionId?: Types.ObjectId;
 
   /** Raw gateway payload kept for dispute resolution / debugging. */
   @Prop({ type: Object })
