@@ -16,6 +16,11 @@ import {
   BookingDocument,
   BookingStatus,
 } from '../bookings/schemas/booking.schema';
+import {
+  GymSubscription,
+  GymSubscriptionDocument,
+  GymSubscriptionStatus,
+} from '../gym/schemas/gym-subscription.schema';
 import { FlutterwaveService } from '../flutterwave/flutterwave.service';
 import { FlutterwaveWebhookPayload } from '../flutterwave/types/flutterwave.types';
 import { EmailService } from '../email/email.service';
@@ -27,6 +32,8 @@ export class PaymentsService {
   constructor(
     @InjectModel(Payment.name) private paymentModel: Model<PaymentDocument>,
     @InjectModel(Booking.name) private bookingModel: Model<BookingDocument>,
+    @InjectModel(GymSubscription.name)
+    private gymSubscriptionModel: Model<GymSubscriptionDocument>,
     private flutterwaveService: FlutterwaveService,
     private emailService: EmailService,
   ) {}
@@ -127,6 +134,42 @@ export class PaymentsService {
             subtotal: booking.subtotal,
             vatAmount: booking.vatAmount,
             totalPrice: booking.totalPrice,
+          });
+        } catch (emailError) {
+          this.logger.error(
+            `[Webhook] Email dispatch failed for ${txRef}: ${(emailError as Error).message}`,
+          );
+        }
+      }
+    }
+
+    if (payment.subscriptionId) {
+      const startDate = new Date();
+      const subscription = await this.gymSubscriptionModel.findById(
+        payment.subscriptionId,
+      );
+
+      if (subscription) {
+        const endDate = new Date(
+          startDate.getTime() + subscription.durationDays * 24 * 60 * 60 * 1000,
+        );
+
+        await this.gymSubscriptionModel.findByIdAndUpdate(subscription._id, {
+          status: GymSubscriptionStatus.ACTIVE,
+          startDate,
+          endDate,
+        });
+
+        try {
+          await this.emailService.sendMembershipConfirmation({
+            memberName: subscription.memberName,
+            memberEmail: subscription.memberEmail,
+            subscriptionRef: subscription.subscriptionRef,
+            planName: subscription.planName,
+            durationDays: subscription.durationDays,
+            price: subscription.price,
+            startDate,
+            endDate,
           });
         } catch (emailError) {
           this.logger.error(

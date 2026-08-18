@@ -214,3 +214,53 @@ export type PricingPlan = {
 export type BookingsPage = { bookings: Booking[]; meta: PageMeta };
 export type PaymentsPage = { payments: Payment[]; meta: PageMeta };
 export type MessagesPage = { messages: ContactMessage[]; meta: PageMeta };
+
+export type GymPlan = {
+  _id: string;
+  name: string;
+  durationDays: number;
+  // flat, all-inclusive — no VAT stacked on top, unlike FilmBoxx
+  price: number;
+  description: string;
+  features: string[];
+  featured: boolean;
+  subtitle?: string;
+  visible: boolean;
+  sortOrder: number;
+  createdAt: string;
+};
+
+export type GymSubscriptionStatus = "pending" | "active" | "expired" | "cancelled";
+
+export type CreateGymSubscriptionBody = {
+  memberName: string;
+  memberEmail: string;
+  memberPhone: string;
+  planId: string;
+};
+
+export type CreateGymSubscriptionResponse = {
+  subscription: {
+    subscriptionRef: string;
+    planName: string;
+    durationDays: number;
+    price: number;
+  };
+  paymentLink: string;
+};
+
+export type GymSubscription = {
+  _id: string;
+  subscriptionRef: string;
+  planId: string;
+  planName: string;
+  durationDays: number;
+  price: number;
+  memberName: string;
+  memberEmail: string;
+  memberPhone: string;
+  status: GymSubscriptionStatus;
+  startDate?: string;
+  endDate?: string;
+  createdAt: string;
+};

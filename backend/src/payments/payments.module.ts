@@ -4,6 +4,10 @@ import { PaymentsService } from './payments.service';
 import { PaymentsController } from './payments.controller';
 import { Payment, PaymentSchema } from './schemas/payment.schema';
 import { Booking, BookingSchema } from '../bookings/schemas/booking.schema';
+import {
+  GymSubscription,
+  GymSubscriptionSchema,
+} from '../gym/schemas/gym-subscription.schema';
 import { AdminModule } from '../admin/admin.module';
 
 @Module({
@@ -11,6 +15,7 @@ import { AdminModule } from '../admin/admin.module';
     MongooseModule.forFeature([
       { name: Payment.name, schema: PaymentSchema },
       { name: Booking.name, schema: BookingSchema },
+      { name: GymSubscription.name, schema: GymSubscriptionSchema },
     ]),
     // JwtAuthGuard on admin endpoints needs the passport strategy from AdminModule
     AdminModule,
