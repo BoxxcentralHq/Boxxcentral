@@ -2,7 +2,11 @@ import type { IconSvgElement } from "@hugeicons/react";
 
 // contracts mirroring the NestJS backend's responses
 
-export type AdminRole = "super_admin" | "cinema_admin" | "lounge_admin";
+export type AdminRole =
+  | "super_admin"
+  | "cinema_admin"
+  | "lounge_admin"
+  | "gym_admin";
 
 export type Admin = {
   id: string;
@@ -24,7 +28,7 @@ export type CreateAdminBody = {
   name: string;
   email: string;
   password: string;
-  role: "cinema_admin" | "lounge_admin";
+  role: "cinema_admin" | "lounge_admin" | "gym_admin";
 };
 
 export type ChangePasswordBody = {
@@ -150,7 +154,7 @@ export type Payment = {
   amount: number;
   currency: string;
   type: "inflow" | "outflow";
-  category: "booking_payment" | "refund";
+  category: "booking_payment" | "gym_subscription_payment" | "refund";
   status: PaymentStatus;
   paymentMethod: string;
   bookingId?: Booking | string;
@@ -163,6 +167,7 @@ export type PaymentVerification = {
   gatewayStatus: string;
   amount: number;
   currency: string;
+  category: "booking_payment" | "gym_subscription_payment" | "refund";
 };
 
 export type ContactMessage = {
@@ -230,7 +235,7 @@ export type GymPlan = {
   createdAt: string;
 };
 
-export type GymSubscriptionStatus = "pending" | "active" | "expired" | "cancelled";
+export type GymSubscriptionStatus = "pending" | "paid" | "active" | "expired";
 
 export type CreateGymSubscriptionBody = {
   memberName: string;
@@ -263,4 +268,22 @@ export type GymSubscription = {
   startDate?: string;
   endDate?: string;
   createdAt: string;
+};
+
+export type CreateGymPlanBody = {
+  name: string;
+  durationDays: number;
+  price: number;
+  description: string;
+  features?: string[];
+  featured?: boolean;
+  subtitle?: string;
+  sortOrder?: number;
+};
+
+export type UpdateGymPlanBody = Partial<CreateGymPlanBody> & { visible?: boolean };
+
+export type GymSubscriptionsPage = {
+  subscriptions: GymSubscription[];
+  meta: PageMeta;
 };

@@ -144,32 +144,23 @@ export class PaymentsService {
     }
 
     if (payment.subscriptionId) {
-      const startDate = new Date();
-      const subscription = await this.gymSubscriptionModel.findById(
+      // payment confirmed only gets the subscription to "paid" — the pass
+      // itself doesn't start counting until front desk activates it
+      const subscription = await this.gymSubscriptionModel.findByIdAndUpdate(
         payment.subscriptionId,
+        { status: GymSubscriptionStatus.PAID },
+        { new: true },
       );
 
       if (subscription) {
-        const endDate = new Date(
-          startDate.getTime() + subscription.durationDays * 24 * 60 * 60 * 1000,
-        );
-
-        await this.gymSubscriptionModel.findByIdAndUpdate(subscription._id, {
-          status: GymSubscriptionStatus.ACTIVE,
-          startDate,
-          endDate,
-        });
-
         try {
-          await this.emailService.sendMembershipConfirmation({
+          await this.emailService.sendMembershipPaymentReceipt({
             memberName: subscription.memberName,
             memberEmail: subscription.memberEmail,
             subscriptionRef: subscription.subscriptionRef,
             planName: subscription.planName,
             durationDays: subscription.durationDays,
             price: subscription.price,
-            startDate,
-            endDate,
           });
         } catch (emailError) {
           this.logger.error(
@@ -208,6 +199,7 @@ export class PaymentsService {
       gatewayStatus: flwData.status,
       amount: flwData.amount,
       currency: flwData.currency,
+      category: payment.category,
     };
   }
 

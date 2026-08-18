@@ -46,9 +46,20 @@ export class BookingsService {
 
   private async expireStalePending() {
     const cutoff = new Date(Date.now() - PENDING_EXPIRY_MS);
-    await this.bookingModel.updateMany(
+    const stale = await this.bookingModel.find(
       { status: BookingStatus.PENDING, createdAt: { $lt: cutoff } },
+      { _id: 1 },
+    );
+    if (stale.length === 0) return;
+
+    const staleIds = stale.map((b) => b._id);
+    await this.bookingModel.updateMany(
+      { _id: { $in: staleIds } },
       { status: BookingStatus.CANCELLED },
+    );
+    await this.paymentModel.updateMany(
+      { bookingId: { $in: staleIds }, status: PaymentStatus.PENDING },
+      { status: PaymentStatus.FAILED },
     );
   }
 

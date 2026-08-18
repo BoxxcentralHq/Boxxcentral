@@ -96,11 +96,12 @@ export class GymController {
     return { message: 'Subscriptions fetched', data: results };
   }
 
+  // front desk confirms the member is here and starts the pass counting down
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(AdminRole.SUPER_ADMIN, AdminRole.GYM_ADMIN)
-  @Patch('subscriptions/:id/cancel')
-  async cancel(@Param('id') id: string) {
-    const subscription = await this.gymService.cancel(id);
-    return { message: 'Subscription cancelled', data: subscription };
+  @Patch('subscriptions/:id/activate')
+  async activate(@Param('id') id: string) {
+    const subscription = await this.gymService.activate(id);
+    return { message: 'Subscription activated', data: subscription };
   }
 }

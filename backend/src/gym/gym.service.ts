@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -20,6 +24,9 @@ import {
   FlutterwaveService,
   TX_REF_PREFIX,
 } from '../flutterwave/flutterwave.service';
+import { EmailService } from '../email/email.service';
+
+const PENDING_EXPIRY_MS = 30 * 60 * 1000;
 
 @Injectable()
 export class GymService {
@@ -30,6 +37,7 @@ export class GymService {
     @InjectModel(Payment.name) private paymentModel: Model<PaymentDocument>,
     private flutterwaveService: FlutterwaveService,
     private configService: ConfigService,
+    private emailService: EmailService,
   ) {}
 
   private generateRef(): string {
@@ -38,17 +46,44 @@ export class GymService {
     return `${TX_REF_PREFIX}${stamp}-${rand}`;
   }
 
-  // opportunistic active -> expired flip, same trick as
-  // BookingsService.expireStalePending, applied on the read path instead
+  // sweeps two unrelated cases into the same "expired" bucket: a pass
+  // that ran its course, and a signup that was never paid for
   private async expireLapsed(ids?: string[]) {
-    const filter: Record<string, unknown> = {
+    const now = new Date();
+    const pendingCutoff = new Date(now.getTime() - PENDING_EXPIRY_MS);
+
+    const activeFilter: Record<string, unknown> = {
       status: GymSubscriptionStatus.ACTIVE,
-      endDate: { $lt: new Date() },
+      endDate: { $lt: now },
     };
-    if (ids) filter._id = { $in: ids };
-    await this.gymSubscriptionModel.updateMany(filter, {
+    const pendingFilter: Record<string, unknown> = {
+      status: GymSubscriptionStatus.PENDING,
+      createdAt: { $lt: pendingCutoff },
+    };
+    if (ids) {
+      activeFilter._id = { $in: ids };
+      pendingFilter._id = { $in: ids };
+    }
+
+    const stalePending = await this.gymSubscriptionModel.find(pendingFilter, {
+      _id: 1,
+    });
+
+    await this.gymSubscriptionModel.updateMany(activeFilter, {
       status: GymSubscriptionStatus.EXPIRED,
     });
+
+    if (stalePending.length > 0) {
+      const staleIds = stalePending.map((s) => s._id);
+      await this.gymSubscriptionModel.updateMany(
+        { _id: { $in: staleIds } },
+        { status: GymSubscriptionStatus.EXPIRED },
+      );
+      await this.paymentModel.updateMany(
+        { subscriptionId: { $in: staleIds }, status: PaymentStatus.PENDING },
+        { status: PaymentStatus.FAILED },
+      );
+    }
   }
 
   async listVisiblePlans() {
@@ -190,13 +225,34 @@ export class GymService {
       .sort({ createdAt: -1 });
   }
 
-  async cancel(id: string) {
-    const subscription = await this.gymSubscriptionModel.findByIdAndUpdate(
-      id,
-      { status: GymSubscriptionStatus.CANCELLED },
-      { new: true },
-    );
+  async activate(id: string) {
+    const subscription = await this.gymSubscriptionModel.findById(id);
     if (!subscription) throw new NotFoundException('Subscription not found');
+    if (subscription.status !== GymSubscriptionStatus.PAID) {
+      throw new BadRequestException(
+        `Cannot activate a subscription with status "${subscription.status}" — it must be paid first`,
+      );
+    }
+
+    const startDate = new Date();
+    const endDate = new Date(
+      startDate.getTime() + subscription.durationDays * 24 * 60 * 60 * 1000,
+    );
+
+    subscription.status = GymSubscriptionStatus.ACTIVE;
+    subscription.startDate = startDate;
+    subscription.endDate = endDate;
+    await subscription.save();
+
+    await this.emailService.sendMembershipActivated({
+      memberName: subscription.memberName,
+      memberEmail: subscription.memberEmail,
+      subscriptionRef: subscription.subscriptionRef,
+      planName: subscription.planName,
+      startDate,
+      endDate,
+    });
+
     return subscription;
   }
 }

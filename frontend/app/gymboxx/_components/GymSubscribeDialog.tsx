@@ -88,8 +88,9 @@ export default function GymSubscribeDialog({
             </span>
             <DialogTitle>{plan.name}</DialogTitle>
             <DialogDescription>
-              {naira(plan.price)} — {plan.durationDays} days of access from the day you
-              subscribe.
+              {naira(plan.price)} — {plan.durationDays} days of access. Your pass
+              starts counting once you visit the gym and the front desk activates
+              it, not on payment.
             </DialogDescription>
           </DialogHeader>
 
