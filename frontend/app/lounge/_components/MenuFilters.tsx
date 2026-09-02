@@ -93,20 +93,6 @@ export default function MenuFilters({
         >
           <button
             type="button"
-            aria-label="Grid view"
-            aria-pressed={view === "grid"}
-            onClick={() => onViewChange("grid")}
-            className={cn(
-              "flex size-9 items-center justify-center rounded-lg transition-colors duration-200",
-              view === "grid"
-                ? "bg-boxx-red text-boxx-white"
-                : "text-boxx-dim hover:text-boxx-white",
-            )}
-          >
-            <HugeiconsIcon icon={GridViewIcon} aria-hidden className="size-4" />
-          </button>
-          <button
-            type="button"
             aria-label="List view"
             aria-pressed={view === "list"}
             onClick={() => onViewChange("list")}
@@ -118,6 +104,21 @@ export default function MenuFilters({
             )}
           >
             <HugeiconsIcon icon={ListViewIcon} aria-hidden className="size-4" />
+          </button>
+          
+          <button
+            type="button"
+            aria-label="Grid view"
+            aria-pressed={view === "grid"}
+            onClick={() => onViewChange("grid")}
+            className={cn(
+              "flex size-9 items-center justify-center rounded-lg transition-colors duration-200",
+              view === "grid"
+                ? "bg-boxx-red text-boxx-white"
+                : "text-boxx-dim hover:text-boxx-white",
+            )}
+          >
+            <HugeiconsIcon icon={GridViewIcon} aria-hidden className="size-4" />
           </button>
         </div>
       </div>

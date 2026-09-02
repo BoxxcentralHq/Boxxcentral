@@ -17,7 +17,7 @@ type MenuSectionProps = {
 export default function MenuSection({ items }: MenuSectionProps) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<MenuCategory | "All">("All");
-  const [view, setView] = useState<ViewMode>("grid");
+  const [view, setView] = useState<ViewMode>("list");
 
   const [activeItem, setActiveItem] = useState<MenuItem | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
