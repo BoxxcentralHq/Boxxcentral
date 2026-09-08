@@ -42,10 +42,8 @@ export type CinemaSettings = {
   maxGuests: number;
   extraSeatPrice: number;
   sessionDurationHours: number;
-  /** Percentage, e.g. 7.5 — divide by 100 before applying to a subtotal. */
   vatRate: number;
   timeSlots: string[];
-  /** Physical rooms — each is checked/booked independently, e.g. ["Cinema 1", "Cinema 2"]. */
   rooms: string[];
   bookingEnabled: boolean;
 };
@@ -287,3 +285,23 @@ export type GymSubscriptionsPage = {
   subscriptions: GymSubscription[];
   meta: PageMeta;
 };
+
+export type LeaderboardEntry = {
+  player: string;
+  score: number;
+};
+
+export type LeaderboardBoard = {
+  subtitle: string;
+  entries: LeaderboardEntry[];
+};
+
+/** The two boards shown side by side on the TV, published independently. */
+export type Leaderboard = {
+  sixFrame: LeaderboardBoard;
+  tenFrame: LeaderboardBoard;
+};
+
+export type LeaderboardBoardSlug = "six-frame" | "ten-frame";
+
+export type UpdateLeaderboardBoardBody = LeaderboardBoard;

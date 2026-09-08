@@ -6,9 +6,10 @@ import Navbar from "@/components/Navbar";
 
 /**
  * Routes that run outside the marketing shell — no Navbar, no Footer.
- * The admin area and login ship their own chrome.
+ * The admin area and login ship their own chrome; the BowlBoxx leaderboard
+ * (TV display + staff edit console) needs a bare canvas too.
  */
-const BARE_PREFIXES = ["/admin", "/login"];
+const BARE_PREFIXES = ["/admin", "/login", "/bowlboxx/leaderboard"];
 
 export default function SiteChrome({
   children,

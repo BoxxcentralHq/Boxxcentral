@@ -4,13 +4,6 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/*
- * BoxxCentral design tokens — the single source of truth for the palette.
- * Design system: dark, high-energy, premium. Vibrant red is reserved for
- * CTAs and active states; Anton drives display type, Figtree drives body.
- * Never use raw hex values in components; always consume these tokens
- * through Tailwind utilities (bg-boxx-night, text-boxx-red, etc.).
- */
 @theme {
   /* Canvas & surfaces (black family) */
   --color-boxx-night: #141414; /* page canvas */
@@ -71,12 +64,7 @@ body {
   -webkit-text-stroke-color: var(--color-boxx-white);
 }
 
-/*
- * Scroll-reveal animation, driven by the <Reveal> component.
- * Elements start offset + transparent and settle into place once they
- * intersect the viewport. `data-reveal-variant` picks the entrance
- * direction; disabled entirely for reduced-motion users.
- */
+
 [data-reveal] {
   opacity: 0;
   transform: translateY(28px);
