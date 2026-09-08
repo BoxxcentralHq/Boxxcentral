@@ -104,8 +104,45 @@ function BoardTable({ title, board }: { title: string; board: LeaderboardBoard }
   );
 }
 
+function BoardTableSkeleton() {
+  return (
+    <div className="flex h-full min-h-0 animate-pulse flex-col overflow-hidden rounded-2xl border border-boxx-line">
+      <div className="shrink-0 bg-boxx-coal px-[clamp(1rem,2.2vw,2rem)] py-[clamp(0.5rem,1.4vh,1rem)]">
+        <div className="h-[clamp(1.1rem,2.6vw,2rem)] w-2/3 rounded bg-boxx-slate" />
+      </div>
+
+      <div
+        className={cn(
+          "grid shrink-0 gap-[clamp(0.5rem,1.5vw,1.5rem)] border-b border-boxx-line bg-boxx-coal px-[clamp(1rem,2.2vw,2rem)] py-[clamp(0.4rem,1vh,0.75rem)]",
+          COLUMNS,
+        )}
+      >
+        <div className="h-[0.85em] w-6 rounded bg-boxx-slate" />
+        <div className="h-[0.85em] w-16 rounded bg-boxx-slate" />
+        <div className="h-[0.85em] w-10 justify-self-end rounded bg-boxx-slate" />
+      </div>
+
+      <div className="flex min-h-0 flex-1 flex-col divide-y divide-boxx-line bg-boxx-coal">
+        {Array.from({ length: LEADERBOARD_SLOTS }, (_, i) => (
+          <div
+            key={i}
+            className={cn(
+              "grid min-h-0 flex-1 items-center gap-[clamp(0.5rem,1.5vw,1.5rem)] px-[clamp(1rem,2.2vw,2rem)]",
+              COLUMNS,
+            )}
+          >
+            <div className="h-[clamp(1rem,2.2vw,1.75rem)] w-6 rounded bg-boxx-slate" />
+            <div className="h-[clamp(1rem,2.2vw,1.6rem)] w-1/2 rounded bg-boxx-slate" />
+            <div className="h-[clamp(1rem,2.2vw,1.75rem)] w-10 justify-self-end rounded bg-boxx-slate" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function LeaderboardDisplayPage() {
-  const { data } = useLeaderboard();
+  const { data, isLoading } = useLeaderboard();
   const state = data ?? defaultLeaderboardState();
 
   return (
@@ -122,8 +159,17 @@ export default function LeaderboardDisplayPage() {
       </header>
 
       <div className="grid min-h-0 flex-1 grid-cols-2 gap-[clamp(1rem,2.5vw,2.5rem)] px-[clamp(1rem,3vw,4rem)]">
-        <BoardTable title={state.sixFrame.subtitle} board={state.sixFrame} />
-        <BoardTable title={state.tenFrame.subtitle} board={state.tenFrame} />
+        {isLoading ? (
+          <>
+            <BoardTableSkeleton />
+            <BoardTableSkeleton />
+          </>
+        ) : (
+          <>
+            <BoardTable title={state.sixFrame.subtitle} board={state.sixFrame} />
+            <BoardTable title={state.tenFrame.subtitle} board={state.tenFrame} />
+          </>
+        )}
       </div>
 
       <footer className="flex shrink-0 items-center justify-between px-[clamp(1rem,3vw,4rem)] py-[clamp(0.75rem,2vh,1.5rem)]">

@@ -155,8 +155,44 @@ function BoardEditor({
   );
 }
 
+function BoardEditorSkeleton({ heading }: { heading: string }) {
+  return (
+    <section>
+      <h2 className="text-lg font-bold text-boxx-white">{heading}</h2>
+
+      <div className="mt-4 animate-pulse">
+        <div className="mb-2 h-3 w-16 rounded bg-boxx-slate" />
+        <div className="h-11 max-w-sm rounded-xl bg-boxx-coal" />
+      </div>
+
+      <div className="mt-4 animate-pulse overflow-hidden rounded-xl border border-boxx-line">
+        <div className="grid grid-cols-[1fr_140px] gap-3 bg-boxx-coal px-4 py-3">
+          <div className="h-3 w-12 rounded bg-boxx-slate" />
+          <div className="h-3 w-12 rounded bg-boxx-slate" />
+        </div>
+        <div className="divide-y divide-boxx-line">
+          {Array.from({ length: LEADERBOARD_SLOTS }, (_, i) => (
+            <div
+              key={i}
+              className="grid grid-cols-[1fr_140px] items-center gap-3 px-4 py-3"
+            >
+              <div className="h-11 rounded-xl bg-boxx-coal" />
+              <div className="h-11 rounded-xl bg-boxx-coal" />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-4 flex animate-pulse gap-3">
+        <div className="h-11 w-40 rounded-lg bg-boxx-coal" />
+        <div className="h-11 w-24 rounded-lg bg-boxx-coal" />
+      </div>
+    </section>
+  );
+}
+
 export default function LeaderboardEditPage() {
-  const { data } = useLeaderboard();
+  const { data, isLoading } = useLeaderboard();
 
   return (
     <div className="mx-auto min-h-screen max-w-3xl px-6 py-10">
@@ -181,18 +217,27 @@ export default function LeaderboardEditPage() {
       </div>
 
       <div className="mt-8 space-y-10">
-        <BoardEditor
-          heading="6-Frame Challenge"
-          slug="six-frame"
-          defaultSubtitle="6-FRAME CHALLENGE"
-          board={data?.sixFrame}
-        />
-        <BoardEditor
-          heading="10-Frame Challenge"
-          slug="ten-frame"
-          defaultSubtitle="10-FRAME CHALLENGE"
-          board={data?.tenFrame}
-        />
+        {isLoading ? (
+          <>
+            <BoardEditorSkeleton heading="6-Frame Challenge" />
+            <BoardEditorSkeleton heading="10-Frame Challenge" />
+          </>
+        ) : (
+          <>
+            <BoardEditor
+              heading="6-Frame Challenge"
+              slug="six-frame"
+              defaultSubtitle="6-FRAME CHALLENGE"
+              board={data?.sixFrame}
+            />
+            <BoardEditor
+              heading="10-Frame Challenge"
+              slug="ten-frame"
+              defaultSubtitle="10-FRAME CHALLENGE"
+              board={data?.tenFrame}
+            />
+          </>
+        )}
       </div>
     </div>
   );
