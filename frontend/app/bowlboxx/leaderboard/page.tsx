@@ -17,11 +17,13 @@ const poppins = Poppins({
   display: "swap",
 });
 
-/** Press F to toggle fullscreen — this is the page that gets thrown on the TV. */
 function useFullscreenHotkey() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key.toLowerCase() !== "f") return;
+      const isDesktopHotkey = e.key.toLowerCase() === "f";
+      const isRemoteOk = e.key === "Enter" || e.keyCode === 13;
+      if (!isDesktopHotkey && !isRemoteOk) return;
+
       if (document.fullscreenElement) {
         document.exitFullscreen();
       } else {
@@ -61,14 +63,14 @@ export default function LeaderboardDisplayPage() {
       </header>
 
       <div className="mt-10 grid flex-1 grid-cols-1 gap-8 lg:grid-cols-[1fr_1.6fr]">
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-boxx-line bg-boxx-coal p-8 text-center">
+        <div className="flex flex-col items-center justify-between rounded-2xl border border-boxx-line bg-boxx-coal p-8 text-center">
           <p className="text-xs font-semibold tracking-[0.25em] text-boxx-dim sm:text-sm">
             CURRENT SCORE TO BEAT
           </p>
-          <p className="mt-4 font-heading text-7xl text-boxx-red sm:text-8xl">
+          <p className="font-heading text-8xl text-boxx-red sm:text-[9rem]">
             {leader ? leader.score : "—"}
           </p>
-          <p className="mt-4 text-base text-boxx-mist sm:text-lg">
+          <p className="text-base text-boxx-mist sm:text-lg">
             {leader ? `by ${leader.player}` : "No scores yet"}
           </p>
         </div>
