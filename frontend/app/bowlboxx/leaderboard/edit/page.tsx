@@ -5,10 +5,14 @@ import Link from "next/link";
 import { toast, toastApiError } from "@/lib/api/toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { Leaderboard, LeaderboardEntry } from "@/lib/api/types";
+import type {
+  LeaderboardBoard,
+  LeaderboardBoardSlug,
+  LeaderboardEntry,
+} from "@/lib/api/types";
 import {
-  defaultLeaderboardState,
-  usePublishLeaderboard,
+  defaultLeaderboardBoard,
+  usePublishLeaderboardBoard,
   useLeaderboard,
   LEADERBOARD_SLOTS,
 } from "@/lib/leaderboard";
@@ -23,31 +27,37 @@ function padToSlots(entries: LeaderboardEntry[]): FormEntry[] {
   }));
 }
 
+
 function stripBlanks(rows: FormEntry[]): LeaderboardEntry[] {
   return rows
     .filter((r) => r.player.trim() !== "" && r.score !== null)
     .map((r) => ({ player: r.player.trim(), score: r.score as number }));
 }
 
-export default function LeaderboardEditPage() {
-  const { data } = useLeaderboard();
-  const publishMutation = usePublishLeaderboard();
+/** One board's editor — publishes independently of the other board. */
+function BoardEditor({
+  heading,
+  slug,
+  defaultSubtitle,
+  board,
+}: {
+  heading: string;
+  slug: LeaderboardBoardSlug;
+  defaultSubtitle: string;
+  board: LeaderboardBoard | undefined;
+}) {
+  const publishMutation = usePublishLeaderboardBoard();
 
-  const [subtitle, setSubtitle] = useState(defaultLeaderboardState().subtitle);
+  const [subtitle, setSubtitle] = useState(defaultSubtitle);
   const [draft, setDraft] = useState<FormEntry[]>(() => padToSlots([]));
-  const [seededFrom, setSeededFrom] = useState<Leaderboard | undefined>(
+  const [seededFrom, setSeededFrom] = useState<LeaderboardBoard | undefined>(
     undefined,
   );
 
-  // Seed the form once the real, server-backed board first loads, and again
-  // whenever it changes for real (another device publishing) — not on every
-  // poll tick, since react-query keeps the same `data` reference when a
-  // poll's content is unchanged. Render-time check, not an effect, so it
-  // can't cascade or clobber in-progress typing.
-  if (data && data !== seededFrom) {
-    setSeededFrom(data);
-    setSubtitle(data.subtitle);
-    setDraft(padToSlots(data.entries));
+  if (board && board !== seededFrom) {
+    setSeededFrom(board);
+    setSubtitle(board.subtitle);
+    setDraft(padToSlots(board.entries));
   }
 
   const setPlayer = (id: string, player: string) =>
@@ -62,58 +72,47 @@ export default function LeaderboardEditPage() {
 
   const handlePublish = () => {
     publishMutation.mutate(
-      { subtitle: subtitle.trim() || defaultLeaderboardState().subtitle, entries: stripBlanks(draft) },
       {
-        onSuccess: () => toast.success("Leaderboard published to the TV screen"),
-        onError: (error) => toastApiError(error, "Couldn't publish the leaderboard."),
+        board: slug,
+        body: { subtitle: subtitle.trim() || defaultSubtitle, entries: stripBlanks(draft) },
+      },
+      {
+        onSuccess: () => toast.success(`${heading} published to the TV screen`),
+        onError: (error) => toastApiError(error, `Couldn't publish ${heading}.`),
       },
     );
   };
 
   const handleClear = () => {
-    const cleared = defaultLeaderboardState();
+    const cleared = defaultLeaderboardBoard(defaultSubtitle);
     setSubtitle(cleared.subtitle);
     setDraft(padToSlots(cleared.entries));
-    publishMutation.mutate(cleared, {
-      onSuccess: () => toast.success("Leaderboard cleared"),
-      onError: (error) => toastApiError(error, "Couldn't clear the leaderboard."),
-    });
+    publishMutation.mutate(
+      { board: slug, body: cleared },
+      {
+        onSuccess: () => toast.success(`${heading} cleared`),
+        onError: (error) => toastApiError(error, `Couldn't clear ${heading}.`),
+      },
+    );
   };
 
   return (
-    <div className="mx-auto min-h-screen max-w-3xl px-6 py-10">
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-boxx-white">
-            BowlBoxx Leaderboard — Staff Console
-          </h1>
-          <p className="mt-1 text-sm text-boxx-mist">
-            Enter tonight&apos;s top scores, then publish. The TV display
-            picks it up within a few seconds, wherever it&apos;s running.
-          </p>
-        </div>
-        <Link
-          href="/bowlboxx/leaderboard"
-          target="_blank"
-          className="shrink-0 text-xs font-semibold uppercase tracking-wider text-boxx-red-glow hover:underline"
-        >
-          Open TV display →
-        </Link>
-      </div>
+    <section>
+      <h2 className="text-lg font-bold text-boxx-white">{heading}</h2>
 
-      <div className="mt-8">
+      <div className="mt-4">
         <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-boxx-dim">
           Subtitle
         </label>
         <Input
           value={subtitle}
           onChange={(e) => setSubtitle(e.target.value)}
-          placeholder="10-FRAME CHALLENGE"
+          placeholder={defaultSubtitle}
           className="max-w-sm"
         />
       </div>
 
-      <div className="mt-6 overflow-hidden rounded-xl border border-boxx-line">
+      <div className="mt-4 overflow-hidden rounded-xl border border-boxx-line">
         <div className="grid grid-cols-[1fr_140px] gap-3 bg-boxx-coal px-4 py-3 text-xs font-semibold uppercase tracking-wider text-boxx-dim">
           <span>Player</span>
           <span>Score</span>
@@ -140,7 +139,7 @@ export default function LeaderboardEditPage() {
         </div>
       </div>
 
-      <div className="mt-6 flex gap-3">
+      <div className="mt-4 flex gap-3">
         <Button onClick={handlePublish} disabled={publishMutation.isPending}>
           {publishMutation.isPending ? "Publishing…" : "Publish to Screen"}
         </Button>
@@ -149,8 +148,51 @@ export default function LeaderboardEditPage() {
           onClick={handleClear}
           disabled={publishMutation.isPending}
         >
-          Clear All
+          Clear
         </Button>
+      </div>
+    </section>
+  );
+}
+
+export default function LeaderboardEditPage() {
+  const { data } = useLeaderboard();
+
+  return (
+    <div className="mx-auto min-h-screen max-w-3xl px-6 py-10">
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-boxx-white">
+            BowlBoxx Leaderboard — Staff Console
+          </h1>
+          <p className="mt-1 text-sm text-boxx-mist">
+            Enter scores for either board, then publish it — updating one
+            never touches the other. The TV display picks it up within a
+            few seconds, wherever it&apos;s running.
+          </p>
+        </div>
+        <Link
+          href="/bowlboxx/leaderboard"
+          target="_blank"
+          className="shrink-0 text-xs font-semibold uppercase tracking-wider text-boxx-red-glow hover:underline"
+        >
+          Open TV display →
+        </Link>
+      </div>
+
+      <div className="mt-8 space-y-10">
+        <BoardEditor
+          heading="6-Frame Challenge"
+          slug="six-frame"
+          defaultSubtitle="6-FRAME CHALLENGE"
+          board={data?.sixFrame}
+        />
+        <BoardEditor
+          heading="10-Frame Challenge"
+          slug="ten-frame"
+          defaultSubtitle="10-FRAME CHALLENGE"
+          board={data?.tenFrame}
+        />
       </div>
     </div>
   );

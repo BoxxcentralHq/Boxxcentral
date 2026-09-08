@@ -14,13 +14,30 @@ export class LeaderboardEntry {
 
 const LeaderboardEntrySchema = SchemaFactory.createForClass(LeaderboardEntry);
 
-@Schema({ timestamps: true })
-export class Leaderboard {
-  @Prop({ required: true, default: '10-FRAME CHALLENGE' })
+@Schema({ _id: false })
+export class LeaderboardBoard {
+  @Prop({ required: true })
   subtitle: string;
 
   @Prop({ type: [LeaderboardEntrySchema], default: [] })
   entries: LeaderboardEntry[];
+}
+
+const LeaderboardBoardSchema = SchemaFactory.createForClass(LeaderboardBoard);
+
+@Schema({ timestamps: true })
+export class Leaderboard {
+  @Prop({
+    type: LeaderboardBoardSchema,
+    default: () => ({ subtitle: '6-FRAME CHALLENGE', entries: [] }),
+  })
+  sixFrame: LeaderboardBoard;
+
+  @Prop({
+    type: LeaderboardBoardSchema,
+    default: () => ({ subtitle: '10-FRAME CHALLENGE', entries: [] }),
+  })
+  tenFrame: LeaderboardBoard;
 }
 
 export const LeaderboardSchema = SchemaFactory.createForClass(Leaderboard);

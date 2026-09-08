@@ -291,9 +291,17 @@ export type LeaderboardEntry = {
   score: number;
 };
 
-export type Leaderboard = {
+export type LeaderboardBoard = {
   subtitle: string;
   entries: LeaderboardEntry[];
 };
 
-export type UpdateLeaderboardBody = Leaderboard;
+/** The two boards shown side by side on the TV, published independently. */
+export type Leaderboard = {
+  sixFrame: LeaderboardBoard;
+  tenFrame: LeaderboardBoard;
+};
+
+export type LeaderboardBoardSlug = "six-frame" | "ten-frame";
+
+export type UpdateLeaderboardBoardBody = LeaderboardBoard;
