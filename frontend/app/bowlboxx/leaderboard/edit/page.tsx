@@ -1,0 +1,157 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { toast, toastApiError } from "@/lib/api/toast";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import type { Leaderboard, LeaderboardEntry } from "@/lib/api/types";
+import {
+  defaultLeaderboardState,
+  usePublishLeaderboard,
+  useLeaderboard,
+  LEADERBOARD_SLOTS,
+} from "@/lib/leaderboard";
+
+type FormEntry = { id: string; player: string; score: number | null };
+
+function padToSlots(entries: LeaderboardEntry[]): FormEntry[] {
+  return Array.from({ length: LEADERBOARD_SLOTS }, (_, i) => ({
+    id: `slot-${i}`,
+    player: entries[i]?.player ?? "",
+    score: entries[i]?.score ?? null,
+  }));
+}
+
+function stripBlanks(rows: FormEntry[]): LeaderboardEntry[] {
+  return rows
+    .filter((r) => r.player.trim() !== "" && r.score !== null)
+    .map((r) => ({ player: r.player.trim(), score: r.score as number }));
+}
+
+export default function LeaderboardEditPage() {
+  const { data } = useLeaderboard();
+  const publishMutation = usePublishLeaderboard();
+
+  const [subtitle, setSubtitle] = useState(defaultLeaderboardState().subtitle);
+  const [draft, setDraft] = useState<FormEntry[]>(() => padToSlots([]));
+  const [seededFrom, setSeededFrom] = useState<Leaderboard | undefined>(
+    undefined,
+  );
+
+  // Seed the form once the real, server-backed board first loads, and again
+  // whenever it changes for real (another device publishing) — not on every
+  // poll tick, since react-query keeps the same `data` reference when a
+  // poll's content is unchanged. Render-time check, not an effect, so it
+  // can't cascade or clobber in-progress typing.
+  if (data && data !== seededFrom) {
+    setSeededFrom(data);
+    setSubtitle(data.subtitle);
+    setDraft(padToSlots(data.entries));
+  }
+
+  const setPlayer = (id: string, player: string) =>
+    setDraft((rows) => rows.map((r) => (r.id === id ? { ...r, player } : r)));
+
+  const setScore = (id: string, raw: string) =>
+    setDraft((rows) =>
+      rows.map((r) =>
+        r.id === id ? { ...r, score: raw === "" ? null : Number(raw) } : r,
+      ),
+    );
+
+  const handlePublish = () => {
+    publishMutation.mutate(
+      { subtitle: subtitle.trim() || defaultLeaderboardState().subtitle, entries: stripBlanks(draft) },
+      {
+        onSuccess: () => toast.success("Leaderboard published to the TV screen"),
+        onError: (error) => toastApiError(error, "Couldn't publish the leaderboard."),
+      },
+    );
+  };
+
+  const handleClear = () => {
+    const cleared = defaultLeaderboardState();
+    setSubtitle(cleared.subtitle);
+    setDraft(padToSlots(cleared.entries));
+    publishMutation.mutate(cleared, {
+      onSuccess: () => toast.success("Leaderboard cleared"),
+      onError: (error) => toastApiError(error, "Couldn't clear the leaderboard."),
+    });
+  };
+
+  return (
+    <div className="mx-auto min-h-screen max-w-3xl px-6 py-10">
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-boxx-white">
+            BowlBoxx Leaderboard — Staff Console
+          </h1>
+          <p className="mt-1 text-sm text-boxx-mist">
+            Enter tonight&apos;s top scores, then publish. The TV display
+            picks it up within a few seconds, wherever it&apos;s running.
+          </p>
+        </div>
+        <Link
+          href="/bowlboxx/leaderboard"
+          target="_blank"
+          className="shrink-0 text-xs font-semibold uppercase tracking-wider text-boxx-red-glow hover:underline"
+        >
+          Open TV display →
+        </Link>
+      </div>
+
+      <div className="mt-8">
+        <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-boxx-dim">
+          Subtitle
+        </label>
+        <Input
+          value={subtitle}
+          onChange={(e) => setSubtitle(e.target.value)}
+          placeholder="10-FRAME CHALLENGE"
+          className="max-w-sm"
+        />
+      </div>
+
+      <div className="mt-6 overflow-hidden rounded-xl border border-boxx-line">
+        <div className="grid grid-cols-[1fr_140px] gap-3 bg-boxx-coal px-4 py-3 text-xs font-semibold uppercase tracking-wider text-boxx-dim">
+          <span>Player</span>
+          <span>Score</span>
+        </div>
+        <div className="divide-y divide-boxx-line">
+          {draft.map((entry, i) => (
+            <div
+              key={entry.id}
+              className="grid grid-cols-[1fr_140px] items-center gap-3 px-4 py-3"
+            >
+              <Input
+                value={entry.player}
+                onChange={(e) => setPlayer(entry.id, e.target.value)}
+                placeholder={`Player ${i + 1}`}
+              />
+              <Input
+                type="number"
+                value={entry.score ?? ""}
+                onChange={(e) => setScore(entry.id, e.target.value)}
+                placeholder="Score"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-6 flex gap-3">
+        <Button onClick={handlePublish} disabled={publishMutation.isPending}>
+          {publishMutation.isPending ? "Publishing…" : "Publish to Screen"}
+        </Button>
+        <Button
+          variant="outline"
+          onClick={handleClear}
+          disabled={publishMutation.isPending}
+        >
+          Clear All
+        </Button>
+      </div>
+    </div>
+  );
+}
