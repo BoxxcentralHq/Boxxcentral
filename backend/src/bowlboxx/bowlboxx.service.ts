@@ -33,9 +33,6 @@ export class BowlboxxService implements OnModuleInit {
     return leaderboard;
   }
 
-  // staff publish one board at a time — the six-frame and ten-frame games
-  // run independently and finish at different times, so updating one must
-  // never touch the other.
   async updateBoard(board: string, dto: UpdateLeaderboardDto) {
     const field = BOARD_FIELDS[board as BoardSlug];
     if (!field) {

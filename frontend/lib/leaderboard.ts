@@ -1,13 +1,5 @@
 "use client";
 
-/**
- * BowlBoxx TV leaderboard — two independently-published boards (6-frame,
- * 10-frame) backed by one singleton doc on the server (mirrors how
- * CinemaSettings works). The display polls every few seconds rather than
- * relying on localStorage/BroadcastChannel, since it may run in the TV's
- * own built-in browser instead of a laptop tab alongside the editor.
- */
-
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api/client";
 import type {
@@ -33,7 +25,6 @@ export function defaultLeaderboardState(): Leaderboard {
 
 export type RankedEntry = LeaderboardEntry & { rank: number };
 
-/** Highest score first; blank rows (no player name) are dropped. */
 export function rankEntries(entries: LeaderboardEntry[]): RankedEntry[] {
   return entries
     .filter((e) => e.player.trim() !== "")
@@ -41,7 +32,13 @@ export function rankEntries(entries: LeaderboardEntry[]): RankedEntry[] {
     .map((e, i) => ({ ...e, rank: i + 1 }));
 }
 
-/** Polls both boards — used by the TV display and the edit form alike. */
+export function topScoreAcrossBoards(state: Leaderboard): number | null {
+  const scores = [...state.sixFrame.entries, ...state.tenFrame.entries]
+    .filter((e) => e.player.trim() !== "")
+    .map((e) => e.score);
+  return scores.length > 0 ? Math.max(...scores) : null;
+}
+
 export function useLeaderboard() {
   return useQuery({
     queryKey: LEADERBOARD_KEY,
@@ -50,9 +47,6 @@ export function useLeaderboard() {
   });
 }
 
-/** Publishes one board without touching the other. Seeds the query cache
- *  with the server's response immediately, so the publishing tab updates
- *  without waiting for its next poll tick. */
 export function usePublishLeaderboardBoard() {
   const queryClient = useQueryClient();
   return useMutation({

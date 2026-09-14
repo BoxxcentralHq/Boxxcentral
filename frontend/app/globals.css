@@ -16,6 +16,11 @@
   --color-boxx-red-deep: #d10205; /* pressed */
   --color-boxx-red-glow: #ff3033; /* hover / highlights on dark */
 
+  /* Medal accents — leaderboard rank 1/2/3 only */
+  --color-boxx-gold: #f5c518;
+  --color-boxx-silver: #c7cdd6;
+  --color-boxx-bronze: #cd7f32;
+
   /* Type (white family) */
   --color-boxx-white: #ffffff; /* headings, primary text */
   --color-boxx-mist: #b3b3b3; /* body copy, secondary text */
@@ -143,6 +148,82 @@ body {
     overflow-x: auto;
   }
   .marquee-track {
+    animation: none;
+  }
+}
+
+@property --glow-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes glow-spin {
+  to {
+    --glow-angle: 360deg;
+  }
+}
+
+.glow-ring {
+  position: relative;
+  isolation: isolate;
+}
+
+.glow-ring::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  clip-path: inherit;
+  background: conic-gradient(
+    from var(--glow-angle),
+    transparent 0deg,
+    var(--color-boxx-red-glow) 35deg,
+    transparent 80deg,
+    transparent 360deg
+  );
+  filter: blur(3px);
+  opacity: 0.85;
+  animation: glow-spin 7s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow-ring::before {
+    animation: none;
+  }
+}
+
+.chamfer-banner {
+  --chamfer: clamp(10px, 1.4vw, 18px);
+  clip-path: polygon(
+    var(--chamfer) 0,
+    100% 0,
+    100% calc(100% - var(--chamfer)),
+    calc(100% - var(--chamfer)) 100%,
+    0 100%,
+    0 var(--chamfer)
+  );
+}
+
+@keyframes score-pulse {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.03);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-score-pulse {
+  animation: score-pulse 0.6s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-score-pulse {
     animation: none;
   }
 }

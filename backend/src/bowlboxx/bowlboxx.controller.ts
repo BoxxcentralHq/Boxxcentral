@@ -13,7 +13,7 @@ export class BowlboxxController {
     const leaderboard = await this.bowlboxxService.getLeaderboard();
     return { message: 'Leaderboard fetched', data: leaderboard };
   }
-  
+
   @UseGuards(ThrottlerGuard)
   @Throttle({ default: { ttl: 60000, limit: 30 } })
   @Patch('leaderboard/:board')
