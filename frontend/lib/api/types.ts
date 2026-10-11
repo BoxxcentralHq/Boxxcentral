@@ -50,6 +50,12 @@ export type CinemaSettings = {
 
 export type UpdateCinemaSettingsBody = Partial<CinemaSettings>;
 
+export type Showtime = {
+  /** 24h "HH:mm" */
+  time: string;
+  screen: string;
+};
+
 export type Movie = {
   _id: string;
   title: string;
@@ -57,6 +63,12 @@ export type Movie = {
   genre?: string;
   durationMins?: number;
   posterUrl?: string;
+  /** YouTube link or direct video URL — not served by the API yet */
+  trailerUrl?: string;
+  /** Age rating, e.g. "PG", "15" — not served by the API yet */
+  rating?: string;
+  /** Daily screening times — not served by the API yet */
+  showtimes?: Showtime[];
   visible: boolean;
   createdAt: string;
 };
