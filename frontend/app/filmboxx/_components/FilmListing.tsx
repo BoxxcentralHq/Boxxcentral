@@ -1,9 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { PlayIcon, Ticket01Icon } from "@hugeicons/core-free-icons";
+import {
+  Cancel01Icon,
+  PlayIcon,
+  Search01Icon,
+  Ticket01Icon,
+} from "@hugeicons/core-free-icons";
 import Container from "@/components/Container";
 import Reveal from "@/components/Reveal";
 import { Button } from "@/components/ui/button";
@@ -24,12 +29,18 @@ import { cn } from "@/lib/utils";
 
 const naira = (amount: number) => `₦${amount.toLocaleString("en-NG")}`;
 const ALL = "All";
+/* Past this many films the list collapses and a search box appears */
+const INITIAL_VISIBLE = 6;
 
 /**
  * Box-office listing: a week of days to pick from, genre tabs, and a card
  * per film with its poster, rating, details and that day's showtimes.
  * Showtimes already past (today only) are struck through. Picking a time
  * or "Buy Ticket" opens the per-seat booking dialog.
+ *
+ * Large catalogs: only the first INITIAL_VISIBLE films render until
+ * "Show all" is pressed, a title search appears, and on Today films with
+ * no showings left sink to the bottom so bookable ones lead.
  */
 export default function FilmListing({
   movies,
@@ -43,6 +54,9 @@ export default function FilmListing({
   const nowMinute = useNowMinute();
   const [dayOffset, setDayOffset] = useState(0);
   const [genre, setGenre] = useState(ALL);
+  const [query, setQuery] = useState("");
+  const [expanded, setExpanded] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
 
   const days = useMemo(
     () => (nowMinute === null ? null : getShowDays(nowMinute)),
@@ -59,18 +73,52 @@ export default function FilmListing({
     ],
     [movies],
   );
-  const shown =
-    genre === ALL ? movies : movies.filter((m) => m.genre === genre);
+  const searchable = movies.length > INITIAL_VISIBLE;
+  const needle = query.trim().toLowerCase();
+  const matches = movies.filter(
+    (m) =>
+      (genre === ALL || m.genre === genre) &&
+      (!needle ||
+        m.title.toLowerCase().includes(needle) ||
+        m.genre?.toLowerCase().includes(needle)),
+  );
+  /* Stable sort: bookable today first, original order otherwise */
+  const hasShowingsLeft = (m: Movie) =>
+    !m.showtimes?.length || m.showtimes.some((s) => !isPastShowtime(s, cutoff));
+  const ordered =
+    cutoff === null
+      ? matches
+      : [...matches].sort(
+          (a, b) => Number(hasShowingsLeft(b)) - Number(hasShowingsLeft(a)),
+        );
+  /* A search shows every hit — collapsing results would hide them */
+  const collapsed = !expanded && !needle && ordered.length > INITIAL_VISIBLE;
+  const shown = collapsed ? ordered.slice(0, INITIAL_VISIBLE) : ordered;
+
+  function changeGenre(g: string) {
+    setGenre(g);
+    setExpanded(false);
+  }
+
+  function collapse() {
+    setExpanded(false);
+    sectionRef.current?.scrollIntoView({ behavior: "smooth" });
+  }
 
   return (
-    <section id="now-showing" className="scroll-mt-24 py-24 sm:py-32">
+    <section
+      ref={sectionRef}
+      id="now-showing"
+      className="scroll-mt-24 py-24 sm:py-32"
+    >
       <Container>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <h2 className="font-heading text-5xl tracking-wide text-boxx-white uppercase sm:text-6xl">
             Now showing
           </h2>
           <p className="text-sm text-boxx-dim">
-            Tickets {naira(publicScreeningPricePerPerson)} a seat
+            {movies.length} films · Tickets{" "}
+            {naira(publicScreeningPricePerPerson)} a seat
           </p>
         </div>
 
@@ -117,30 +165,85 @@ export default function FilmListing({
               ))}
         </div>
 
-        {/* Genre tabs */}
-        {genres.length > 2 && (
-          <div
-            role="tablist"
-            aria-label="Filter by genre"
-            className="-mx-5 mt-8 flex gap-6 overflow-x-auto border-b border-boxx-line px-5 sm:mx-0 sm:px-0"
-          >
-            {genres.map((g) => (
-              <button
-                key={g}
-                type="button"
-                role="tab"
-                aria-selected={genre === g}
-                onClick={() => setGenre(g)}
-                className={cn(
-                  "-mb-px shrink-0 border-b-2 pb-3 text-sm font-semibold whitespace-nowrap transition-colors",
-                  genre === g
-                    ? "border-boxx-red text-boxx-white"
-                    : "border-transparent text-boxx-dim hover:text-boxx-white",
-                )}
-              >
-                {g}
-              </button>
-            ))}
+        {/* Genre tabs + search */}
+        <div className="mt-8 flex flex-col-reverse gap-4 border-b border-boxx-line md:flex-row md:items-end md:justify-between">
+          {genres.length > 2 ? (
+            <div
+              role="tablist"
+              aria-label="Filter by genre"
+              className="-mx-5 flex min-w-0 gap-6 overflow-x-auto px-5 sm:mx-0 sm:px-0"
+            >
+              {genres.map((g) => (
+                <button
+                  key={g}
+                  type="button"
+                  role="tab"
+                  aria-selected={genre === g}
+                  onClick={() => changeGenre(g)}
+                  className={cn(
+                    "-mb-px shrink-0 border-b-2 pb-3 text-sm font-semibold whitespace-nowrap transition-colors",
+                    genre === g
+                      ? "border-boxx-red text-boxx-white"
+                      : "border-transparent text-boxx-dim hover:text-boxx-white",
+                  )}
+                >
+                  {g}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <span />
+          )}
+
+          {searchable && (
+            <label className="relative mb-3 block shrink-0 md:w-64">
+              <span className="sr-only">Search films</span>
+              <HugeiconsIcon
+                icon={Search01Icon}
+                aria-hidden
+                className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-boxx-dim"
+              />
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search films"
+                className="h-10 w-full rounded-lg border border-boxx-line bg-boxx-coal pr-9 pl-9 text-sm text-boxx-white outline-none placeholder:text-boxx-dim focus:border-boxx-white/40 [&::-webkit-search-cancel-button]:hidden"
+              />
+              {query && (
+                <button
+                  type="button"
+                  onClick={() => setQuery("")}
+                  aria-label="Clear search"
+                  className="absolute top-1/2 right-2 flex size-6 -translate-y-1/2 items-center justify-center rounded-full text-boxx-dim hover:text-boxx-white"
+                >
+                  <HugeiconsIcon icon={Cancel01Icon} className="size-3.5" />
+                </button>
+              )}
+            </label>
+          )}
+        </div>
+
+        {needle && (
+          <p className="mt-6 text-sm text-boxx-dim" aria-live="polite">
+            {ordered.length} {ordered.length === 1 ? "result" : "results"} for “
+            {query.trim()}”
+          </p>
+        )}
+
+        {ordered.length === 0 && (
+          <div className="mt-10 rounded-xl border border-dashed border-boxx-line py-16 text-center">
+            <p className="text-boxx-white">No films match that.</p>
+            <button
+              type="button"
+              onClick={() => {
+                setQuery("");
+                changeGenre(ALL);
+              }}
+              className="mt-3 text-sm text-boxx-red-glow underline-offset-4 hover:underline"
+            >
+              Clear filters
+            </button>
           </div>
         )}
 
@@ -157,6 +260,24 @@ export default function FilmListing({
             </Reveal>
           ))}
         </div>
+
+        {(collapsed ||
+          (expanded && ordered.length > INITIAL_VISIBLE && !needle)) && (
+          <div className="mt-10 flex flex-col items-center gap-3">
+            {collapsed && (
+              <p className="text-sm text-boxx-dim">
+                Showing {shown.length} of {ordered.length} films
+              </p>
+            )}
+            <Button
+              type="button"
+              variant="outline"
+              onClick={collapsed ? () => setExpanded(true) : collapse}
+            >
+              {collapsed ? `Show all ${ordered.length} films` : "Show fewer"}
+            </Button>
+          </div>
+        )}
       </Container>
     </section>
   );

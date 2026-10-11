@@ -74,8 +74,7 @@ type MovieBookingDialogProps = {
 };
 
 /**
- * Ticket checkout for a public screening — distinct from the whole-room
- * private booking form (BookingSection), which stays anchored at #book.
+ * Ticket checkout for a public screening.
  * Poster and running order summary on the left; date, showtime, seats and
  * contact details on the right. Films without showtimes skip straight to
  * seats. Remount it (via `key`) per opening to reset its state.
