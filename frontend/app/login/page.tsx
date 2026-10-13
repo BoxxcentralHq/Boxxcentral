@@ -24,7 +24,7 @@ export default function LoginPage() {
           <p className="mt-6 text-xs font-bold uppercase tracking-[0.3em] text-boxx-red">
             Staff access
           </p>
-          <h1 className="mt-3 font-heading text-3xl uppercase tracking-wide text-boxx-white sm:text-4xl">
+          <h1 className="mt-3 font-heading text-3xl tracking-tight text-boxx-white sm:text-4xl">
             Sign in to the dashboard
           </h1>
           <p className="mt-3 text-sm leading-relaxed text-boxx-mist">

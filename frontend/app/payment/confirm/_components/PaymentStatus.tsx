@@ -50,7 +50,7 @@ function StatusCard({
       >
         <HugeiconsIcon icon={icon} className={cn("size-6", spin && "animate-spin")} />
       </span>
-      <h1 className="mt-6 font-heading text-2xl uppercase tracking-wide text-boxx-white">
+      <h1 className="mt-6 font-heading text-2xl tracking-tight text-boxx-white">
         {title}
       </h1>
       <p className="mt-3 text-sm leading-relaxed">{body}</p>

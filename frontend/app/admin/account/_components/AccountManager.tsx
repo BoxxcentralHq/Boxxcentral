@@ -92,7 +92,7 @@ function ChangePasswordCard() {
 
   return (
     <Reveal className="rounded-2xl border border-boxx-line bg-boxx-coal p-6 sm:p-8">
-      <h2 className="font-heading text-xl uppercase tracking-wide text-boxx-white">
+      <h2 className="font-heading text-xl tracking-tight text-boxx-white">
         Change password
       </h2>
       <form onSubmit={handleSubmit} className="mt-6 space-y-5">
@@ -189,7 +189,7 @@ function StaffAccounts({ profile }: { profile: { userId: string } }) {
   return (
     <Reveal delay={100} className="mt-6 rounded-2xl border border-boxx-line bg-boxx-coal p-6 sm:p-8">
       <div className="flex items-center justify-between gap-4">
-        <h2 className="font-heading text-xl uppercase tracking-wide text-boxx-white">
+        <h2 className="font-heading text-xl tracking-tight text-boxx-white">
           Staff accounts
         </h2>
         <Button

@@ -172,7 +172,9 @@ export default function MovieBookingDialog({
                 icon={CheckmarkCircle02Icon}
                 className="size-7 text-boxx-red-glow"
               />
-              <DialogTitle className="font-heading text-3xl tracking-wide uppercase">
+              <DialogTitle
+                className={cn("font-heading text-3xl tracking-tight")}
+              >
                 You&apos;re booked
               </DialogTitle>
             </div>
@@ -195,7 +197,11 @@ export default function MovieBookingDialog({
                 )}
               </div>
               <div className="flex-1 p-5 sm:p-6">
-                <p className="font-heading text-2xl tracking-wide text-boxx-white uppercase">
+                <p
+                  className={cn(
+                    "font-heading text-2xl tracking-tight text-boxx-white",
+                  )}
+                >
                   {movie.title}
                 </p>
                 <dl className="mt-4 grid grid-cols-2 gap-4 text-sm">
@@ -265,7 +271,11 @@ export default function MovieBookingDialog({
                   )}
                   {meta.join(" · ")}
                 </div>
-                <DialogTitle className="mt-2 font-heading text-2xl leading-tight tracking-wide text-boxx-white uppercase sm:text-3xl">
+                <DialogTitle
+                  className={cn(
+                    "font-heading mt-2 text-xl leading-tight tracking-tight text-boxx-white sm:text-2xl",
+                  )}
+                >
                   {movie.title}
                 </DialogTitle>
                 <DialogDescription className="sr-only">

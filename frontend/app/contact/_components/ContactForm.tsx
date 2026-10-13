@@ -75,7 +75,7 @@ export default function ContactForm() {
       <span className="text-xs font-bold uppercase tracking-[0.3em] text-boxx-red">
         Get in touch
       </span>
-      <h2 className="mt-3 font-heading text-3xl uppercase tracking-wide text-boxx-white sm:text-4xl">
+      <h2 className="mt-3 font-heading text-3xl tracking-tight text-boxx-white sm:text-4xl">
         What&apos;s the plan?
       </h2>
       <p className="mt-3 text-sm leading-relaxed">

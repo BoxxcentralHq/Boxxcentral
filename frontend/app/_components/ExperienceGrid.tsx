@@ -40,7 +40,7 @@ export default function ExperienceGrid() {
                 </div>
                 <div className="flex flex-col items-start justify-center gap-4 p-8 sm:p-10">
                   <Badge variant="soft">{filmboxx.kind}</Badge>
-                  <h3 className="font-heading text-3xl uppercase tracking-wide text-boxx-white sm:text-4xl">
+                  <h3 className="font-heading text-3xl tracking-tight text-boxx-white sm:text-4xl">
                     {filmboxx.name}
                   </h3>
                   <p className="leading-relaxed">{filmboxx.summary}</p>
@@ -74,7 +74,7 @@ export default function ExperienceGrid() {
                   </div>
                   <div className="flex flex-1 flex-col items-start gap-3 p-6">
                     <Badge variant="outline">{exp.kind}</Badge>
-                    <h3 className="font-heading text-2xl uppercase tracking-wide text-boxx-white">
+                    <h3 className="font-heading text-2xl tracking-tight text-boxx-white">
                       {exp.name}
                     </h3>
                     <p className="text-sm leading-relaxed">{exp.tagline}</p>

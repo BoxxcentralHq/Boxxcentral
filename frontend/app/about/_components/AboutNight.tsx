@@ -44,7 +44,7 @@ export default function AboutNight() {
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <div>
-                  <h3 className="font-heading text-lg uppercase tracking-wide text-boxx-white">
+                  <h3 className="font-heading text-lg tracking-tight text-boxx-white">
                     {step.title}
                   </h3>
                   <p className="mt-2 text-sm leading-relaxed">{step.body}</p>

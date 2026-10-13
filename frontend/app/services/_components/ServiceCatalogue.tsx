@@ -50,7 +50,7 @@ export default function ServiceCatalogue() {
 
             <div className="relative flex min-h-[72vh] flex-col items-start justify-end p-6 sm:p-10 lg:p-14">
               <Badge variant="soft">{exp.kind}</Badge>
-              <h3 className="mt-4 font-heading text-4xl uppercase tracking-wide text-boxx-white sm:text-6xl">
+              <h3 className="mt-4 font-heading text-4xl tracking-tight text-boxx-white sm:text-6xl">
                 {exp.name}
               </h3>
               <p className="mt-4 max-w-xl leading-relaxed text-boxx-mist">

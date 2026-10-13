@@ -26,9 +26,9 @@
   --color-boxx-mist: #b3b3b3; /* body copy, secondary text */
   --color-boxx-dim: #8a8a8a; /* captions, placeholder labels */
 
-  /* Typography — Anton for display, Figtree for everything else */
+  /* Typography — Syne for display, Figtree for everything else */
   --font-sans: var(--font-figtree), ui-sans-serif, system-ui, sans-serif;
-  --font-heading: var(--font-anton), var(--font-figtree), sans-serif;
+  --font-heading: var(--font-syne), var(--font-figtree), sans-serif;
 
   /* The single sanctioned shadow: the luminous primary-CTA glow */
   --shadow-glow: 0px 5px 25px rgb(250 3 6 / 0.25);

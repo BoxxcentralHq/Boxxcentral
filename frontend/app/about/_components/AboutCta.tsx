@@ -14,7 +14,7 @@ export default function AboutCta() {
           <span className="text-xs font-bold uppercase tracking-[0.3em] text-boxx-red">
             The rest is yours
           </span>
-          <h2 className="mt-6 max-w-3xl font-heading text-4xl uppercase leading-tight tracking-wide text-boxx-white sm:text-5xl">
+          <h2 className="mt-6 max-w-3xl font-heading text-4xl leading-tight tracking-tight text-boxx-white sm:text-5xl">
             Now that you know the story, come write a night into it
           </h2>
           <p className="mt-5 max-w-xl leading-relaxed">

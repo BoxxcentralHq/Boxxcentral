@@ -4,7 +4,6 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import type { IconSvgElement } from "@hugeicons/react";
 import {
   BeerIcon,
-  BottleWineIcon,
   Cancel01Icon,
   CroissantIcon,
   CupSodaIcon,
@@ -30,7 +29,7 @@ const categoryIcons: Record<MenuCategory, IconSvgElement> = {
   Pastries: CroissantIcon,
   Pizza: Pizza01Icon,
   "Signature Cocktail": DrinkIcon,
-  "Classic Cocktails": BottleWineIcon,
+  "Classic Cocktails": DrinkIcon,
   Mocktail: GlassWaterIcon,
   Smoothie: SoftDrink01Icon,
   Juices: CupSodaIcon,

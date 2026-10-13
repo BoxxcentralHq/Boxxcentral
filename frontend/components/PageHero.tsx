@@ -127,7 +127,7 @@ export default function PageHero({
           </motion.span>
           <motion.h1
             variants={rise}
-            className="mt-6 max-w-4xl font-heading text-5xl uppercase leading-[1.05] tracking-wide text-boxx-white sm:text-7xl lg:text-[5.5rem]"
+            className="mt-6 max-w-4xl font-heading text-5xl leading-[1.05] tracking-tight text-boxx-white sm:text-7xl lg:text-[5.5rem]"
           >
             {title}
           </motion.h1>

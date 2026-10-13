@@ -10,7 +10,7 @@ type SectionHeadingProps = {
   stroke?: boolean;
 };
 
-/** Consistent section header: red eyebrow, Anton display title, muted lede. */
+/** Consistent section header: red eyebrow, Syne display title, muted lede. */
 export default function SectionHeading({
   eyebrow,
   title,
@@ -32,7 +32,7 @@ export default function SectionHeading({
       )}
       <h2
         className={cn(
-          "font-heading text-4xl uppercase leading-tight tracking-wide sm:text-5xl",
+          "font-heading text-4xl leading-tight tracking-tight sm:text-5xl",
           stroke ? "text-stroke-white" : "text-boxx-white",
         )}
       >

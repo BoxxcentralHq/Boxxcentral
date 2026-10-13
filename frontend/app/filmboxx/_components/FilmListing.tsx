@@ -113,7 +113,11 @@ export default function FilmListing({
     >
       <Container>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <h2 className="font-heading text-5xl tracking-wide text-boxx-white uppercase sm:text-6xl">
+          <h2
+            className={cn(
+              "font-heading text-4xl tracking-tight text-boxx-white sm:text-5xl",
+            )}
+          >
             Now showing
           </h2>
           <p className="text-sm text-boxx-dim">
@@ -342,7 +346,11 @@ function FilmCard({
           )}
         </div>
 
-        <h3 className="mt-2 font-heading text-2xl leading-tight tracking-wide text-boxx-white uppercase sm:text-3xl">
+        <h3
+          className={cn(
+            "font-heading mt-2 text-xl leading-tight tracking-tight text-boxx-white sm:text-2xl",
+          )}
+        >
           {movie.title}
         </h3>
 

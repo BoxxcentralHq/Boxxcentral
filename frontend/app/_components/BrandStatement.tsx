@@ -10,7 +10,7 @@ export default function BrandStatement() {
           <span className="text-xs font-bold uppercase tracking-[0.3em] text-boxx-red">
             Why {site.name}
           </span>
-          <blockquote className="mx-auto mt-8 max-w-3xl font-heading text-3xl uppercase leading-snug tracking-wide text-boxx-white sm:text-4xl">
+          <blockquote className="mx-auto mt-8 max-w-3xl font-heading text-3xl leading-snug tracking-tight text-boxx-white sm:text-4xl">
             One address where the whole evening happens
           </blockquote>
           <p className="mx-auto mt-6 max-w-xl leading-relaxed">

@@ -52,7 +52,7 @@ export default function AboutWorlds() {
                     {exp.kind}
                   </span>
                 </div>
-                <h3 className="mt-6 font-heading text-2xl uppercase tracking-wide text-boxx-white">
+                <h3 className="mt-6 font-heading text-2xl tracking-tight text-boxx-white">
                   {exp.name}
                 </h3>
                 <p className="mt-1 text-sm text-boxx-dim">{exp.tagline}</p>
