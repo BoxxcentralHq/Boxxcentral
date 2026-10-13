@@ -72,7 +72,7 @@ function StepHeading({ step, title }: { step: number; title: string }) {
       <span className="flex size-8 shrink-0 items-center justify-center rounded-full border border-boxx-red text-xs font-bold text-boxx-red">
         {step}
       </span>
-      <h2 className="font-heading text-2xl uppercase tracking-wide text-boxx-white">
+      <h2 className="font-heading text-2xl tracking-tight text-boxx-white">
         {title}
       </h2>
     </div>

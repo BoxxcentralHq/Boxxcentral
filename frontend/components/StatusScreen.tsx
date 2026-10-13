@@ -25,7 +25,7 @@ export default function StatusScreen({
           <span className="text-xs font-bold uppercase tracking-[0.3em] text-boxx-red">
             {eyebrow}
           </span>
-          <h1 className="mt-6 max-w-4xl font-heading text-6xl uppercase leading-[1.05] tracking-wide text-boxx-white sm:text-8xl">
+          <h1 className="mt-6 max-w-4xl font-heading text-6xl leading-[1.05] tracking-tight text-boxx-white sm:text-8xl">
             {title}
           </h1>
           <p className="mt-6 max-w-xl text-base leading-relaxed text-boxx-mist sm:text-lg">

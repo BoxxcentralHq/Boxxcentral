@@ -7,6 +7,7 @@ import { Cancel01Icon, Ticket01Icon } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogPortal } from "@/components/ui/dialog";
 import type { Movie } from "@/lib/api/types";
+import { cn } from "@/lib/utils";
 
 /** YouTube watch/share/embed links → embed URL; anything else plays as a file. */
 function youtubeEmbed(url: string) {
@@ -74,7 +75,11 @@ export default function TrailerDialog({
                   <p className="text-xs font-semibold tracking-wider text-boxx-white/60 uppercase">
                     Trailer
                   </p>
-                  <DialogPrimitive.Title className="mt-1 truncate font-heading text-2xl tracking-wide text-boxx-white uppercase sm:text-4xl">
+                  <DialogPrimitive.Title
+                    className={cn(
+                      "font-heading mt-1 truncate text-2xl tracking-tight text-boxx-white sm:text-4xl",
+                    )}
+                  >
                     {movie.title}
                   </DialogPrimitive.Title>
                 </div>

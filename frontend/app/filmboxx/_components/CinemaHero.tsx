@@ -14,6 +14,7 @@ import Container from "@/components/Container";
 import { Button } from "@/components/ui/button";
 import type { Movie } from "@/lib/api/types";
 import { publicScreeningPricePerPerson } from "@/lib/pricing";
+import { cn } from "@/lib/utils";
 
 const naira = (amount: number) => `₦${amount.toLocaleString("en-NG")}`;
 const ROTATE_MS = 9000;
@@ -114,7 +115,11 @@ export default function CinemaHero({
             <p className="text-sm font-semibold text-boxx-white/70">
               Now showing at FilmBoxx
             </p>
-            <h1 className="mt-3 font-heading text-5xl leading-none tracking-wide text-boxx-white uppercase sm:text-7xl lg:text-8xl">
+            <h1
+              className={cn(
+                "font-heading mt-3 max-w-3xl text-5xl leading-[0.95] tracking-tight text-balance text-boxx-white sm:text-6xl lg:text-7xl",
+              )}
+            >
               {movie.title}
             </h1>
             <p className="mt-5 text-sm text-boxx-white/80">

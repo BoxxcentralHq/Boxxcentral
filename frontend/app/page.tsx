@@ -6,7 +6,6 @@ import Magnetic from "@/components/motion/Magnetic";
 import { Button } from "@/components/ui/button";
 import { bookingCta, site } from "@/lib/site";
 import AtmosphereStrip from "./_components/AtmosphereStrip";
-import BrandStatement from "./_components/BrandStatement";
 import ExperienceGrid from "./_components/ExperienceGrid";
 import VisitUs from "./_components/VisitUs";
 import AboutCta from "./about/_components/AboutCta";
@@ -42,7 +41,7 @@ export default async function HomePage() {
         }
       />
       <ExperienceGrid />
-      <BrandStatement />
+      {/* "Why BoxxCentral" (BrandStatement) hidden for now */}
       <AtmosphereStrip />
       <VisitUs />
       <AboutCta />

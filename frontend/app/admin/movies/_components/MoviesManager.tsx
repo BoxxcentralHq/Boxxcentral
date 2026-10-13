@@ -108,7 +108,7 @@ function MovieCard({
       </div>
 
       <div className="p-4">
-        <p className="truncate font-heading text-sm tracking-wide text-boxx-white uppercase">
+        <p className="truncate font-heading text-sm tracking-tight text-boxx-white">
           {movie.title}
         </p>
         <p className="mt-0.5 truncate text-xs text-boxx-dim">

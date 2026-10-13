@@ -12,7 +12,7 @@ export default function AdminPaymentsPage() {
       <p className="text-xs font-bold uppercase tracking-[0.3em] text-boxx-red">
         Payments
       </p>
-      <h1 className="mt-2 font-heading text-3xl uppercase tracking-wide text-boxx-white sm:text-4xl">
+      <h1 className="mt-2 font-heading text-3xl tracking-tight text-boxx-white sm:text-4xl">
         Ledger &amp; revenue
       </h1>
       <p className="mt-3 max-w-xl text-sm leading-relaxed text-boxx-mist">

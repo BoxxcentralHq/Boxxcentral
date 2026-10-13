@@ -63,7 +63,7 @@ export default function MenuGrid({ items, view, onSelect, hasAnyItems = true }: 
                 />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <h3 className="truncate font-heading text-base tracking-wide text-boxx-white uppercase sm:text-lg">
+                    <h3 className="truncate font-heading text-base tracking-tight text-boxx-white sm:text-lg">
                       {item.name}
                     </h3>
                     {item.tags?.includes("Popular") && (
@@ -118,7 +118,7 @@ export default function MenuGrid({ items, view, onSelect, hasAnyItems = true }: 
             </div>
             <div className="flex flex-1 flex-col p-5">
               <div className="flex items-start justify-between gap-3">
-                <h3 className="font-heading text-lg tracking-wide text-boxx-white uppercase">
+                <h3 className="font-heading text-lg tracking-tight text-boxx-white">
                   {item.name}
                 </h3>
                 <span className="shrink-0 font-heading text-lg text-boxx-red-glow">
