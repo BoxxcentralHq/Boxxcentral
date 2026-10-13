@@ -299,13 +299,6 @@ const server = http.createServer((req, res) => {
 // --------------------------------------------------
 // START SERVER
 // --------------------------------------------------
-
-// Node's http.Server defaults to a 5000ms keepAliveTimeout, which closes any
-// idle persistent connection after 5s. Every observed connection from the
-// device stayed open for ~6s before closing - suspiciously close to that
-// default - meaning our own server may be killing the socket right as the
-// device pauses before reusing it for its next request (e.g. getrequest).
-// headersTimeout must exceed keepAliveTimeout or Node throws at startup.
 server.keepAliveTimeout = 65000;
 server.headersTimeout = 66000;
 
