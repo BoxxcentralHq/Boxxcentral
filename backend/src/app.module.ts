@@ -75,7 +75,6 @@ const dbLogger = new Logger('Database');
         },
       }),
     }),
-    // Default rate limit: 20 requests / 10s per IP (login is stricter via @Throttle)
     ThrottlerModule.forRoot([{ ttl: 10000, limit: 20 }]),
     CloudinaryModule,
     EmailModule,
