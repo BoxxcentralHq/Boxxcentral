@@ -36,11 +36,17 @@ Work happens on a feature branch, gets verified on staging (`development`), and 
 - `Movie` gains `trailerUrl` and `rating`.
 
 ### 2A. Harden the payment pipeline (both flows depend on it; covers issues #3 and #4)
-- [ ] The webhook verifies the transaction with Flutterwave and checks that the amount and currency match the ledger before marking it successful.
-- [ ] Make the webhook idempotent: skip payments already in a final state, never let `failed` overwrite `success`, and never send a confirmation email twice.
-- [ ] A late payment for a slot that has since been taken is flagged for refund or manual follow-up instead of returning a 500.
-- [ ] Escape all user-supplied values in the email templates.
-- [ ] Unit tests for the above.
+- [x] The webhook verifies the transaction with Flutterwave and checks that the amount and currency match the ledger before marking it successful.
+- [x] Make the webhook idempotent: skip payments already in a final state, never let `failed` overwrite `success`, and never send a confirmation email twice.
+- [x] A late payment for a slot that has since been taken is flagged for refund or manual follow-up instead of returning a 500.
+- [x] Escape all user-supplied values in the email templates.
+- [x] Unit tests for the above.
+
+**2A follow-ups (open):**
+- [ ] Reconcile from the verify endpoint: when `GET /payments/:ref/verify` sees a gateway-successful payment that is still pending locally, run the same confirmation logic. This covers webhooks that never arrive.
+- [ ] On a repeat delivery, flag a payment that is `success` but whose booking or subscription was never applied (a crash between the claim and fulfilment).
+- [ ] Rate-limit `GET /payments/:idOrRef/verify`; every call hits Flutterwave's API with our key.
+- [ ] Retry or resend confirmation emails that fail (ZeptoMail down).
 
 ### 2B. Private booking (whole room): ON HOLD
 - [ ] Interim: turn off "Booking enabled" in Admin → Settings in production. `POST /bookings` is still public even though no page shows the form.
@@ -61,6 +67,7 @@ Work happens on a feature branch, gets verified on staging (`development`), and 
 - Screenings manager page, including a "repeat daily for N days" option that skips days where the time would clash.
 - Ticket orders shown in the admin bookings and payments views.
 - Movie form fields for `trailerUrl` and `rating`.
+- Payments flagged `needsReview` (`amount_mismatch`, `slot_taken`) shown in the payments view with a filter, so staff can refund or rebook. Until then, find them in the database with `{ needsReview: true }`.
 
 ### 2D. End-to-end test on staging (Flutterwave test mode)
 - [ ] Public tickets: buy and pay; failed payment; abandoned payment that expires and releases its seats; duplicate webhook; two people buying the last seat; admin creating overlapping screenings is rejected.

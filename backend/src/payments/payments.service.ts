@@ -3,6 +3,7 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -24,6 +25,7 @@ import {
 import { FlutterwaveService } from '../flutterwave/flutterwave.service';
 import { FlutterwaveWebhookPayload } from '../flutterwave/types/flutterwave.types';
 import { EmailService } from '../email/email.service';
+import { WebhookResult } from './webhook-result.enum';
 
 @Injectable()
 export class PaymentsService {
@@ -73,7 +75,6 @@ export class PaymentsService {
     };
   }
 
-  // single source of truth for confirming payments
   async handleWebhook(payload: FlutterwaveWebhookPayload, signature: string) {
     if (!this.flutterwaveService.validateSignature(signature)) {
       this.logger.error('[Webhook] Invalid signature received.');
@@ -81,99 +82,210 @@ export class PaymentsService {
     }
 
     const txRef = payload?.data?.tx_ref || payload?.txRef;
-    const status = payload?.data?.status || payload?.status;
     const gatewayId = payload?.data?.id || payload?.id;
 
     if (!txRef) {
       this.logger.warn('[Webhook] Ignored: no transaction reference found.');
-      return { status: 'ignored', message: 'No transaction reference found' };
+      return {
+        status: WebhookResult.IGNORED,
+        message: 'No transaction reference found',
+      };
     }
-
-    this.logger.log(`[Webhook] ${txRef} | gateway status: ${status}`);
 
     const payment = await this.paymentModel.findOne({ reference: txRef });
     if (!payment) {
-      this.logger.error(`[Webhook] No ledger record for reference: ${txRef}`);
-      throw new NotFoundException(`Payment record for ${txRef} not found`);
+      this.logger.warn(`[Webhook] Ignored: no ledger record for ${txRef}`);
+      return {
+        status: WebhookResult.IGNORED,
+        message: 'Unknown transaction reference',
+      };
     }
 
-    if (status !== 'successful') {
-      await this.paymentModel.findByIdAndUpdate(payment._id, {
-        status: PaymentStatus.FAILED,
-        transactionId: gatewayId?.toString(),
-        gatewayResponse: payload?.data || payload,
-      });
-      return { status: 'failed', reference: txRef, gatewayStatus: status };
+    if (payment.status === PaymentStatus.REFUNDED) {
+      return {
+        status: WebhookResult.IGNORED,
+        reference: txRef,
+        message: 'Already refunded',
+      };
     }
 
-    await this.paymentModel.findByIdAndUpdate(payment._id, {
-      status: PaymentStatus.SUCCESS,
-      transactionId: gatewayId?.toString(),
-      gatewayResponse: payload?.data || payload,
-    });
-
-    if (payment.bookingId) {
-      const booking = await this.bookingModel.findByIdAndUpdate(
-        payment.bookingId,
-        { status: BookingStatus.RESERVED },
-        { new: true },
-      );
-
-      if (booking) {
-        try {
-          await this.emailService.sendBookingConfirmation({
-            guestName: booking.guestName,
-            guestEmail: booking.guestEmail,
-            guestPhone: booking.guestPhone,
-            bookingRef: booking.bookingRef,
-            experience: booking.experience,
-            room: booking.room,
-            date: booking.date,
-            timeSlot: booking.timeSlot,
-            guests: booking.guests,
-            subtotal: booking.subtotal,
-            vatAmount: booking.vatAmount,
-            totalPrice: booking.totalPrice,
-          });
-        } catch (emailError) {
-          this.logger.error(
-            `[Webhook] Email dispatch failed for ${txRef}: ${(emailError as Error).message}`,
-          );
-        }
-      }
+    if (payment.status === PaymentStatus.SUCCESS) {
+      await this.fulfil(payment, false);
+      return { status: WebhookResult.DUPLICATE, reference: txRef };
     }
 
-    if (payment.subscriptionId) {
-      // payment confirmed only gets the subscription to "paid" — the pass
-      // itself doesn't start counting until front desk activates it
-      const subscription = await this.gymSubscriptionModel.findByIdAndUpdate(
-        payment.subscriptionId,
-        { status: GymSubscriptionStatus.PAID },
-        { new: true },
-      );
-
-      if (subscription) {
-        try {
-          await this.emailService.sendMembershipPaymentReceipt({
-            memberName: subscription.memberName,
-            memberEmail: subscription.memberEmail,
-            subscriptionRef: subscription.subscriptionRef,
-            planName: subscription.planName,
-            durationDays: subscription.durationDays,
-            price: subscription.price,
-          });
-        } catch (emailError) {
-          this.logger.error(
-            `[Webhook] Email dispatch failed for ${txRef}: ${(emailError as Error).message}`,
-          );
-        }
-      }
-    }
-
-    this.logger.log(
-      `[Webhook] SUCCESS: ${txRef} — ledger and booking updated.`,
+    const verified = await this.flutterwaveService.verifyTransaction(
+      gatewayId ? String(gatewayId) : txRef,
     );
-    return { status: 'success', reference: txRef };
+    if (!verified) {
+      throw new ServiceUnavailableException(
+        'Could not verify the transaction with Flutterwave',
+      );
+    }
+    if (verified.tx_ref !== txRef) {
+      this.logger.error(
+        `[Webhook] Reference mismatch: event ${txRef}, gateway ${verified.tx_ref}`,
+      );
+      return {
+        status: WebhookResult.IGNORED,
+        message: 'Transaction reference mismatch',
+      };
+    }
+
+    const gatewayFields = {
+      transactionId: String(verified.id),
+      gatewayResponse: verified as unknown as Record<string, unknown>,
+    };
+    const unconfirmed = {
+      _id: payment._id,
+      status: { $in: [PaymentStatus.PENDING, PaymentStatus.FAILED] },
+    };
+
+    if (verified.status !== 'successful') {
+      if (verified.status === 'failed') {
+        await this.paymentModel.updateOne(
+          { _id: payment._id, status: PaymentStatus.PENDING },
+          { status: PaymentStatus.FAILED, ...gatewayFields },
+        );
+      }
+      this.logger.log(
+        `[Webhook] ${txRef} | gateway status: ${verified.status}`,
+      );
+      return {
+        status:
+          verified.status === 'failed'
+            ? WebhookResult.FAILED
+            : WebhookResult.PENDING,
+        reference: txRef,
+        gatewayStatus: verified.status,
+      };
+    }
+
+    if (
+      verified.currency !== payment.currency ||
+      verified.amount < payment.amount
+    ) {
+      await this.paymentModel.updateOne(unconfirmed, {
+        needsReview: true,
+        reviewReason: 'amount_mismatch',
+        ...gatewayFields,
+      });
+      this.logger.error(
+        `[Webhook] ${txRef} amount mismatch: expected ${payment.amount} ${payment.currency}, ` +
+          `gateway paid ${verified.amount} ${verified.currency} — flagged for review`,
+      );
+      return {
+        status: WebhookResult.REVIEW,
+        reference: txRef,
+        reason: 'amount_mismatch',
+      };
+    }
+
+    const claimed = await this.paymentModel.findOneAndUpdate(
+      unconfirmed,
+      { status: PaymentStatus.SUCCESS, ...gatewayFields },
+      { new: true },
+    );
+    if (!claimed) {
+      return { status: WebhookResult.DUPLICATE, reference: txRef };
+    }
+
+    await this.fulfil(claimed, true);
+    this.logger.log(`[Webhook] SUCCESS: ${txRef}`);
+    return { status: WebhookResult.SUCCESS, reference: txRef };
+  }
+
+  private async fulfil(payment: PaymentDocument, justPaid: boolean) {
+    if (payment.bookingId) await this.confirmBooking(payment, justPaid);
+    if (payment.subscriptionId) {
+      await this.confirmSubscription(payment, justPaid);
+    }
+  }
+
+  private async confirmBooking(payment: PaymentDocument, justPaid: boolean) {
+    let booking = await this.bookingModel.findOneAndUpdate(
+      { _id: payment.bookingId, status: BookingStatus.PENDING },
+      { status: BookingStatus.RESERVED },
+      { new: true },
+    );
+
+    if (!booking && justPaid) {
+      try {
+        booking = await this.bookingModel.findOneAndUpdate(
+          { _id: payment.bookingId, status: BookingStatus.CANCELLED },
+          { status: BookingStatus.RESERVED },
+          { new: true },
+        );
+      } catch (error) {
+        if ((error as { code?: number })?.code !== 11000) throw error;
+        await this.paymentModel.updateOne(
+          { _id: payment._id },
+          { needsReview: true, reviewReason: 'slot_taken' },
+        );
+        this.logger.error(
+          `[Webhook] ${payment.reference} paid after expiry, slot already taken — flagged for review`,
+        );
+        return;
+      }
+    }
+
+    if (!booking) return;
+
+    try {
+      await this.emailService.sendBookingConfirmation({
+        guestName: booking.guestName,
+        guestEmail: booking.guestEmail,
+        guestPhone: booking.guestPhone,
+        bookingRef: booking.bookingRef,
+        experience: booking.experience,
+        room: booking.room,
+        date: booking.date,
+        timeSlot: booking.timeSlot,
+        guests: booking.guests,
+        subtotal: booking.subtotal,
+        vatAmount: booking.vatAmount,
+        totalPrice: booking.totalPrice,
+      });
+    } catch (emailError) {
+      this.logger.error(
+        `[Webhook] Email dispatch failed for ${payment.reference}: ${(emailError as Error).message}`,
+      );
+    }
+  }
+
+  private async confirmSubscription(
+    payment: PaymentDocument,
+    justPaid: boolean,
+  ) {
+    const revivable = justPaid
+      ? [GymSubscriptionStatus.PENDING, GymSubscriptionStatus.EXPIRED]
+      : [GymSubscriptionStatus.PENDING];
+
+    const subscription = await this.gymSubscriptionModel.findOneAndUpdate(
+      {
+        _id: payment.subscriptionId,
+        status: { $in: revivable },
+        startDate: { $exists: false },
+      },
+      { status: GymSubscriptionStatus.PAID },
+      { new: true },
+    );
+    if (!subscription) return;
+
+    try {
+      await this.emailService.sendMembershipPaymentReceipt({
+        memberName: subscription.memberName,
+        memberEmail: subscription.memberEmail,
+        subscriptionRef: subscription.subscriptionRef,
+        planName: subscription.planName,
+        durationDays: subscription.durationDays,
+        price: subscription.price,
+      });
+    } catch (emailError) {
+      this.logger.error(
+        `[Webhook] Email dispatch failed for ${payment.reference}: ${(emailError as Error).message}`,
+      );
+    }
   }
 
   // guest-facing status check — slim response, no gateway internals

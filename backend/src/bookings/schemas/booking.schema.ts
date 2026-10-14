@@ -23,7 +23,7 @@ export class Booking {
   @Prop({ required: true, unique: true })
   bookingRef: string;
 
-  @Prop({ required: true, enum: BOOKABLE_EXPERIENCES })
+  @Prop({ type: String, required: true, enum: BOOKABLE_EXPERIENCES })
   experience: BookableExperience;
 
   @Prop({ required: true })

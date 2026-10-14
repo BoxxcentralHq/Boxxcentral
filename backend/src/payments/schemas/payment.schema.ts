@@ -10,6 +10,12 @@ export enum PaymentStatus {
   REFUNDED = 'refunded',
 }
 
+export const PAYMENT_REVIEW_REASONS = [
+  'amount_mismatch',
+  'slot_taken',
+] as const;
+export type PaymentReviewReason = (typeof PAYMENT_REVIEW_REASONS)[number];
+
 @Schema({ timestamps: true })
 export class Payment {
   /** Our reference (BXX-...), generated when the payment is initiated. */
@@ -55,6 +61,12 @@ export class Payment {
   /** Raw gateway payload kept for dispute resolution / debugging. */
   @Prop({ type: Object })
   gatewayResponse?: Record<string, unknown>;
+
+  @Prop({ default: false })
+  needsReview: boolean;
+
+  @Prop({ type: String, enum: PAYMENT_REVIEW_REASONS })
+  reviewReason?: PaymentReviewReason;
 }
 
 export const PaymentSchema = SchemaFactory.createForClass(Payment);

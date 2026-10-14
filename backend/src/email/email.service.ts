@@ -7,6 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import { AxiosError } from 'axios';
 import { firstValueFrom } from 'rxjs';
+import { escapeStrings } from './escape-html';
 
 const LOGO_URL =
   'https://res.cloudinary.com/tg9rwuoe/image/upload/v1785553610/boxxcentral/brand/logo.png';
@@ -257,7 +258,7 @@ export class EmailService {
     await this.send(
       { address: data.guestEmail, name: data.guestName },
       `Your FilmBoxx booking ${data.bookingRef} is confirmed`,
-      this.bookingConfirmationHtml(data),
+      this.bookingConfirmationHtml(escapeStrings(data)),
     );
   }
 
@@ -455,7 +456,7 @@ export class EmailService {
     await this.send(
       { address: data.memberEmail, name: data.memberName },
       `Payment received — activate your GymBoxx membership ${data.subscriptionRef}`,
-      this.membershipPaymentReceiptHtml(data),
+      this.membershipPaymentReceiptHtml(escapeStrings(data)),
     );
   }
 
@@ -463,7 +464,7 @@ export class EmailService {
     await this.send(
       { address: data.memberEmail, name: data.memberName },
       `Your GymBoxx membership ${data.subscriptionRef} is active`,
-      this.membershipActivatedHtml(data),
+      this.membershipActivatedHtml(escapeStrings(data)),
     );
   }
 }

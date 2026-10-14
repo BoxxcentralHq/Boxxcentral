@@ -7,6 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import { AxiosError } from 'axios';
 import { firstValueFrom } from 'rxjs';
+import { timingSafeEqual } from 'crypto';
 import {
   FlutterwaveInitializePayload,
   FlutterwaveVerifyResponse,
@@ -97,6 +98,8 @@ export class FlutterwaveService {
   /** Validates the `verif-hash` header Flutterwave sends with webhooks. */
   validateSignature(signature: string): boolean {
     if (!signature || !this.secretHash) return false;
-    return signature === this.secretHash;
+    const given = Buffer.from(signature);
+    const expected = Buffer.from(this.secretHash);
+    return given.length === expected.length && timingSafeEqual(given, expected);
   }
 }

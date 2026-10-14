@@ -57,7 +57,7 @@ export interface FlutterwaveVerifyResponse {
   flw_ref: string;
   amount: number;
   currency: string;
-  status: 'successful' | 'failed';
+  status: 'successful' | 'failed' | 'pending';
   payment_type: string;
   created_at: string;
 }
