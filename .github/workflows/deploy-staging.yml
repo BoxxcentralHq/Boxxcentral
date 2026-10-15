@@ -155,6 +155,7 @@ jobs:
           key: ${{ secrets.SERVER_PRIVATE_KEY }}
           envs: FRONTEND_URL,MONGODB_URI,JWT_SECRET,JWT_REFRESH_SECRET,FLW_SECRET_KEY,FLW_SECRET_HASH,ZEPTOMAIL_URL,ZEPTOMAIL_TOKEN,MAIL_FROM,MAIL_FROM_NAME,MAIL_NOREPLY,CLOUDINARY_CLOUD_NAME,CLOUDINARY_API_KEY,CLOUDINARY_API_SECRET,GHCR_PAT
           script: |
+            set -e
             echo "$GHCR_PAT" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             cd /srv/boxxcentral-staging
             docker compose -f docker-compose.staging.yml pull
