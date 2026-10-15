@@ -8,7 +8,6 @@ import { useMenuItemsAdmin } from "@/lib/menu";
 import { canAccess } from "@/lib/roles";
 import { PanelLabel } from "./shared";
 
-/** The overview stat tiles — real data from /contact and /menu, scoped to what this role can see. */
 export default function OverviewStats({ role }: { role: AdminRole }) {
   const showMessages = canAccess(role, "messages");
   const showMenu = canAccess(role, "menu");

@@ -54,7 +54,6 @@ async function validateImages(files?: MovieUploads): Promise<MovieImages> {
 export class CinemaController {
   constructor(private readonly cinemaService: CinemaService) {}
 
-  // public: the FilmBoxx page reads pricing + slots from here
   @Get('settings')
   async getPublicSettings() {
     const s = await this.cinemaService.getSettings();
@@ -77,7 +76,6 @@ export class CinemaController {
     return { message: 'Cinema settings updated', data: settings };
   }
 
-  // public: movie catalog for the website
   @Get('movies')
   async listVisibleMovies() {
     const movies = await this.cinemaService.listVisibleMovies();

@@ -5,7 +5,6 @@ import { Mail01Icon } from "@hugeicons/core-free-icons";
 import { useMessagesList } from "@/lib/contact";
 import EmptyState from "@/components/EmptyState";
 
-/** Latest contact messages for the overview panel — first page, newest first. */
 export default function RecentMessages() {
   const { data, isLoading, isError } = useMessagesList({ page: 1, limit: 5 });
   const messages = data?.messages ?? [];

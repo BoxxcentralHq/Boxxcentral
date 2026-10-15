@@ -46,8 +46,6 @@ export class GymService {
     return `${TX_REF_PREFIX}${stamp}-${rand}`;
   }
 
-  // sweeps two unrelated cases into the same "expired" bucket: a pass
-  // that ran its course, and a signup that was never paid for
   private async expireLapsed(ids?: string[]) {
     const now = new Date();
     const pendingCutoff = new Date(now.getTime() - PENDING_EXPIRY_MS);
@@ -202,7 +200,6 @@ export class GymService {
     };
   }
 
-  // front-desk lookup: is this person's membership currently active?
   async search(query: string) {
     const regex = new RegExp(query, 'i');
     const matches = await this.gymSubscriptionModel
@@ -219,7 +216,6 @@ export class GymService {
 
     await this.expireLapsed(matches.map((m) => String(m._id)));
 
-    // re-fetch so callers see post-expiry statuses, not the stale in-memory copy
     return this.gymSubscriptionModel
       .find({ _id: { $in: matches.map((m) => m._id) } })
       .sort({ createdAt: -1 });

@@ -34,7 +34,6 @@ export class MenuItem {
   @Prop()
   imageUrl?: string;
 
-  // internal Cloudinary bookkeeping — never sent to the frontend
   @Prop({ select: false })
   imagePublicId?: string;
 

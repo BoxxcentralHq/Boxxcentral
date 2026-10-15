@@ -47,7 +47,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     const apiMessage = Array.isArray(message) ? message[0] : message;
 
-    // Stash on locals so pino-http's customSuccessMessage can pick it up
     response.locals.apiMessage = apiMessage;
 
     const err =

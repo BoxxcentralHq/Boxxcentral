@@ -15,7 +15,6 @@ export type PaymentReviewReason = (typeof PAYMENT_REVIEW_REASONS)[number];
 
 @Schema({ timestamps: true })
 export class Payment {
-  /** Our reference (BXX-...), generated when the payment is initiated. */
   @Prop({ required: true, unique: true })
   reference: string;
 
@@ -28,7 +27,6 @@ export class Payment {
   @Prop({ default: 'NGN' })
   currency: string;
 
-  /** Ledger direction — revenue analytics aggregate over 'inflow'. */
   @Prop({ required: true, enum: ['inflow', 'outflow'], default: 'inflow' })
   type: string;
 
@@ -54,7 +52,6 @@ export class Payment {
   @Prop({ type: Types.ObjectId, ref: 'TicketOrder' })
   ticketOrderId?: Types.ObjectId;
 
-  /** Raw gateway payload kept for dispute resolution / debugging. */
   @Prop({ type: Object })
   gatewayResponse?: Record<string, unknown>;
 

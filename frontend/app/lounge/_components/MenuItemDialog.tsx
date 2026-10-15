@@ -14,8 +14,6 @@ import type { MenuItem } from "@/lib/api/types";
 const naira = (amount: number) => `₦${amount.toLocaleString("en-NG")}`;
 
 type MenuItemDialogProps = {
-  /** Last-selected item — kept truthy through the close animation so the
-   *  dialog doesn't flash empty while it fades out. */
   item: MenuItem | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;

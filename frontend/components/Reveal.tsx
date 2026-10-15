@@ -8,22 +8,10 @@ export type RevealVariant = "up" | "down" | "left" | "right" | "scale" | "fade";
 type RevealProps = {
   children: ReactNode;
   className?: string;
-  /** Stagger offset in ms — use for card grids (index * 100). */
   delay?: number;
-  /**
-   * Entrance style. "up" (default) rises into place; "down" drops in;
-   * "left"/"right" slide in from that edge; "scale" grows from 94%;
-   * "fade" is opacity-only. Matches the direction implied by its name,
-   * same convention as tw-animate's `slide-in-from-*`.
-   */
   variant?: RevealVariant;
 };
 
-/**
- * Scroll-triggered entrance animation. Pairs with the `[data-reveal]`
- * styles in globals.css: content eases into place the first time it
- * enters the viewport. Respects `prefers-reduced-motion`.
- */
 export default function Reveal({
   children,
   className,

@@ -25,7 +25,6 @@ import { AdminModule } from '../admin/admin.module';
       { name: Screening.name, schema: ScreeningSchema },
       { name: TicketOrder.name, schema: TicketOrderSchema },
     ]),
-    // JwtAuthGuard on admin endpoints needs the passport strategy from AdminModule
     AdminModule,
   ],
   controllers: [PaymentsController],

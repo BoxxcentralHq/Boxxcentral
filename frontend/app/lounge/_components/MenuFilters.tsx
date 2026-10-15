@@ -23,7 +23,6 @@ import { MENU_CATEGORIES, type MenuCategory } from "@/lib/api/types";
 
 export type ViewMode = "grid" | "list";
 
-/** Filter-only concern — kept out of lib/api/types.ts. */
 const categoryIcons: Record<MenuCategory, IconSvgElement> = {
   Food: RestaurantIcon,
   Pastries: CroissantIcon,
@@ -160,7 +159,6 @@ export default function MenuFilters({
           ))}
         </div>
 
-        {/* Edge fades hint there's more to scroll — same technique as AtmosphereStrip */}
         <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-linear-to-r from-boxx-night to-transparent" />
         <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-linear-to-l from-boxx-night to-transparent" />
       </div>

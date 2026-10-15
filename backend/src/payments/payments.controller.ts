@@ -20,7 +20,6 @@ import type { FlutterwaveWebhookPayload } from '../flutterwave/types/flutterwave
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
 
-  /** Public: Flutterwave calls this. Auth is the verif-hash signature. */
   @Post('webhook/flutterwave')
   @HttpCode(200)
   async handleWebhook(

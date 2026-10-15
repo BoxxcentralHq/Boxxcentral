@@ -4,11 +4,6 @@ import PageHero from "@/components/PageHero";
 import { Button } from "@/components/ui/button";
 import type { Experience } from "@/lib/experiences";
 
-/**
- * Complete sub-brand page (hero + showcase [+ children]), driven entirely by
- * the experience's data in lib/experiences.ts. Bookable experiences get a
- * primary "Buy tickets" CTA alongside the data-driven secondary CTA.
- */
 export default function ExperiencePage({
   experience,
   children,

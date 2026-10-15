@@ -47,7 +47,6 @@ const PAID_FOR: Record<Payment["category"], string> = {
   refund: "Refund",
 };
 
-/** The payments ledger — super_admin only. Search is server-side, debounced. */
 export default function PaymentsManager() {
   const [query, setQuery] = useState("");
   const [search, setSearch] = useState("");

@@ -44,7 +44,6 @@ export class AdminController {
     return { message: 'Admin account created', data: admin };
   }
 
-  /** Sets httpOnly auth cookies; tokens never appear in the response body. */
   @UseGuards(ThrottlerGuard)
   @Throttle({ default: { ttl: 60000, limit: 5 } })
   @Post('login')

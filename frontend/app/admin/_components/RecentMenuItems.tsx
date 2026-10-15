@@ -8,7 +8,6 @@ import EmptyState from "@/components/EmptyState";
 
 const naira = (amount: number) => `₦${amount.toLocaleString("en-NG")}`;
 
-/** Latest menu items for the overview panel — newest first, first five. */
 export default function RecentMenuItems() {
   const { data: items, isLoading, isError } = useMenuItemsAdmin();
 

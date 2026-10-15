@@ -4,7 +4,6 @@ import { PanelLabel } from "../../_components/shared";
 import { useMonthlyRevenue } from "@/lib/payments";
 import RevenueChart from "./RevenueChart";
 
-/** Loads the last 6 months of revenue and hands it to the chart. */
 export default function RevenueOverview() {
   const { data, isLoading, isError } = useMonthlyRevenue();
 

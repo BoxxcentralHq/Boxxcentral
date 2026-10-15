@@ -3,7 +3,6 @@ import { ApiError } from "../core";
 import { toApiError } from "./errors";
 import { redirectToLogin, refreshSession } from "./session";
 
-// paths where a 401 is a real answer, not an expired access token
 const NO_REFRESH_PATHS = ["/admin/login", "/admin/refresh", "/admin/logout"];
 
 type RetriableConfig = AxiosRequestConfig & { _retry?: boolean };

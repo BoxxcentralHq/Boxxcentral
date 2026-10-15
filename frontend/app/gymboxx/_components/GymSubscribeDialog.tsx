@@ -34,15 +34,11 @@ function FieldLabel({
 }
 
 type GymSubscribeDialogProps = {
-  /** Last-selected plan — kept truthy through the close animation so the
-   *  dialog doesn't flash empty while it fades out. */
   plan: GymPlan | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
 
-/** Collects member details, creates the subscription, then hands off to
- *  Flutterwave. */
 export default function GymSubscribeDialog({
   plan,
   open,

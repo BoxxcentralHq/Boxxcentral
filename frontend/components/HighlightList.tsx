@@ -5,7 +5,6 @@ type HighlightListProps = {
   items: readonly string[];
 };
 
-/** Red-tick feature list used across the sub-brand pages. */
 export default function HighlightList({ items }: HighlightListProps) {
   return (
     <ul className="space-y-4">

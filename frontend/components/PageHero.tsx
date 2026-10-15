@@ -23,7 +23,6 @@ type PageHeroProps = {
   size?: "tall" | "standard";
 };
 
-/** Orchestrated entrance: children cascade in on springs, blur-to-sharp. */
 const cascade: Variants = {
   hidden: {},
   show: { transition: { staggerChildren: 0.12, delayChildren: 0.15 } },
@@ -54,19 +53,13 @@ export default function PageHero({
   const sectionRef = useRef<HTMLElement>(null);
   const reduceMotion = useReducedMotion();
 
-  /*
-   * Scroll choreography — progress runs from the hero pinned at the top of
-   * the viewport until it has scrolled away entirely.
-   */
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end start"],
   });
 
-  /* Media sinks slower than the page and swells — reads as depth. */
   const mediaY = useTransform(scrollYProgress, [0, 1], ["0%", "28%"]);
   const mediaScale = useTransform(scrollYProgress, [0, 1], [1, 1.18]);
-  /* Copy drifts up faster and dissolves before the hero is gone. */
   const contentY = useTransform(scrollYProgress, [0, 1], ["0%", "-32%"]);
   const contentOpacity = useTransform(scrollYProgress, [0, 0.65], [1, 0]);
 
@@ -75,7 +68,6 @@ export default function PageHero({
       ref={sectionRef}
       className="relative overflow-hidden border-b border-boxx-line"
     >
-      {/* Atmospheric backdrop — parallax layer under the static scrims */}
       <motion.div
         style={reduceMotion ? undefined : { y: mediaY, scale: mediaScale }}
         className="absolute inset-0"
@@ -96,7 +88,6 @@ export default function PageHero({
         )}
       </motion.div>
 
-      {/* Contrast scrim over the media */}
       <div className="absolute inset-0 bg-boxx-night/70" />
       <div className="absolute inset-0 bg-linear-to-t from-boxx-night via-transparent to-boxx-night/40" />
 

@@ -13,7 +13,6 @@ import type {
   UpdateGymPlanBody,
 } from "@/lib/api/types";
 
-/** Visible plans only — the GymBoxx membership carousel. */
 export function useGymPlans() {
   return useQuery({
     queryKey: ["gym", "plans"] as const,
@@ -22,7 +21,6 @@ export function useGymPlans() {
   });
 }
 
-/** Creates the subscription and returns the Flutterwave link to redirect the member to. */
 export function useCreateGymSubscription() {
   return useMutation({
     mutationFn: (body: CreateGymSubscriptionBody) =>
@@ -32,7 +30,6 @@ export function useCreateGymSubscription() {
 
 const ADMIN_GYM_PLANS_KEY = ["admin", "gym", "plans"] as const;
 
-/** super_admin / gym_admin — full plan list, including hidden ones. */
 export function useGymPlansAdmin() {
   return useQuery({
     queryKey: ADMIN_GYM_PLANS_KEY,
@@ -74,7 +71,6 @@ export type GymSubscriptionsQuery = {
 
 const ADMIN_GYM_SUBSCRIPTIONS_KEY = ["admin", "gym", "subscriptions"] as const;
 
-/** super_admin / gym_admin — paginated membership list, browsed by status tab. */
 export function useGymSubscriptions(query: GymSubscriptionsQuery) {
   return useQuery({
     queryKey: [...ADMIN_GYM_SUBSCRIPTIONS_KEY, query] as const,
@@ -82,7 +78,6 @@ export function useGymSubscriptions(query: GymSubscriptionsQuery) {
   });
 }
 
-/** Front-desk lookup by name/email/phone/reference — server-side, up to 25 matches. */
 export function useSearchGymSubscriptions(query: string) {
   return useQuery({
     queryKey: [...ADMIN_GYM_SUBSCRIPTIONS_KEY, "search", query] as const,
@@ -92,7 +87,6 @@ export function useSearchGymSubscriptions(query: string) {
   });
 }
 
-/** Front desk confirms the member is here — starts the pass counting down. */
 export function useActivateGymSubscription() {
   const queryClient = useQueryClient();
   return useMutation({

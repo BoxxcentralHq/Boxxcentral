@@ -7,7 +7,6 @@ import { UpdateLeaderboardDto } from './dto/update-leaderboard.dto';
 export class BowlboxxController {
   constructor(private readonly bowlboxxService: BowlboxxService) {}
 
-  // public: the TV display polls this — returns both boards at once
   @Get('leaderboard')
   async getLeaderboard() {
     const leaderboard = await this.bowlboxxService.getLeaderboard();

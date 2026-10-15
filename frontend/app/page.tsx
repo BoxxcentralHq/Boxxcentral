@@ -41,7 +41,6 @@ export default async function HomePage() {
         }
       />
       <ExperienceGrid />
-      {/* "Why BoxxCentral" (BrandStatement) hidden for now */}
       <AtmosphereStrip />
       <VisitUs />
       <AboutCta />

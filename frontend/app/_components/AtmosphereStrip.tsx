@@ -71,7 +71,6 @@ export default function AtmosphereStrip() {
         </Reveal>
       </Container>
 
-      {/* Full-bleed filmstrip: drifts sideways, pauses on hover */}
       <Reveal variant="scale">
         <div className="marquee relative mt-12 overflow-hidden">
           <div className="marquee-track flex w-max">
@@ -79,7 +78,6 @@ export default function AtmosphereStrip() {
             <FilmstripFrames decorative />
           </div>
 
-          {/* Edge fades so frames emerge from and dissolve into the canvas */}
           <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 bg-linear-to-r from-boxx-night to-transparent sm:w-28" />
           <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-linear-to-l from-boxx-night to-transparent sm:w-28" />
         </div>

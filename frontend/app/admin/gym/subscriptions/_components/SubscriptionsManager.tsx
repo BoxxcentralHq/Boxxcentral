@@ -43,7 +43,6 @@ function RowAction({
   );
 }
 
-/** Debounces a value — waits until the user pauses typing before it updates. */
 function useDebouncedValue<T>(value: T, delayMs: number): T {
   const [debounced, setDebounced] = useState(value);
   useEffect(() => {
@@ -53,8 +52,6 @@ function useDebouncedValue<T>(value: T, delayMs: number): T {
   return debounced;
 }
 
-/** GymBoxx front desk — search a member by name/email/phone/ref to activate
- *  their pass, or browse the full membership list by status. */
 export default function SubscriptionsManager() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [query, setQuery] = useState("");
@@ -92,7 +89,6 @@ export default function SubscriptionsManager() {
 
   return (
     <div>
-      {/* Filters */}
       <Reveal className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
         <div className="flex flex-wrap gap-2">
           {tabs.map((tab) => (
@@ -133,7 +129,6 @@ export default function SubscriptionsManager() {
         </div>
       </Reveal>
 
-      {/* Table */}
       <Reveal delay={100} className="mt-6 rounded-2xl border border-boxx-line bg-boxx-coal">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">

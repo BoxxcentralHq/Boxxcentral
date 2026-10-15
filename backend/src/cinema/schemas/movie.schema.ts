@@ -3,7 +3,6 @@ import { Document } from 'mongoose';
 
 export type MovieDocument = Movie & Document;
 
-// catalog content only — movies are chosen on arrival, never booked
 @Schema({ timestamps: true })
 export class Movie {
   @Prop({ required: true })

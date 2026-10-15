@@ -2,7 +2,6 @@ import Container from "@/components/Container";
 import Reveal from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
 
-/* TODO: placeholder itinerary copy — tune once opening programming is set */
 const steps = [
   {
     title: "Arrive early, train first",

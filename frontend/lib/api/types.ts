@@ -1,7 +1,5 @@
 import type { IconSvgElement } from "@hugeicons/react";
 
-// contracts mirroring the NestJS backend's responses
-
 export type AdminRole =
   | "super_admin"
   | "cinema_admin"
@@ -15,7 +13,6 @@ export type Admin = {
   role: AdminRole;
 };
 
-// GET /admin/profile returns the JWT payload, not the full admin record
 export type Profile = {
   userId: string;
   email: string;
@@ -111,7 +108,6 @@ export type MenuItem = {
   _id: string;
   name: string;
   category: MenuCategory;
-  // naira, raw — format for display with toLocaleString("en-NG")
   price: number;
   description: string;
   imageUrl?: string;
@@ -186,7 +182,6 @@ export type PricingFeature = {
   label: string;
 };
 
-/** A single tier within a service's pricing carousel (GymBoxx, BowlBoxx, FilmBoxx). */
 export type PricingPlan = {
   id: string;
   title: string;
@@ -207,7 +202,6 @@ export type GymPlan = {
   _id: string;
   name: string;
   durationDays: number;
-  // flat, all-inclusive — no VAT stacked on top, unlike FilmBoxx
   price: number;
   description: string;
   features: string[];
@@ -281,7 +275,6 @@ export type LeaderboardBoard = {
   entries: LeaderboardEntry[];
 };
 
-/** The two boards shown side by side on the TV, published independently. */
 export type Leaderboard = {
   sixFrame: LeaderboardBoard;
   tenFrame: LeaderboardBoard;

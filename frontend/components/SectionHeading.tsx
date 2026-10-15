@@ -1,16 +1,13 @@
 import { cn } from "@/lib/utils";
 
 type SectionHeadingProps = {
-  /** Small red label above the title. */
   eyebrow?: string;
   title: string;
   lede?: string;
   align?: "left" | "center";
-  /** Render the title as outlined type instead of solid white. */
   stroke?: boolean;
 };
 
-/** Consistent section header: red eyebrow, Syne display title, muted lede. */
 export default function SectionHeading({
   eyebrow,
   title,

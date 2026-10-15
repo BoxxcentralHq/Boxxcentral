@@ -5,7 +5,6 @@ import Magnetic from "@/components/motion/Magnetic";
 import { Button } from "@/components/ui/button";
 import { bookingCta, contact, site } from "@/lib/site";
 
-/** Page closer: one line, two doors — book the cinema or come say hello. */
 export default function AboutCta() {
   return (
     <section className="relative overflow-hidden py-24 sm:py-32">

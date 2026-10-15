@@ -26,7 +26,6 @@ const dbLogger = new Logger('Database');
     LoggerModule.forRoot({
       pinoHttp: {
         level: process.env.LOG_LEVEL ?? 'info',
-        // never log credentials or session cookies
         redact: ['req.headers.authorization', 'req.headers.cookie'],
         serializers: {
           req: (req: { method: string; url: string }) => ({
@@ -37,15 +36,12 @@ const dbLogger = new Logger('Database');
             statusCode: res.statusCode,
           }),
         },
-        // TransformInterceptor / HttpExceptionFilter stash the real
-        // response message on res.locals.apiMessage — use that as the log line
         customSuccessMessage: (_req, res) => {
           return (
             (res as { locals?: { apiMessage?: string } }).locals?.apiMessage ??
             'Request completed'
           );
         },
-        // 4xx -> warn, 5xx / errors -> error, everything else -> info
         customLogLevel: (_req, res, err) => {
           if (err || res.statusCode >= 500) return 'error';
           if (res.statusCode >= 400) return 'warn';
@@ -53,7 +49,7 @@ const dbLogger = new Logger('Database');
         },
         transport:
           process.env.NODE_ENV === 'production'
-            ? undefined // raw JSON in production
+            ? undefined
             : { target: 'pino-pretty', options: { singleLine: true } },
       },
     }),

@@ -4,14 +4,12 @@ import {
   Call02Icon,
   Location01Icon,
   Mail01Icon,
-  Time01Icon,
 } from "@hugeicons/core-free-icons";
 import Reveal from "@/components/Reveal";
 import { experiences } from "@/lib/experiences";
 import { contact, navLinks, site, socials } from "@/lib/site";
 import Image from "next/image";
 
-/** Uppercase micro-label used for footer column titles. */
 function ColumnLabel({ children }: { children: React.ReactNode }) {
   return (
     <p className="text-xs font-bold uppercase tracking-[0.2em] text-boxx-dim">
@@ -27,7 +25,6 @@ export default function Footer() {
   return (
     <footer className="relative overflow-hidden border-t border-boxx-line bg-boxx-coal">
 
-      {/* Link columns */}
       <div className="relative mx-auto grid w-full max-w-6xl gap-12 px-5 py-16 sm:px-8 md:grid-cols-2 lg:grid-cols-12">
         <Reveal className="lg:col-span-5">
           <Link
@@ -122,7 +119,6 @@ export default function Footer() {
         </Reveal>
       </div>
 
-      {/* Legal bar */}
       <div className="relative border-t border-boxx-line">
         <Reveal className="mx-auto flex w-full max-w-6xl flex-col gap-2 px-5 py-5 text-xs text-boxx-dim sm:flex-row sm:items-center sm:justify-between sm:px-8">
           <p>

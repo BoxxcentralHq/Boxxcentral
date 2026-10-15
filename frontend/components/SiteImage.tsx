@@ -2,23 +2,13 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 type SiteImageProps = {
-  /** Image under /public. Omit to render the branded placeholder slot. */
   src?: string;
-  /** Alt text — doubles as the placeholder label while no src exists. */
   alt: string;
-  /** Tailwind aspect utility, e.g. "aspect-video", "aspect-[4/5]". */
   aspect?: string;
   className?: string;
-  /** next/image responsive sizes hint. */
   sizes?: string;
 };
 
-/**
- * The one image frame used across the site: rounded, hairline border,
- * cover-fit photo. Without a `src` it degrades to an on-brand dark
- * placeholder naming the asset that belongs there, so unsourced slots
- * double as the client's asset shopping list.
- */
 export default function SiteImage({
   src,
   alt,

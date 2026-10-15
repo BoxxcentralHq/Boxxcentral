@@ -18,7 +18,6 @@ export class BowlboxxService implements OnModuleInit {
     private leaderboardModel: Model<LeaderboardDocument>,
   ) {}
 
-  // seed the singleton on boot so GET never 404s
   async onModuleInit() {
     await this.leaderboardModel.findOneAndUpdate(
       {},

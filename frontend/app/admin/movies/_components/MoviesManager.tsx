@@ -67,7 +67,6 @@ const emptyForm: FormState = {
   posterFile: null,
 };
 
-/** One poster card in the catalog grid, with its own hover actions. */
 function MovieCard({
   movie,
   onToggleVisible,
@@ -153,7 +152,6 @@ function MovieCard({
   );
 }
 
-/** The FilmBoxx movie catalog's admin surface — a poster grid, not a data table. */
 export default function MoviesManager() {
   const { data: movies, isLoading, isError } = useMoviesAdmin();
   const createMovie = useCreateMovie();
@@ -284,7 +282,6 @@ export default function MoviesManager() {
 
   return (
     <div>
-      {/* Filters + add */}
       <Reveal className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
         <div className="relative flex-1 sm:max-w-xs">
           <HugeiconsIcon
@@ -311,7 +308,6 @@ export default function MoviesManager() {
         </Button>
       </Reveal>
 
-      {/* Poster grid */}
       {isLoading && (
         <p className="mt-14 text-center text-sm text-boxx-dim">Loading movies…</p>
       )}
@@ -353,7 +349,6 @@ export default function MoviesManager() {
         </Reveal>
       )}
 
-      {/* Add / edit dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-lg">
           <div className="p-6">

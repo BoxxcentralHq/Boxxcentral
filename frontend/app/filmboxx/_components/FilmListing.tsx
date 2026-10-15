@@ -28,19 +28,8 @@ import { cn } from "@/lib/utils";
 
 const naira = (amount: number) => `₦${amount.toLocaleString("en-NG")}`;
 const ALL = "All";
-/* Past this many films the list collapses and a search box appears */
 const INITIAL_VISIBLE = 6;
 
-/**
- * Box-office listing: a week of days to pick from, genre tabs, and a card
- * per film with its poster, rating, details and that day's showtimes.
- * Showtimes already past (today only) are struck through. Picking a time
- * or "Buy Ticket" opens the per-seat booking dialog.
- *
- * Large catalogs: only the first INITIAL_VISIBLE films render until
- * "Show all" is pressed, a title search appears, and on Today films with
- * no showings left sink to the bottom so bookable ones lead.
- */
 export default function FilmListing({
   movies,
   onBook,
@@ -83,13 +72,11 @@ export default function FilmListing({
         m.title.toLowerCase().includes(needle) ||
         m.genre?.toLowerCase().includes(needle)),
   );
-  /* Stable sort: bookable today first, original order otherwise */
   const hasShowingsLeft = (m: NowShowingMovie) =>
     showtimesOn(m.showtimes, dayIso).some((s) => isBookable(s, cutoff));
   const ordered = [...matches].sort(
     (a, b) => Number(hasShowingsLeft(b)) - Number(hasShowingsLeft(a)),
   );
-  /* A search shows every hit — collapsing results would hide them */
   const collapsed = !expanded && !needle && ordered.length > INITIAL_VISIBLE;
   const shown = collapsed ? ordered.slice(0, INITIAL_VISIBLE) : ordered;
 
@@ -124,7 +111,6 @@ export default function FilmListing({
           </p>
         </div>
 
-        {/* Day picker */}
         <div className="-mx-5 mt-10 flex gap-2 overflow-x-auto px-5 pb-2 sm:mx-0 sm:px-0">
           {days
             ? days.map((d) => {
@@ -167,7 +153,6 @@ export default function FilmListing({
               ))}
         </div>
 
-        {/* Genre tabs + search */}
         <div className="mt-8 flex flex-col-reverse gap-4 border-b border-boxx-line md:flex-row md:items-end md:justify-between">
           {genres.length > 2 ? (
             <div
@@ -311,7 +296,6 @@ function FilmCard({
 
   return (
     <article className="group flex h-full gap-4 rounded-xl border border-boxx-line bg-boxx-coal p-3 transition-colors hover:border-boxx-white/20 sm:gap-6 sm:p-4">
-      {/* Poster */}
       <div className="relative aspect-2/3 w-28 shrink-0 self-start overflow-hidden rounded-lg bg-boxx-slate sm:w-40">
         {movie.posterUrl && (
           <Image
@@ -337,7 +321,6 @@ function FilmCard({
         )}
       </div>
 
-      {/* Info */}
       <div className="flex min-w-0 flex-1 flex-col py-1">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-boxx-mist">
           {movie.rating && (

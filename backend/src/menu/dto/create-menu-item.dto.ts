@@ -20,7 +20,6 @@ export class CreateMenuItemDto {
   @IsIn(MENU_CATEGORIES)
   category: MenuCategory;
 
-  // multipart form fields arrive as strings
   @Type(() => Number)
   @IsNumber()
   @Min(0)
@@ -34,7 +33,6 @@ export class CreateMenuItemDto {
   @IsString()
   imageAlt?: string;
 
-  // accepts a comma-separated string from a plain form field, e.g. "Popular, Spicy"
   @IsOptional()
   @Transform(({ value }: { value: unknown }) =>
     typeof value === 'string'
@@ -48,7 +46,6 @@ export class CreateMenuItemDto {
   @IsString({ each: true })
   tags?: string[];
 
-  // multipart form fields arrive as strings
   @IsOptional()
   @Transform(({ value }) => value === 'true' || value === true)
   @IsBoolean()

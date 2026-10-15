@@ -1,19 +1,4 @@
 #!/usr/bin/env node
-/**
- * One-off seed: creates the six original GymBoxx membership tiers (formerly
- * hardcoded in frontend/lib/gymboxx-plans.ts) through the real /gym/plans
- * API — same principle as seed-menu.js, go through the app, not a direct
- * DB write. Skips any plan whose name already exists, so it's safe to re-run.
- *
- * Usage:
- *   GYM_SEED_API_BASE=http://localhost:4000/api/v1 \
- *   GYM_SEED_ADMIN_EMAIL=you@boxxcentral.com \
- *   GYM_SEED_ADMIN_PASSWORD=•••• \
- *   node backend/scripts/seed-gym-plans.js
- *
- * Add GYM_SEED_DRY_RUN=1 to log the plan without creating anything —
- * always run this first against a target you haven't used yet.
- */
 
 const API_BASE = process.env.GYM_SEED_API_BASE;
 const ADMIN_EMAIL = process.env.GYM_SEED_ADMIN_EMAIL;

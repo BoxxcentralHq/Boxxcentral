@@ -13,14 +13,12 @@ import {
   FlutterwaveVerifyResponse,
 } from './types/flutterwave.types';
 
-/** Flutterwave wraps every response as { status, message, data }. */
 interface FlwEnvelope<T> {
   status: string;
   message: string;
   data: T;
 }
 
-/** Prefix for BoxxCentral transaction references (e.g. BXX-1721300000-AB12). */
 export const TX_REF_PREFIX = 'BXX-';
 
 export function generateTxRef(): string {
@@ -101,7 +99,6 @@ export class FlutterwaveService {
     }
   }
 
-  /** Validates the `verif-hash` header Flutterwave sends with webhooks. */
   validateSignature(signature: string): boolean {
     if (!signature || !this.secretHash) return false;
     const given = Buffer.from(signature);

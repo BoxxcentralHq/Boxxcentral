@@ -11,11 +11,6 @@ import CinemaHero from "./CinemaHero";
 import FilmListing from "./FilmListing";
 import TrailerDialog from "./TrailerDialog";
 
-/**
- * Everything above the room story on /filmboxx: featured-film hero and
- * the film listing. Owns the ticket and trailer
- * dialogs so the hero and the listing share the same booking flow.
- */
 export default function CinemaLobby({
   movies,
   vatRate,

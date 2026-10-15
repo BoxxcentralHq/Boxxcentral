@@ -13,7 +13,6 @@ type MenuSectionProps = {
   items: MenuItem[];
 };
 
-/** LoungeBoxx's menu: searchable, filterable by category, grid or list view. */
 export default function MenuSection({ items }: MenuSectionProps) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<MenuCategory | "All">("All");

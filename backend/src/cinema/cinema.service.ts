@@ -28,7 +28,6 @@ export class CinemaService implements OnModuleInit {
     private cloudinaryService: CloudinaryService,
   ) {}
 
-  // seed the settings singleton on boot so GET never 404s
   async onModuleInit() {
     await this.settingsModel.findOneAndUpdate(
       {},

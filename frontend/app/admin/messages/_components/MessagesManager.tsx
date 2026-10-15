@@ -27,10 +27,8 @@ type Filter = "all" | "unread";
 
 const PAGE_SIZE = 10;
 
-/** wa.me needs digits only (no +, spaces). */
 const waNumber = (phone: string) => phone.replace(/\D/g, "");
 
-/** One inline reply action under an expanded message. */
 function ReplyAction({
   href,
   external = false,
@@ -51,7 +49,6 @@ function ReplyAction({
   );
 }
 
-/** Contact-form inbox, wired to the real /contact endpoints. */
 export default function MessagesManager() {
   const [filter, setFilter] = useState<Filter>("all");
   const [page, setPage] = useState(1);
@@ -63,7 +60,6 @@ export default function MessagesManager() {
     limit: PAGE_SIZE,
     unread: filter === "unread" ? true : undefined,
   });
-  // Just the count for whichever tab isn't currently active.
   const { data: otherCount } = useMessagesList({
     limit: 1,
     unread: filter === "unread" ? undefined : true,
@@ -103,7 +99,6 @@ export default function MessagesManager() {
 
   return (
     <div>
-      {/* Filter tabs */}
       <Reveal className="flex gap-2">
         {(
           [
@@ -131,7 +126,6 @@ export default function MessagesManager() {
         ))}
       </Reveal>
 
-      {/* Inbox */}
       <Reveal delay={100} className="mt-6 rounded-2xl border border-boxx-line bg-boxx-coal">
         <ul>
           {isLoading && (

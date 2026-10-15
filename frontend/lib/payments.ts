@@ -9,7 +9,6 @@ import type {
   PaymentVerification,
 } from "@/lib/api/types";
 
-/** Public — the post-payment redirect page polls this until the gateway settles. */
 const VERIFY_POLL_MS = 3000;
 export const MAX_VERIFY_WAIT_MS = 2 * 60_000;
 
@@ -46,7 +45,6 @@ export type PaymentsQuery = {
 
 const ADMIN_PAYMENTS_KEY = ["admin", "payments"] as const;
 
-/** super_admin only — the payments ledger. */
 export function usePaymentsList(query: PaymentsQuery) {
   return useQuery({
     queryKey: [...ADMIN_PAYMENTS_KEY, query] as const,
@@ -54,7 +52,6 @@ export function usePaymentsList(query: PaymentsQuery) {
   });
 }
 
-/** super_admin only — revenue for the last 6 months, for a dashboard chart. */
 export function useMonthlyRevenue() {
   return useQuery({
     queryKey: [...ADMIN_PAYMENTS_KEY, "analytics", "monthly"] as const,
@@ -62,7 +59,6 @@ export function useMonthlyRevenue() {
   });
 }
 
-/** super_admin only — a single ledger entry with its booking populated. */
 export function usePayment(id: string | undefined) {
   return useQuery({
     queryKey: [...ADMIN_PAYMENTS_KEY, id] as const,

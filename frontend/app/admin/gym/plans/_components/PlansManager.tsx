@@ -67,7 +67,6 @@ const emptyForm: FormState = {
   subtitle: "",
 };
 
-/** GymBoxx's admin surface — add, edit, hide, and remove membership plans. */
 export default function PlansManager() {
   const { data: plans, isLoading, isError } = useGymPlansAdmin();
   const createPlan = useCreateGymPlan();

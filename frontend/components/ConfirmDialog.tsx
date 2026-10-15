@@ -20,7 +20,6 @@ type ConfirmDialogProps = {
   onConfirm: () => void;
 };
 
-/** Styled stand-in for window.confirm() — every destructive admin action uses this. */
 export default function ConfirmDialog({
   open,
   onOpenChange,

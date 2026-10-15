@@ -1,51 +1,25 @@
-/**
- * The four BoxxCentral experiences — single source of truth consumed by
- * the home page cards, the services catalogue, and each sub-brand page.
- *
- * Copy is placeholder-grade and awaits client sign-off. Photos are real
- * BoxxCentral facility shots (see /public/images); videos are still
- * Pexels stand-ins until footage arrives — swap the files in /public/videos.
- * LoungeBoxx has no confirmed sub-brand name yet ("LoungeBoxx"?) — its
- * `name` is deliberately generic until the client confirms.
- */
-
-/** A sourced photo under /public. */
 export type Media = { src: string; alt: string };
 
 export type Experience = {
   slug: string;
-  /** Sub-brand name (FilmBoxx, GymBoxx, …). */
   name: string;
-  /** What it is, in plain words. */
   kind: string;
-  /** One-line hook used on cards and heroes. */
   tagline: string;
-  /** Short paragraph for cards and the services catalogue. */
   summary: string;
-  /** Longer copy for the sub-brand page itself. */
   story: string;
-  /** Feature bullets for the sub-brand page. */
   highlights: string[];
   href: string;
-  /** True only for FilmBoxx — the transactional experience. */
   bookable: boolean;
-  /** Card / feature photo used on the home grid and services catalogue. */
   image: Media;
-  /** Sub-brand page hero — consumed by <ExperiencePage>. */
   hero: {
     cta: { label: string; href: string };
-    /** Small print under the CTA (e.g. "booking coming soon"). */
     note?: string;
-    /** Background video under /public. */
     videoSrc: string;
   };
-  /** Sub-brand page showcase section — consumed by <ExperiencePage>. */
   showcase: {
     eyebrow: string;
     title: string;
-    /** [wide shot, detail A, detail B]. */
     media: [Media, Media, Media];
-    /** Media column leads on desktop (alternating rhythm across pages). */
     mediaFirst?: boolean;
   };
 };
@@ -73,7 +47,6 @@ export const experiences: Experience[] = [
       alt: "Tufted lounge seating with the screen glowing in the dark",
     },
     hero: {
-      /* Secondary next to the page's "Book FilmBoxx" button (was a self-link) */
       cta: { label: "Ask about private events", href: "/contact" },
       videoSrc: "/videos/filmboxx.mp4",
     },
@@ -185,7 +158,7 @@ export const experiences: Experience[] = [
   },
   {
     slug: "lounge",
-    name: "LoungeBoxx", // TODO: confirm sub-brand name with client (LoungeBoxx?)
+    name: "LoungeBoxx",
     kind: "Lounge",
     tagline: "Slow down. Sip. Stay a while.",
     summary:

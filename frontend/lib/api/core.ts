@@ -25,7 +25,6 @@ export function buildUrl(path: string, query?: Query): string {
   return qs ? `${url}?${qs}` : url;
 }
 
-// every response body — success and error alike — is wrapped in this envelope
 export type ApiEnvelope<T> = {
   success: boolean;
   message: string;
@@ -34,7 +33,6 @@ export type ApiEnvelope<T> = {
   timestamp: string;
 };
 
-// error bodies use the same envelope: { success: false, message, data, error: { statusCode, type, details, path }, timestamp }
 export async function parseResponse<T>(res: Response): Promise<T> {
   const isJson = res.headers.get("content-type")?.includes("application/json");
   const body: unknown = isJson ? await res.json() : undefined;

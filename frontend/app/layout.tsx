@@ -36,8 +36,6 @@ export const metadata: Metadata = {
     siteName: site.name,
     type: "website",
   },
-  // Google Search Console: once verified, add
-  // verification: { google: "<code from search.google.com/search-console>" }
 };
 
 export default function RootLayout({

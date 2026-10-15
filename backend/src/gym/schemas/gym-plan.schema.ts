@@ -3,7 +3,6 @@ import { Document } from 'mongoose';
 
 export type GymPlanDocument = GymPlan & Document;
 
-// catalog content — a fixed-duration pass, paid once, no recurring billing
 @Schema({ timestamps: true })
 export class GymPlan {
   @Prop({ required: true })
@@ -12,7 +11,6 @@ export class GymPlan {
   @Prop({ required: true, min: 1 })
   durationDays: number;
 
-  // flat, all-inclusive price — no VAT stacked on top, unlike FilmBoxx
   @Prop({ required: true, min: 0 })
   price: number;
 

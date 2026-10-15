@@ -12,7 +12,6 @@ import { MAX_VERIFY_WAIT_MS, usePaymentVerify } from "@/lib/payments";
 import { contact } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
-/** Flutterwave's redirect carries the reference back as one of these, depending on setup. */
 function readReference(params: URLSearchParams) {
   return (
     params.get("tx_ref") ?? params.get("reference") ?? params.get("transaction_id") ?? undefined
