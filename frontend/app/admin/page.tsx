@@ -8,7 +8,7 @@ export default function AdminOverviewPage() {
         <p className="text-xs font-bold uppercase tracking-[0.3em] text-boxx-red">
           Overview
         </p>
-        <h1 className="mt-2 font-heading text-3xl uppercase tracking-wide text-boxx-white sm:text-4xl">
+        <h1 className="mt-2 font-heading text-3xl tracking-tight text-boxx-white sm:text-4xl">
           Today at a glance
         </h1>
       </Reveal>

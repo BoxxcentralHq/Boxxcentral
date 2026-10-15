@@ -4,8 +4,8 @@ import Link from "next/link";
 import Reveal from "@/components/Reveal";
 import { useProfile } from "@/lib/auth";
 import { canAccess } from "@/lib/roles";
+import { cn } from "@/lib/utils";
 import OverviewStats from "./OverviewStats";
-import RecentBookings from "./RecentBookings";
 import RecentMenuItems from "./RecentMenuItems";
 import RecentMessages from "./RecentMessages";
 import { PanelLabel } from "./shared";
@@ -28,14 +28,12 @@ function PanelHeader({ label, href }: { label: string; href: string }) {
 /**
  * The overview's dynamic content — stat tiles and recent-activity panels,
  * scoped to what the signed-in role can actually see (mirrors the access
- * rules in lib/roles.ts). A lounge_admin has neither bookings nor messages,
- * so they get a menu-focused panel instead of an empty dashboard.
+ * rules in lib/roles.ts).
  */
 export default function OverviewDashboard() {
   const { data: profile } = useProfile();
   if (!profile) return null;
 
-  const showBookings = canAccess(profile.role, "bookings");
   const showMessages = canAccess(profile.role, "messages");
   const showMenu = canAccess(profile.role, "menu");
 
@@ -46,16 +44,6 @@ export default function OverviewDashboard() {
       </div>
 
       <div className="mt-10 grid gap-6 xl:grid-cols-3">
-        {showBookings && (
-          <Reveal
-            delay={100}
-            className="rounded-2xl border border-boxx-line bg-boxx-coal xl:col-span-2"
-          >
-            <PanelHeader label="Recent bookings" href="/admin/bookings" />
-            <RecentBookings />
-          </Reveal>
-        )}
-
         {showMessages && (
           <Reveal
             delay={160}
@@ -66,10 +54,13 @@ export default function OverviewDashboard() {
           </Reveal>
         )}
 
-        {!showBookings && showMenu && (
+        {showMenu && (
           <Reveal
             delay={100}
-            className="rounded-2xl border border-boxx-line bg-boxx-coal xl:col-span-3"
+            className={cn(
+              "rounded-2xl border border-boxx-line bg-boxx-coal",
+              showMessages ? "xl:col-span-2" : "xl:col-span-3",
+            )}
           >
             <PanelHeader label="Recent menu items" href="/admin/menu" />
             <RecentMenuItems />

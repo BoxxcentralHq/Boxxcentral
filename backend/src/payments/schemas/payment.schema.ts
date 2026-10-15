@@ -10,6 +10,9 @@ export enum PaymentStatus {
   REFUNDED = 'refunded',
 }
 
+export const PAYMENT_REVIEW_REASONS = ['amount_mismatch', 'sold_out'] as const;
+export type PaymentReviewReason = (typeof PAYMENT_REVIEW_REASONS)[number];
+
 @Schema({ timestamps: true })
 export class Payment {
   /** Our reference (BXX-...), generated when the payment is initiated. */
@@ -31,8 +34,7 @@ export class Payment {
 
   @Prop({
     required: true,
-    enum: ['booking_payment', 'gym_subscription_payment', 'refund'],
-    default: 'booking_payment',
+    enum: ['gym_subscription_payment', 'ticket_payment', 'refund'],
   })
   category: string;
 
@@ -46,15 +48,21 @@ export class Payment {
   @Prop({ default: 'flutterwave' })
   paymentMethod: string;
 
-  @Prop({ type: Types.ObjectId, ref: 'Booking' })
-  bookingId?: Types.ObjectId;
-
   @Prop({ type: Types.ObjectId, ref: 'GymSubscription' })
   subscriptionId?: Types.ObjectId;
+
+  @Prop({ type: Types.ObjectId, ref: 'TicketOrder' })
+  ticketOrderId?: Types.ObjectId;
 
   /** Raw gateway payload kept for dispute resolution / debugging. */
   @Prop({ type: Object })
   gatewayResponse?: Record<string, unknown>;
+
+  @Prop({ default: false })
+  needsReview: boolean;
+
+  @Prop({ type: String, enum: PAYMENT_REVIEW_REASONS })
+  reviewReason?: PaymentReviewReason;
 }
 
 export const PaymentSchema = SchemaFactory.createForClass(Payment);

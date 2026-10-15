@@ -45,7 +45,7 @@ export default function PricingCard({
 
       <h3
         className={cn(
-          "font-heading text-2xl tracking-wide text-boxx-white uppercase",
+          "font-heading text-2xl tracking-tight text-boxx-white",
           plan.icon || plan.featured ? "mt-5" : undefined,
         )}
       >

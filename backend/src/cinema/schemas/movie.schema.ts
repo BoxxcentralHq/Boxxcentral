@@ -21,8 +21,20 @@ export class Movie {
   @Prop()
   posterUrl?: string;
 
+  @Prop()
+  trailerUrl?: string;
+
+  @Prop()
+  rating?: string;
+
   @Prop({ select: false })
   posterPublicId?: string;
+
+  @Prop()
+  bannerUrl?: string;
+
+  @Prop({ select: false })
+  bannerPublicId?: string;
 
   @Prop({ default: true })
   visible: boolean;

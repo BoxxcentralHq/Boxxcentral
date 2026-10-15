@@ -1,12 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { HugeiconsIcon } from "@hugeicons/react";
 import type { IconSvgElement } from "@hugeicons/react";
 import { Alert02Icon, CheckmarkCircle02Icon, Clock01Icon } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
-import { usePaymentVerify } from "@/lib/payments";
+import type { PaymentVerification } from "@/lib/api/types";
+import { MAX_VERIFY_WAIT_MS, usePaymentVerify } from "@/lib/payments";
 import { contact } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +20,20 @@ function readReference(params: URLSearchParams) {
 }
 
 const naira = (amount: number) => `₦${amount.toLocaleString("en-NG")}`;
+
+const RETRY_HREF: Record<PaymentVerification["category"], string> = {
+  ticket_payment: "/filmboxx#now-showing",
+  gym_subscription_payment: "/gymboxx",
+  refund: "/",
+};
+
+const SUCCESS_BODY: Record<PaymentVerification["category"], string> = {
+  ticket_payment:
+    "Your seats are confirmed — we've emailed your tickets. Show your reference at the door.",
+  gym_subscription_payment:
+    "We've sent your receipt by email. Your membership doesn't start counting yet — come by the gym and show your reference at the front desk to activate it.",
+  refund: "Your payment has been processed.",
+};
 
 function StatusCard({
   icon,
@@ -50,7 +66,7 @@ function StatusCard({
       >
         <HugeiconsIcon icon={icon} className={cn("size-6", spin && "animate-spin")} />
       </span>
-      <h1 className="mt-6 font-heading text-2xl uppercase tracking-wide text-boxx-white">
+      <h1 className="mt-6 font-heading text-2xl tracking-tight text-boxx-white">
         {title}
       </h1>
       <p className="mt-3 text-sm leading-relaxed">{body}</p>
@@ -59,10 +75,33 @@ function StatusCard({
   );
 }
 
+function RetryActions({ href }: { href: string }) {
+  return (
+    <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+      <Button asChild size="lg">
+        <Link href={href}>Try again</Link>
+      </Button>
+      <Button asChild variant="outline" size="lg">
+        <a href={contact.whatsapp} target="_blank" rel="noopener noreferrer">
+          Message us
+        </a>
+      </Button>
+    </div>
+  );
+}
+
+function ReferenceLine({ reference }: { reference: string }) {
+  return (
+    <p className="mt-4 font-mono text-xs text-boxx-dim">Reference: {reference}</p>
+  );
+}
+
 export default function PaymentStatus() {
   const searchParams = useSearchParams();
   const reference = readReference(searchParams);
-  const { data, isLoading, isError } = usePaymentVerify(reference);
+  const cancelled = searchParams.get("status") === "cancelled";
+  const { data, isError, dataUpdatedAt } = usePaymentVerify(reference);
+  const [openedAt] = useState(() => Date.now());
 
   if (!reference) {
     return (
@@ -81,23 +120,44 @@ export default function PaymentStatus() {
     );
   }
 
-  if ((isLoading && !data) || isError || !data) {
+  const retryHref = data ? RETRY_HREF[data.category] : "/";
+
+  if (cancelled && data?.localStatus !== "success") {
     return (
       <StatusCard
-        icon={isError ? Alert02Icon : Clock01Icon}
-        tone={isError ? "danger" : "neutral"}
-        spin={!isError}
-        title={isError ? "Couldn't check your payment" : "Confirming your payment…"}
-        body={
-          isError
-            ? "Something went wrong reaching our server. If you were charged, don't worry — message us with your reference and we'll confirm your booking."
-            : "Hang tight — we're checking in with the payment gateway. This usually takes a few seconds."
-        }
+        icon={Alert02Icon}
+        tone="neutral"
+        title="Payment cancelled"
+        body="You left the payment page before paying, so nothing was charged. You can start again whenever you're ready."
       >
-        {isError && (
-          <p className="mt-4 font-mono text-xs text-boxx-dim">Reference: {reference}</p>
-        )}
+        <ReferenceLine reference={reference} />
+        <RetryActions href={retryHref} />
       </StatusCard>
+    );
+  }
+
+  if (!data) {
+    if (isError) {
+      return (
+        <StatusCard
+          icon={Alert02Icon}
+          tone="danger"
+          title="We couldn't confirm this payment"
+          body="If you closed the payment page before paying, nothing was charged and you can try again. If you were charged, message us with your reference and we'll sort it out."
+        >
+          <ReferenceLine reference={reference} />
+          <RetryActions href={retryHref} />
+        </StatusCard>
+      );
+    }
+    return (
+      <StatusCard
+        icon={Clock01Icon}
+        tone="neutral"
+        spin
+        title="Confirming your payment…"
+        body="Hang tight — we're checking in with the payment gateway. This usually takes a few seconds."
+      />
     );
   }
 
@@ -107,19 +167,68 @@ export default function PaymentStatus() {
         icon={Alert02Icon}
         tone="danger"
         title="Payment refunded"
-        body="Your booking wasn't confirmed. No charge should be outstanding — try booking again, or message us if you think this is a mistake."
+        body="Your booking wasn't confirmed and your payment was refunded. Try booking again, or message us if you think this is a mistake."
       >
-        <p className="mt-4 font-mono text-xs text-boxx-dim">Reference: {reference}</p>
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-          <Button asChild size="lg">
-            <Link href="/filmboxx#book">Try again</Link>
-          </Button>
+        <ReferenceLine reference={reference} />
+        <RetryActions href={retryHref} />
+      </StatusCard>
+    );
+  }
+
+  if (data.localStatus === "success" && !data.needsReview) {
+    return (
+      <StatusCard
+        icon={CheckmarkCircle02Icon}
+        tone="success"
+        title="Payment confirmed"
+        body={SUCCESS_BODY[data.category]}
+      >
+        <p className="mt-4 text-sm text-boxx-white">
+          {naira(data.amount)} {data.currency}
+        </p>
+        <p className="mt-1 font-mono text-xs text-boxx-dim">Reference: {reference}</p>
+        <Button asChild size="lg" className="mt-8">
+          <Link href="/">Back home</Link>
+        </Button>
+      </StatusCard>
+    );
+  }
+
+  if (data.needsReview) {
+    return (
+      <StatusCard
+        icon={Alert02Icon}
+        tone="danger"
+        title="Payment received — we'll be in touch"
+        body="Your payment came through, but we couldn't complete your booking (for example, the screening sold out while you were paying). Our team will contact you to rebook or refund you."
+      >
+        <ReferenceLine reference={reference} />
+        <div className="mt-8 flex justify-center">
           <Button asChild variant="outline" size="lg">
             <a href={contact.whatsapp} target="_blank" rel="noopener noreferrer">
               Message us
             </a>
           </Button>
         </div>
+      </StatusCard>
+    );
+  }
+
+  if (data.gatewayStatus === "successful") {
+    const stillWaiting = dataUpdatedAt - openedAt < MAX_VERIFY_WAIT_MS;
+    return (
+      <StatusCard
+        icon={stillWaiting ? Clock01Icon : CheckmarkCircle02Icon}
+        tone="neutral"
+        spin={stillWaiting}
+        title="Payment received"
+        body={
+          stillWaiting
+            ? "We're finalising your booking — this usually takes a few seconds. This page updates itself, no need to refresh."
+            : "Your confirmation is taking longer than usual. It'll arrive by email — if it doesn't within 15 minutes, message us with your reference."
+        }
+      >
+        <ReferenceLine reference={reference} />
       </StatusCard>
     );
   }
@@ -133,31 +242,7 @@ export default function PaymentStatus() {
         title="Still confirming…"
         body="The payment gateway hasn't settled yet — this page will update itself automatically, no need to refresh."
       >
-        <p className="mt-4 font-mono text-xs text-boxx-dim">Reference: {reference}</p>
-      </StatusCard>
-    );
-  }
-
-  if (data.gatewayStatus === "successful") {
-    const isGymSubscription = data.category === "gym_subscription_payment";
-    return (
-      <StatusCard
-        icon={CheckmarkCircle02Icon}
-        tone="success"
-        title="Payment confirmed"
-        body={
-          isGymSubscription
-            ? "We've sent your receipt by email. Your membership doesn't start counting yet — come by the gym and show your reference at the front desk to activate it."
-            : "Your booking is locked in — we've sent the details to your email. See you soon."
-        }
-      >
-        <p className="mt-4 text-sm text-boxx-white">
-          {naira(data.amount)} {data.currency}
-        </p>
-        <p className="mt-1 font-mono text-xs text-boxx-dim">Reference: {reference}</p>
-        <Button asChild size="lg" className="mt-8">
-          <Link href="/">Back home</Link>
-        </Button>
+        <ReferenceLine reference={reference} />
       </StatusCard>
     );
   }
@@ -169,17 +254,8 @@ export default function PaymentStatus() {
       title="Payment didn't go through"
       body="Your booking wasn't confirmed. No charge should be outstanding — try booking again, or message us if you think this is a mistake."
     >
-      <p className="mt-4 font-mono text-xs text-boxx-dim">Reference: {reference}</p>
-      <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-        <Button asChild size="lg">
-          <Link href="/filmboxx#book">Try again</Link>
-        </Button>
-        <Button asChild variant="outline" size="lg">
-          <a href={contact.whatsapp} target="_blank" rel="noopener noreferrer">
-            Message us
-          </a>
-        </Button>
-      </div>
+      <ReferenceLine reference={reference} />
+      <RetryActions href={retryHref} />
     </StatusCard>
   );
 }

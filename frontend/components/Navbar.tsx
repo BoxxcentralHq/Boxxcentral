@@ -76,7 +76,7 @@ export default function Navbar() {
 
   const mobileLinkClass = (href: string) =>
     cn(
-      "font-heading text-4xl uppercase leading-tight tracking-wide transition-colors duration-200",
+      "font-heading text-4xl leading-tight tracking-tight transition-colors duration-200",
       isActive(href)
         ? "text-boxx-red"
         : "text-boxx-white/90 hover:text-boxx-red",
@@ -94,7 +94,7 @@ export default function Navbar() {
           <nav className="relative flex h-18 w-full items-center justify-between px-5 sm:px-8">
             <Link
               href="/"
-              className="font-heading text-2xl uppercase tracking-wide text-boxx-white"
+              className="font-heading text-2xl tracking-tight text-boxx-white"
               onClick={() => setOpen(false)}
             >
               <Image

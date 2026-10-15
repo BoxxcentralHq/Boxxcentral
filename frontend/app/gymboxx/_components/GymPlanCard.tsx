@@ -34,7 +34,7 @@ export default function GymPlanCard({
         )}
       </div>
 
-      <h3 className="font-heading text-2xl tracking-wide text-boxx-white uppercase">
+      <h3 className="font-heading text-2xl tracking-tight text-boxx-white">
         {plan.name}
       </h3>
       <p className="mt-2 text-sm leading-relaxed text-boxx-dim">{plan.description}</p>

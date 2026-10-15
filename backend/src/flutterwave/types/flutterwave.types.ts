@@ -16,8 +16,8 @@ export interface FlutterwaveInitializePayload {
   currency: string;
   redirect_url: string;
   meta: {
-    bookingId?: string;
     subscriptionId?: string;
+    ticketOrderId?: string;
     experience: string;
   };
   customer: FlutterwaveCustomer;
@@ -57,7 +57,7 @@ export interface FlutterwaveVerifyResponse {
   flw_ref: string;
   amount: number;
   currency: string;
-  status: 'successful' | 'failed';
+  status: 'successful' | 'failed' | 'pending';
   payment_type: string;
   created_at: string;
 }

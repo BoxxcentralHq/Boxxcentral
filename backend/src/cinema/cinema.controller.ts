@@ -7,15 +7,15 @@ import {
   Param,
   Patch,
   Post,
-  UploadedFile,
+  UploadedFiles,
   UseGuards,
   UseInterceptors,
   ParseFilePipe,
   MaxFileSizeValidator,
   FileTypeValidator,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { CinemaService } from './cinema.service';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { CinemaService, MovieImages } from './cinema.service';
 import { JwtAuthGuard } from '../admin/guards/jwt-auth.guard';
 import { RolesGuard } from '../admin/guards/roles.guard';
 import { Roles } from '../admin/decorators/roles.decorator';
@@ -24,13 +24,31 @@ import { UpdateSettingsDto } from './dto/update-settings.dto';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
 
-const posterPipe = new ParseFilePipe({
+const imagePipe = new ParseFilePipe({
   fileIsRequired: false,
   validators: [
     new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }),
     new FileTypeValidator({ fileType: /^image\/(jpe?g|png|webp)$/ }),
   ],
 });
+
+const movieImages = FileFieldsInterceptor([
+  { name: 'poster', maxCount: 1 },
+  { name: 'banner', maxCount: 1 },
+]);
+
+type MovieUploads = {
+  poster?: Express.Multer.File[];
+  banner?: Express.Multer.File[];
+};
+
+async function validateImages(files?: MovieUploads): Promise<MovieImages> {
+  const [poster, banner] = (await Promise.all([
+    imagePipe.transform(files?.poster?.[0]),
+    imagePipe.transform(files?.banner?.[0]),
+  ])) as (Express.Multer.File | undefined)[];
+  return { poster, banner };
+}
 
 @Controller('cinema')
 export class CinemaController {
@@ -43,15 +61,10 @@ export class CinemaController {
     return {
       message: 'Cinema settings fetched',
       data: {
-        basePrice: s.basePrice,
-        includedGuests: s.includedGuests,
-        maxGuests: s.maxGuests,
-        extraSeatPrice: s.extraSeatPrice,
-        sessionDurationHours: s.sessionDurationHours,
         vatRate: s.vatRate,
-        timeSlots: s.timeSlots,
         rooms: s.rooms,
-        bookingEnabled: s.bookingEnabled,
+        defaultTicketPrice: s.defaultTicketPrice,
+        screeningBufferMins: s.screeningBufferMins,
       },
     };
   }
@@ -82,25 +95,27 @@ export class CinemaController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(AdminRole.SUPER_ADMIN, AdminRole.CINEMA_ADMIN)
   @Post('movies')
-  @UseInterceptors(FileInterceptor('poster'))
+  @UseInterceptors(movieImages)
   async createMovie(
     @Body() dto: CreateMovieDto,
-    @UploadedFile(posterPipe) poster?: Express.Multer.File,
+    @UploadedFiles() files?: MovieUploads,
   ) {
-    const movie = await this.cinemaService.createMovie(dto, poster);
+    const images = await validateImages(files);
+    const movie = await this.cinemaService.createMovie(dto, images);
     return { message: 'Movie added', data: movie };
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(AdminRole.SUPER_ADMIN, AdminRole.CINEMA_ADMIN)
   @Patch('movies/:id')
-  @UseInterceptors(FileInterceptor('poster'))
+  @UseInterceptors(movieImages)
   async updateMovie(
     @Param('id') id: string,
     @Body() dto: UpdateMovieDto,
-    @UploadedFile(posterPipe) poster?: Express.Multer.File,
+    @UploadedFiles() files?: MovieUploads,
   ) {
-    const movie = await this.cinemaService.updateMovie(id, dto, poster);
+    const images = await validateImages(files);
+    const movie = await this.cinemaService.updateMovie(id, dto, images);
     return { message: 'Movie updated', data: movie };
   }
 

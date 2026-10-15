@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Anton, Figtree } from "next/font/google";
+import { Figtree, Syne } from "next/font/google";
 import { Toaster } from "sonner";
 import LocalBusinessJsonLd from "@/components/LocalBusinessJsonLd";
 import QueryProvider from "@/components/providers/QueryProvider";
@@ -8,10 +8,10 @@ import { site } from "@/lib/site";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
-const anton = Anton({
-  weight: "400",
+const syne = Syne({
+  weight: "700",
   subsets: ["latin"],
-  variable: "--font-anton",
+  variable: "--font-syne",
   display: "swap",
 });
 
@@ -50,7 +50,7 @@ export default function RootLayout({
       lang="en"
       className={cn(
         "h-full antialiased font-sans",
-        anton.variable,
+        syne.variable,
         figtree.variable,
       )}
     >

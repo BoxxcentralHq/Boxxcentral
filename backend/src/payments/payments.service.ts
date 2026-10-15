@@ -3,6 +3,7 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -12,18 +13,23 @@ import {
   PaymentStatus,
 } from './schemas/payment.schema';
 import {
-  Booking,
-  BookingDocument,
-  BookingStatus,
-} from '../bookings/schemas/booking.schema';
-import {
   GymSubscription,
   GymSubscriptionDocument,
   GymSubscriptionStatus,
 } from '../gym/schemas/gym-subscription.schema';
+import {
+  Screening,
+  ScreeningDocument,
+} from '../screenings/schemas/screening.schema';
+import {
+  TicketOrder,
+  TicketOrderDocument,
+  TicketOrderStatus,
+} from '../screenings/schemas/ticket-order.schema';
 import { FlutterwaveService } from '../flutterwave/flutterwave.service';
 import { FlutterwaveWebhookPayload } from '../flutterwave/types/flutterwave.types';
 import { EmailService } from '../email/email.service';
+import { WebhookResult } from './webhook-result.enum';
 
 @Injectable()
 export class PaymentsService {
@@ -31,9 +37,12 @@ export class PaymentsService {
 
   constructor(
     @InjectModel(Payment.name) private paymentModel: Model<PaymentDocument>,
-    @InjectModel(Booking.name) private bookingModel: Model<BookingDocument>,
     @InjectModel(GymSubscription.name)
     private gymSubscriptionModel: Model<GymSubscriptionDocument>,
+    @InjectModel(TicketOrder.name)
+    private ticketOrderModel: Model<TicketOrderDocument>,
+    @InjectModel(Screening.name)
+    private screeningModel: Model<ScreeningDocument>,
     private flutterwaveService: FlutterwaveService,
     private emailService: EmailService,
   ) {}
@@ -57,7 +66,6 @@ export class PaymentsService {
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
-        .populate('bookingId')
         .exec(),
       this.paymentModel.countDocuments(filter),
     ]);
@@ -73,7 +81,6 @@ export class PaymentsService {
     };
   }
 
-  // single source of truth for confirming payments
   async handleWebhook(payload: FlutterwaveWebhookPayload, signature: string) {
     if (!this.flutterwaveService.validateSignature(signature)) {
       this.logger.error('[Webhook] Invalid signature received.');
@@ -81,99 +88,246 @@ export class PaymentsService {
     }
 
     const txRef = payload?.data?.tx_ref || payload?.txRef;
-    const status = payload?.data?.status || payload?.status;
     const gatewayId = payload?.data?.id || payload?.id;
 
     if (!txRef) {
       this.logger.warn('[Webhook] Ignored: no transaction reference found.');
-      return { status: 'ignored', message: 'No transaction reference found' };
+      return {
+        status: WebhookResult.IGNORED,
+        message: 'No transaction reference found',
+      };
     }
-
-    this.logger.log(`[Webhook] ${txRef} | gateway status: ${status}`);
 
     const payment = await this.paymentModel.findOne({ reference: txRef });
     if (!payment) {
-      this.logger.error(`[Webhook] No ledger record for reference: ${txRef}`);
-      throw new NotFoundException(`Payment record for ${txRef} not found`);
+      this.logger.warn(`[Webhook] Ignored: no ledger record for ${txRef}`);
+      return {
+        status: WebhookResult.IGNORED,
+        message: 'Unknown transaction reference',
+      };
     }
 
-    if (status !== 'successful') {
-      await this.paymentModel.findByIdAndUpdate(payment._id, {
-        status: PaymentStatus.FAILED,
-        transactionId: gatewayId?.toString(),
-        gatewayResponse: payload?.data || payload,
-      });
-      return { status: 'failed', reference: txRef, gatewayStatus: status };
+    if (payment.status === PaymentStatus.REFUNDED) {
+      return {
+        status: WebhookResult.IGNORED,
+        reference: txRef,
+        message: 'Already refunded',
+      };
     }
 
-    await this.paymentModel.findByIdAndUpdate(payment._id, {
-      status: PaymentStatus.SUCCESS,
-      transactionId: gatewayId?.toString(),
-      gatewayResponse: payload?.data || payload,
-    });
-
-    if (payment.bookingId) {
-      const booking = await this.bookingModel.findByIdAndUpdate(
-        payment.bookingId,
-        { status: BookingStatus.RESERVED },
-        { new: true },
-      );
-
-      if (booking) {
-        try {
-          await this.emailService.sendBookingConfirmation({
-            guestName: booking.guestName,
-            guestEmail: booking.guestEmail,
-            guestPhone: booking.guestPhone,
-            bookingRef: booking.bookingRef,
-            experience: booking.experience,
-            room: booking.room,
-            date: booking.date,
-            timeSlot: booking.timeSlot,
-            guests: booking.guests,
-            subtotal: booking.subtotal,
-            vatAmount: booking.vatAmount,
-            totalPrice: booking.totalPrice,
-          });
-        } catch (emailError) {
-          this.logger.error(
-            `[Webhook] Email dispatch failed for ${txRef}: ${(emailError as Error).message}`,
-          );
-        }
-      }
+    if (payment.status === PaymentStatus.SUCCESS) {
+      await this.fulfil(payment, false);
+      return { status: WebhookResult.DUPLICATE, reference: txRef };
     }
 
-    if (payment.subscriptionId) {
-      // payment confirmed only gets the subscription to "paid" — the pass
-      // itself doesn't start counting until front desk activates it
-      const subscription = await this.gymSubscriptionModel.findByIdAndUpdate(
-        payment.subscriptionId,
-        { status: GymSubscriptionStatus.PAID },
-        { new: true },
-      );
-
-      if (subscription) {
-        try {
-          await this.emailService.sendMembershipPaymentReceipt({
-            memberName: subscription.memberName,
-            memberEmail: subscription.memberEmail,
-            subscriptionRef: subscription.subscriptionRef,
-            planName: subscription.planName,
-            durationDays: subscription.durationDays,
-            price: subscription.price,
-          });
-        } catch (emailError) {
-          this.logger.error(
-            `[Webhook] Email dispatch failed for ${txRef}: ${(emailError as Error).message}`,
-          );
-        }
-      }
-    }
-
-    this.logger.log(
-      `[Webhook] SUCCESS: ${txRef} — ledger and booking updated.`,
+    const verified = await this.flutterwaveService.verifyTransaction(
+      gatewayId ? String(gatewayId) : txRef,
     );
-    return { status: 'success', reference: txRef };
+    if (!verified) {
+      throw new ServiceUnavailableException(
+        'Could not verify the transaction with Flutterwave',
+      );
+    }
+    if (verified.tx_ref !== txRef) {
+      this.logger.error(
+        `[Webhook] Reference mismatch: event ${txRef}, gateway ${verified.tx_ref}`,
+      );
+      return {
+        status: WebhookResult.IGNORED,
+        message: 'Transaction reference mismatch',
+      };
+    }
+
+    const gatewayFields = {
+      transactionId: String(verified.id),
+      gatewayResponse: verified as unknown as Record<string, unknown>,
+    };
+    const unconfirmed = {
+      _id: payment._id,
+      status: { $in: [PaymentStatus.PENDING, PaymentStatus.FAILED] },
+    };
+
+    if (verified.status !== 'successful') {
+      if (verified.status === 'failed') {
+        await this.paymentModel.updateOne(
+          { _id: payment._id, status: PaymentStatus.PENDING },
+          { status: PaymentStatus.FAILED, ...gatewayFields },
+        );
+      }
+      this.logger.log(
+        `[Webhook] ${txRef} | gateway status: ${verified.status}`,
+      );
+      return {
+        status:
+          verified.status === 'failed'
+            ? WebhookResult.FAILED
+            : WebhookResult.PENDING,
+        reference: txRef,
+        gatewayStatus: verified.status,
+      };
+    }
+
+    if (
+      verified.currency !== payment.currency ||
+      verified.amount < payment.amount
+    ) {
+      await this.paymentModel.updateOne(unconfirmed, {
+        needsReview: true,
+        reviewReason: 'amount_mismatch',
+        ...gatewayFields,
+      });
+      this.logger.error(
+        `[Webhook] ${txRef} amount mismatch: expected ${payment.amount} ${payment.currency}, ` +
+          `gateway paid ${verified.amount} ${verified.currency} — flagged for review`,
+      );
+      return {
+        status: WebhookResult.REVIEW,
+        reference: txRef,
+        reason: 'amount_mismatch',
+      };
+    }
+
+    const claimed = await this.paymentModel.findOneAndUpdate(
+      unconfirmed,
+      { status: PaymentStatus.SUCCESS, ...gatewayFields },
+      { new: true },
+    );
+    if (!claimed) {
+      return { status: WebhookResult.DUPLICATE, reference: txRef };
+    }
+
+    await this.fulfil(claimed, true);
+    this.logger.log(`[Webhook] SUCCESS: ${txRef}`);
+    return { status: WebhookResult.SUCCESS, reference: txRef };
+  }
+
+  private async fulfil(payment: PaymentDocument, justPaid: boolean) {
+    if (payment.subscriptionId) {
+      await this.confirmSubscription(payment, justPaid);
+    }
+    if (payment.ticketOrderId) {
+      await this.confirmTicketOrder(payment, justPaid);
+    }
+  }
+
+  private async confirmTicketOrder(
+    payment: PaymentDocument,
+    justPaid: boolean,
+  ) {
+    let order = await this.ticketOrderModel.findOneAndUpdate(
+      { _id: payment.ticketOrderId, status: TicketOrderStatus.PENDING },
+      { status: TicketOrderStatus.PAID },
+      { new: true },
+    );
+    if (order) {
+      await this.screeningModel.updateOne(
+        { _id: order.screeningId },
+        { $inc: { seatsHeld: -order.tickets, seatsSold: order.tickets } },
+      );
+    } else if (justPaid) {
+      order = await this.reseatExpiredOrder(payment);
+    }
+    if (!order) return;
+
+    try {
+      await this.emailService.sendTicketConfirmation({
+        guestName: order.guestName,
+        guestEmail: order.guestEmail,
+        guestPhone: order.guestPhone,
+        orderRef: order.orderRef,
+        movieTitle: order.movieTitle,
+        screen: order.screen,
+        date: order.date,
+        time: order.time,
+        tickets: order.tickets,
+        subtotal: order.subtotal,
+        vatAmount: order.vatAmount,
+        totalPrice: order.totalPrice,
+      });
+    } catch (emailError) {
+      this.logger.error(
+        `[Webhook] Email dispatch failed for ${payment.reference}: ${(emailError as Error).message}`,
+      );
+    }
+  }
+
+  private async reseatExpiredOrder(payment: PaymentDocument) {
+    const expired = await this.ticketOrderModel.findOne({
+      _id: payment.ticketOrderId,
+      status: TicketOrderStatus.EXPIRED,
+    });
+    if (!expired) return null;
+
+    const seated = await this.screeningModel.findOneAndUpdate(
+      {
+        _id: expired.screeningId,
+        $expr: {
+          $lte: [
+            { $add: ['$seatsHeld', '$seatsSold', expired.tickets] },
+            '$capacity',
+          ],
+        },
+      },
+      { $inc: { seatsSold: expired.tickets } },
+    );
+    if (!seated) {
+      await this.paymentModel.updateOne(
+        { _id: payment._id },
+        { needsReview: true, reviewReason: 'sold_out' },
+      );
+      this.logger.error(
+        `[Webhook] ${payment.reference} paid after expiry, screening sold out — flagged for review`,
+      );
+      return null;
+    }
+
+    const order = await this.ticketOrderModel.findOneAndUpdate(
+      { _id: expired._id, status: TicketOrderStatus.EXPIRED },
+      { status: TicketOrderStatus.PAID },
+      { new: true },
+    );
+    if (!order) {
+      await this.screeningModel.updateOne(
+        { _id: expired.screeningId },
+        { $inc: { seatsSold: -expired.tickets } },
+      );
+    }
+    return order;
+  }
+
+  private async confirmSubscription(
+    payment: PaymentDocument,
+    justPaid: boolean,
+  ) {
+    const revivable = justPaid
+      ? [GymSubscriptionStatus.PENDING, GymSubscriptionStatus.EXPIRED]
+      : [GymSubscriptionStatus.PENDING];
+
+    const subscription = await this.gymSubscriptionModel.findOneAndUpdate(
+      {
+        _id: payment.subscriptionId,
+        status: { $in: revivable },
+        startDate: { $exists: false },
+      },
+      { status: GymSubscriptionStatus.PAID },
+      { new: true },
+    );
+    if (!subscription) return;
+
+    try {
+      await this.emailService.sendMembershipPaymentReceipt({
+        memberName: subscription.memberName,
+        memberEmail: subscription.memberEmail,
+        subscriptionRef: subscription.subscriptionRef,
+        planName: subscription.planName,
+        durationDays: subscription.durationDays,
+        price: subscription.price,
+      });
+    } catch (emailError) {
+      this.logger.error(
+        `[Webhook] Email dispatch failed for ${payment.reference}: ${(emailError as Error).message}`,
+      );
+    }
   }
 
   // guest-facing status check — slim response, no gateway internals
@@ -183,6 +337,25 @@ export class PaymentsService {
       payment = await this.paymentModel.findOne({ reference: idOrRef });
     }
     if (!payment) throw new NotFoundException('Payment record not found');
+
+    const summary = {
+      reference: payment.reference,
+      localStatus: payment.status,
+      category: payment.category,
+      needsReview: payment.needsReview ?? false,
+    };
+
+    const settled =
+      payment.status === PaymentStatus.SUCCESS ||
+      payment.status === PaymentStatus.REFUNDED;
+    if (settled) {
+      return {
+        ...summary,
+        gatewayStatus: 'successful',
+        amount: payment.amount,
+        currency: payment.currency,
+      };
+    }
 
     const flwData = await this.flutterwaveService.verifyTransaction(
       payment.transactionId || payment.reference,
@@ -194,17 +367,15 @@ export class PaymentsService {
     }
 
     return {
-      reference: payment.reference,
-      localStatus: payment.status,
+      ...summary,
       gatewayStatus: flwData.status,
       amount: flwData.amount,
       currency: flwData.currency,
-      category: payment.category,
     };
   }
 
   findOne(id: string) {
-    return this.paymentModel.findById(id).populate('bookingId').exec();
+    return this.paymentModel.findById(id).populate('ticketOrderId').exec();
   }
 
   async getMonthlyRevenue(): Promise<{ month: string; revenue: number }[]> {

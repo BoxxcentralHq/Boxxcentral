@@ -32,7 +32,7 @@ export default function Footer() {
         <Reveal className="lg:col-span-5">
           <Link
             href="/"
-            className="font-heading text-2xl uppercase tracking-wide text-boxx-white"
+            className="font-heading text-2xl tracking-tight text-boxx-white"
           >
             <Image src="/logo.png" alt={site.name} width={150} height={50} />
           </Link>{" "}
@@ -133,7 +133,7 @@ export default function Footer() {
       </div>
 
       <div aria-hidden className="relative select-none">
-        <p className="translate-y-[18%] whitespace-nowrap text-center font-heading text-[15.5vw] uppercase leading-none tracking-wide text-stroke">
+        <p className="translate-y-[18%] whitespace-nowrap text-center font-heading text-[14.5vw] leading-none tracking-tight text-stroke">
           BoxxCentral
         </p>
       </div>

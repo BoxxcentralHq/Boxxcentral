@@ -56,7 +56,7 @@ export default function AboutValues() {
                     className="size-5 text-boxx-red"
                   />
                 </span>
-                <h3 className="mt-5 font-heading text-xl uppercase tracking-wide text-boxx-white">
+                <h3 className="mt-5 font-heading text-xl tracking-tight text-boxx-white">
                   {value.title}
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed">{value.body}</p>
