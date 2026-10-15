@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/badge";
 import type { MenuItem } from "@/lib/api/types";
 import type { ViewMode } from "./MenuFilters";
 
-/** Caps the stagger so long lists don't push the last card's entrance out for ages. */
 const staggerDelay = (i: number) => Math.min(i, 8) * 60;
 const naira = (amount: number) => `₦${amount.toLocaleString("en-NG")}`;
 
@@ -17,8 +16,6 @@ type MenuGridProps = {
   items: MenuItem[];
   view: ViewMode;
   onSelect: (item: MenuItem) => void;
-  /** True once the menu has items at all — distinguishes an empty search
-   *  from a menu that hasn't been populated yet. */
   hasAnyItems?: boolean;
 };
 

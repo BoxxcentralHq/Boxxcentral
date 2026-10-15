@@ -4,11 +4,6 @@ import { Slot } from "radix-ui"
 
 import { cn } from "@/lib/utils"
 
-/**
- * High-emphasis label chip. `default` (solid red) is reserved for critical
- * highlights; `soft` is the standard eyebrow treatment; `outline` is for
- * neutral metadata.
- */
 const badgeVariants = cva(
   "inline-flex w-fit shrink-0 items-center justify-center gap-1 rounded-md px-2.5 py-1 text-[11px] font-bold tracking-[0.2em] uppercase whitespace-nowrap [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-3",
   {

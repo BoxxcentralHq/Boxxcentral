@@ -5,7 +5,6 @@ export const REFRESH_TOKEN_COOKIE = 'bxx_refresh';
 
 const ACCESS_MAX_AGE_MS = 15 * 60 * 1000;
 const REFRESH_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
-// path-scoped so the refresh cookie only travels to admin auth endpoints
 const REFRESH_PATH = '/api/v1/admin';
 
 const sameSitePolicy: NonNullable<CookieOptions['sameSite']> =
@@ -14,7 +13,6 @@ const sameSitePolicy: NonNullable<CookieOptions['sameSite']> =
 const baseOptions: CookieOptions = {
   httpOnly: true,
   sameSite: sameSitePolicy,
-  // browsers reject SameSite=None without Secure, regardless of NODE_ENV
   secure: sameSitePolicy === 'none' || process.env.NODE_ENV === 'production',
 };
 

@@ -17,11 +17,8 @@ import { cn } from "@/lib/utils";
 import GymPlanCard from "./GymPlanCard";
 import GymSubscribeDialog from "./GymSubscribeDialog";
 
-/** Matches GymPlanCard's fixed width (w-80) plus the row's gap-6. */
 const SCROLL_STEP = 320 + 24;
 
-/** GymBoxx's live membership carousel — plans come from the admin-managed
- *  catalog, and picking one opens the subscribe-and-pay dialog. */
 export default function GymMembership() {
   const { data: plans, isLoading, isError } = useGymPlans();
   const [selectedPlan, setSelectedPlan] = useState<GymPlan | null>(null);

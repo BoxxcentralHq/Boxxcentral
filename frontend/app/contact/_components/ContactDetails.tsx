@@ -8,7 +8,6 @@ import { contact, socials } from "@/lib/site";
 
 const linkClass = "text-boxx-white transition-colors duration-200 hover:text-boxx-red-glow";
 
-/** Small label / value pair — matches the dt/dd rhythm AboutStory uses for its stats. */
 function Detail({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>

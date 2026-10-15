@@ -10,7 +10,6 @@ import SectionHeading from "@/components/SectionHeading";
 import type { PricingPlan } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 
-/** Matches PricingCard's fixed width (w-80) plus the row's gap-6. */
 const SCROLL_STEP = 320 + 24;
 
 type PricingCarouselProps = {
@@ -20,11 +19,9 @@ type PricingCarouselProps = {
   plans: PricingPlan[];
   ctaHref: string;
   ctaLabel: string;
-  /** Flat print below the cards, e.g. FilmBoxx's per-extra-guest charge. */
   footnote?: string;
 };
 
-/** Service pricing, shared by GymBoxx, BowlBoxx, and FilmBoxx's package tiers. */
 export default function PricingCarousel({
   eyebrow,
   title,

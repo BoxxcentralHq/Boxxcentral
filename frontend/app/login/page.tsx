@@ -13,7 +13,6 @@ export const metadata: Metadata = {
 export default function LoginPage() {
   return (
     <section className="relative flex min-h-svh items-center justify-center overflow-hidden px-5 py-16">
-      {/* Same atmospheric backdrop language as the marketing heroes */}
       <div className="absolute inset-0 bg-linear-to-b from-boxx-coal via-boxx-night to-boxx-night" />
 
       <Reveal className="relative w-full max-w-md">

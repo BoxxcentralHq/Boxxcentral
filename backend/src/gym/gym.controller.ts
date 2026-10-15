@@ -24,7 +24,6 @@ import { AdminRole } from '../admin/schemas/admin.schema';
 export class GymController {
   constructor(private readonly gymService: GymService) {}
 
-  // public: GymBoxx page pricing carousel
   @Get('plans')
   async listVisiblePlans() {
     const plans = await this.gymService.listVisiblePlans();
@@ -63,7 +62,6 @@ export class GymController {
     return { message: result.message, data: null };
   }
 
-  // public: guest subscribes and gets the payment link
   @UseGuards(ThrottlerGuard)
   @Throttle({ default: { ttl: 60000, limit: 5 } })
   @Post('subscriptions')
@@ -87,7 +85,6 @@ export class GymController {
     return { message: 'Subscriptions fetched', data: result };
   }
 
-  // front-desk lookup: is this person's membership currently active?
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(AdminRole.SUPER_ADMIN, AdminRole.GYM_ADMIN)
   @Get('subscriptions/search')
@@ -96,7 +93,6 @@ export class GymController {
     return { message: 'Subscriptions fetched', data: results };
   }
 
-  // front desk confirms the member is here and starts the pass counting down
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(AdminRole.SUPER_ADMIN, AdminRole.GYM_ADMIN)
   @Patch('subscriptions/:id/activate')

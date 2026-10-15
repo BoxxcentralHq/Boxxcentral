@@ -5,16 +5,12 @@ const DAYS = {
   "Friday – Sunday": ["Friday", "Saturday", "Sunday"],
 } as const;
 
-// "10:00 – 22:00" -> ["10:00", "22:00"]; a midnight close is written as
-// 23:59 since schema.org's Time type doesn't have a clean way to say
-// "00:00 the following day"
 function parseHours(time: string): [string, string] {
   const [opens, closesRaw] = time.split("–").map((t) => t.trim());
   const closes = closesRaw === "00:00" ? "23:59" : closesRaw;
   return [opens, closes];
 }
 
-/** Site-wide LocalBusiness structured data — feeds Google's knowledge panel / local pack. */
 export default function LocalBusinessJsonLd() {
   const jsonLd = {
     "@context": "https://schema.org",

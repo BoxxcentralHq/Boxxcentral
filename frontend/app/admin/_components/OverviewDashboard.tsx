@@ -10,7 +10,6 @@ import RecentMenuItems from "./RecentMenuItems";
 import RecentMessages from "./RecentMessages";
 import { PanelLabel } from "./shared";
 
-/** Header row for an overview panel, with a link to the full page. */
 function PanelHeader({ label, href }: { label: string; href: string }) {
   return (
     <div className="flex items-center justify-between border-b border-boxx-line px-6 py-5">
@@ -25,11 +24,6 @@ function PanelHeader({ label, href }: { label: string; href: string }) {
   );
 }
 
-/**
- * The overview's dynamic content — stat tiles and recent-activity panels,
- * scoped to what the signed-in role can actually see (mirrors the access
- * rules in lib/roles.ts).
- */
 export default function OverviewDashboard() {
   const { data: profile } = useProfile();
   if (!profile) return null;

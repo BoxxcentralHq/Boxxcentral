@@ -15,7 +15,6 @@ export const api = {
 
   del: <T>(path: string) => http.delete<ApiEnvelope<T>>(path).then((r) => r.data.data),
 
-  // axios detects FormData and sets the multipart boundary itself
   postForm: <T>(path: string, form: FormData) =>
     http.post<ApiEnvelope<T>>(path, form).then((r) => r.data.data),
 

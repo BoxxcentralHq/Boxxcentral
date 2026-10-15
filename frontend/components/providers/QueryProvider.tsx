@@ -8,7 +8,6 @@ export default function QueryProvider({
 }: {
   children: React.ReactNode;
 }) {
-  // created once per browser session, inside state so SSR never shares it
   const [client] = useState(
     () =>
       new QueryClient({

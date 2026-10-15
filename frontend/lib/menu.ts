@@ -1,15 +1,11 @@
 "use client";
 
-// Public menu reads go through lib/api/server.ts's getMenuItems() (a plain
-// server-component fetch) — this file is the admin-only CRUD surface.
-
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api/client";
 import type { MenuCategory, MenuItem } from "@/lib/api/types";
 
 const ADMIN_MENU_KEY = ["admin", "menu"] as const;
 
-/** super_admin / lounge_admin — full list, including hidden items. */
 export function useMenuItemsAdmin(options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ADMIN_MENU_KEY,
@@ -29,7 +25,6 @@ export type MenuItemInput = {
   visible?: boolean;
 };
 
-/** tags travels as a comma-separated string on the wire, not a JSON array. */
 function toMenuFormData(input: Partial<MenuItemInput>): FormData {
   const form = new FormData();
   if (input.name !== undefined) form.set("name", input.name);
@@ -43,7 +38,6 @@ function toMenuFormData(input: Partial<MenuItemInput>): FormData {
   return form;
 }
 
-/** Creates a menu item. Multipart — image is required on create. */
 export function useCreateMenuItem() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -53,7 +47,6 @@ export function useCreateMenuItem() {
   });
 }
 
-/** Updates a menu item. All fields optional — only send what changed. */
 export function useUpdateMenuItem() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -63,7 +56,6 @@ export function useUpdateMenuItem() {
   });
 }
 
-/** Permanently deletes a menu item. */
 export function useDeleteMenuItem() {
   const queryClient = useQueryClient();
   return useMutation({

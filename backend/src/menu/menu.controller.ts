@@ -34,7 +34,6 @@ const imagePipe = new ParseFilePipe({
 export class MenuController {
   constructor(private readonly menuService: MenuService) {}
 
-  // public: the Lounge page's menu grid
   @Get()
   async listVisible() {
     const items = await this.menuService.listVisible();

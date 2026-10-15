@@ -21,7 +21,6 @@ import { AdminRole } from '../admin/schemas/admin.schema';
 export class ContactController {
   constructor(private readonly contactService: ContactService) {}
 
-  // public: the contact form posts here
   @UseGuards(ThrottlerGuard)
   @Throttle({ default: { ttl: 60000, limit: 3 } })
   @Post()

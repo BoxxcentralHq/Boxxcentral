@@ -7,9 +7,6 @@ import { cn } from "@/lib/utils";
 
 const naira = (amount: number) => `₦${amount.toLocaleString("en-NG")}`;
 
-/** Same visual language as the shared PricingCard, but click-driven — picking
- *  a plan opens the subscribe dialog instead of navigating to a link, since
- *  each GymBoxx plan is its own payable SKU. */
 export default function GymPlanCard({
   plan,
   onSelect,

@@ -9,7 +9,6 @@ import { Dialog, DialogPortal } from "@/components/ui/dialog";
 import type { NowShowingMovie } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 
-/** YouTube watch/share/embed links → embed URL; anything else plays as a file. */
 function youtubeEmbed(url: string) {
   const match = url.match(
     /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/,
@@ -19,12 +18,6 @@ function youtubeEmbed(url: string) {
     : null;
 }
 
-/**
- * Full-screen trailer player. The poster, blurred, glows behind the video
- * like a darkened auditorium; title above, details and a ticket CTA below.
- * Built on the raw Radix primitive since the shared DialogContent is a
- * bottom sheet on mobile, which suits forms but not a 16:9 player.
- */
 export default function TrailerDialog({
   movie,
   open,
@@ -54,7 +47,6 @@ export default function TrailerDialog({
           aria-describedby={undefined}
           className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4 outline-none data-open:animate-in data-open:fade-in-0 data-open:zoom-in-[0.97] data-closed:animate-out data-closed:fade-out-0 sm:p-8"
         >
-          {/* Ambient glow from the poster */}
           {movie?.posterUrl && (
             <div aria-hidden className="pointer-events-none fixed inset-0">
               <Image
@@ -69,7 +61,6 @@ export default function TrailerDialog({
 
           {movie && (
             <div className="relative w-full max-w-[min(56rem,calc(60svh*16/9))]">
-              {/* Title bar */}
               <div className="mb-4 flex items-end justify-between gap-4">
                 <div className="min-w-0">
                   <p className="text-xs font-semibold tracking-wider text-boxx-white/60 uppercase">
@@ -89,7 +80,6 @@ export default function TrailerDialog({
                 </DialogPrimitive.Close>
               </div>
 
-              {/* Player — unmounts on close, so playback stops with it */}
               <div className="aspect-video w-full overflow-hidden rounded-xl bg-black shadow-[0_40px_120px_-30px_rgb(0_0_0/1)] ring-1 ring-white/10">
                 {open &&
                   url &&
@@ -113,7 +103,6 @@ export default function TrailerDialog({
                   ))}
               </div>
 
-              {/* Details + CTA */}
               <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-boxx-mist">

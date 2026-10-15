@@ -12,17 +12,10 @@ import { cn } from "@/lib/utils";
 
 type MagneticProps = {
   children: React.ReactNode;
-  /** Fraction of the cursor offset the element chases (0–1). */
   strength?: number;
   className?: string;
 };
 
-/**
- * Cursor-magnetic morph: while the pointer is over the wrapper, the child
- * is pulled toward the cursor on springs, swells slightly, and tilts in the
- * pull direction — then snaps elastically back to rest on leave.
- * Pointer-less and reduced-motion users get the child untouched.
- */
 export default function Magnetic({
   children,
   strength = 0.35,
@@ -31,13 +24,11 @@ export default function Magnetic({
   const ref = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
 
-  /* Raw cursor offset from the element's centre, in px. */
   const offsetX = useMotionValue(0);
   const offsetY = useMotionValue(0);
 
   const springConfig = { stiffness: 180, damping: 14, mass: 0.4 };
 
-  /* Chase the cursor at a fraction of the offset. */
   const x = useSpring(
     useTransform(offsetX, (v) => v * strength),
     springConfig,
@@ -47,7 +38,6 @@ export default function Magnetic({
     springConfig,
   );
 
-  /* Morph: swell with pull distance, tilt with horizontal pull. */
   const distance = useTransform(() =>
     Math.hypot(offsetX.get(), offsetY.get()),
   );

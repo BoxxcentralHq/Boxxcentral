@@ -7,19 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { experiences } from "@/lib/experiences";
 
-/**
- * Sticky offsets per card: each panel pins slightly lower than the one
- * before, so earlier chapters peek out above as the next slides over.
- * (Static classes — Tailwind can't see computed class names.)
- */
 const stickyTops = ["top-24", "top-28", "top-32", "top-36"];
 
-/**
- * The four experiences as full-image "chapters" that stack over one
- * another on scroll. No <Reveal> here: a sticky element can only pin
- * within its parent's bounds, so the cards must sit directly in the
- * scrolling flow — the stacking itself is the animation.
- */
 export default function ServiceCatalogue() {
   return (
     <section className="py-24 sm:py-32">
@@ -37,10 +26,8 @@ export default function ServiceCatalogue() {
               quality={100}
               className="object-cover"
             />
-            {/* Scrim: readable copy at the bottom, image breathing on top */}
             <div className="absolute inset-0 bg-linear-to-t from-boxx-night via-boxx-night/45 to-boxx-night/10" />
 
-            {/* Chapter number, outlined so it stays quiet */}
             <span
               aria-hidden
               className="absolute right-6 top-5 font-heading text-7xl leading-none text-stroke sm:right-10 sm:text-8xl"
@@ -57,7 +44,6 @@ export default function ServiceCatalogue() {
                 {exp.summary}
               </p>
 
-              {/* A taste of the highlights as quiet glass chips */}
               <ul className="mt-6 hidden flex-wrap gap-2 sm:flex">
                 {exp.highlights.slice(0, 3).map((h) => (
                   <li
@@ -70,7 +56,6 @@ export default function ServiceCatalogue() {
               </ul>
 
               <div className="mt-8 flex flex-wrap items-center gap-4">
-                {/* Only FilmBoxx is bookable — jumps straight to its ticket listing. */}
                 {exp.bookable && (
                   <Button asChild>
                     <Link href={`${exp.href}#now-showing`}>Buy tickets</Link>

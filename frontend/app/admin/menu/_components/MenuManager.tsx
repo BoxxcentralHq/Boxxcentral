@@ -48,7 +48,6 @@ import {
 import { cn } from "@/lib/utils";
 import Pagination from "../../_components/Pagination";
 
-/** The only tags seen in the menu data — kept as toggles rather than free text. */
 const availableTags = [
   "Popular",
   "Spicy",
@@ -90,10 +89,6 @@ const emptyForm: FormState = {
   imageFile: null,
 };
 
-/**
- * LoungeBoxx menu's admin surface — add, edit, hide, and remove items
- * against the real /menu API. Images upload as multipart form data.
- */
 export default function MenuManager() {
   const { data: items, isLoading, isError } = useMenuItemsAdmin();
   const createItem = useCreateMenuItem();
@@ -127,7 +122,6 @@ export default function MenuManager() {
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  // revoke the object URL created for a locally-picked file on unmount/replace
   useEffect(() => {
     return () => {
       if (imagePreview?.startsWith("blob:")) URL.revokeObjectURL(imagePreview);
@@ -247,7 +241,6 @@ export default function MenuManager() {
 
   return (
     <div>
-      {/* Filters + add */}
       <Reveal className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
         <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
           <div className="relative flex-1 sm:max-w-xs">
@@ -296,7 +289,6 @@ export default function MenuManager() {
         </Button>
       </Reveal>
 
-      {/* Table */}
       <Reveal
         delay={100}
         className="mt-6 rounded-2xl border border-boxx-line bg-boxx-coal"
@@ -462,7 +454,6 @@ export default function MenuManager() {
         />
       </Reveal>
 
-      {/* Add / edit dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-lg">
           <div className="p-6">

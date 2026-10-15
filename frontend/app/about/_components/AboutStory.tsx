@@ -20,7 +20,6 @@ export default function AboutStory() {
             eyebrow="Our story"
             title="Built for the whole evening"
           />
-          {/* TODO: replace with the client's real brand story */}
           <div className="mt-8 space-y-5 leading-relaxed">
             <p>
               {site.name} was built on a simple idea: a great night out

@@ -1,7 +1,6 @@
 import { HugeiconsIcon } from "@hugeicons/react";
 import type { IconSvgElement } from "@hugeicons/react";
 
-/** Icon + title + description block for a list, grid, or table with nothing to show. */
 export default function EmptyState({
   icon,
   title,

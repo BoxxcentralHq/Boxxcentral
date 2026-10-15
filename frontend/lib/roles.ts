@@ -1,6 +1,5 @@
 import type { AdminRole } from "@/lib/api/types";
 
-/** Admin surfaces that aren't open to every signed-in role. */
 export type AdminSection =
   | "movies"
   | "messages"
@@ -22,8 +21,6 @@ export function canAccess(role: AdminRole, section: AdminSection): boolean {
   return SECTION_ACCESS[section].includes(role);
 }
 
-// Paths not listed here (the overview, the account page) are open to every
-// signed-in role — only these need a role check.
 const SECTION_BY_PATH: [prefix: string, section: AdminSection][] = [
   ["/admin/movies", "movies"],
   ["/admin/messages", "messages"],

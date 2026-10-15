@@ -6,17 +6,12 @@ import { cn } from "@/lib/utils";
 
 type CountUpProps = {
   value: number;
-  /** Seconds. */
   duration?: number;
   prefix?: string;
   suffix?: string;
   className?: string;
 };
 
-/**
- * Counts up from 0 to `value` once it scrolls into view — for stat tiles.
- * Reduced-motion users get the final number immediately, no tally.
- */
 export default function CountUp({
   value,
   duration = 0.8,

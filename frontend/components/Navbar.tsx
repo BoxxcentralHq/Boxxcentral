@@ -11,10 +11,6 @@ import { bookingCta, navLinks, site } from "@/lib/site";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 
-/**
- * Sub-brand pages swap the navbar logo for their own mark; everywhere else
- * shows the main BoxxCentral logo. Dimensions match each PNG's aspect ratio.
- */
 const brandLogos: Record<
   string,
   { src: string; alt: string; width: number; height: number }
@@ -38,7 +34,6 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const reduceMotion = useReducedMotion();
 
-  // Lock body scroll and allow Escape to dismiss while the full-screen menu is up.
   useEffect(() => {
     if (!open) return;
     document.body.style.overflow = "hidden";
@@ -147,12 +142,6 @@ export default function Navbar() {
         </div>
       </motion.header>
 
-      {/*
-        Full-screen mobile menu. Rendered outside the header's blurred pill on
-        purpose: `backdrop-blur` on an ancestor creates a containing block for
-        `position: fixed` descendants, which would trap this overlay inside
-        the pill's small bounds instead of covering the viewport.
-      */}
       <AnimatePresence>
         {open && (
           <motion.div

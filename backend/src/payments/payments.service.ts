@@ -330,7 +330,6 @@ export class PaymentsService {
     }
   }
 
-  // guest-facing status check — slim response, no gateway internals
   async verifyTransactionStatus(idOrRef: string) {
     let payment = await this.paymentModel.findById(idOrRef).catch(() => null);
     if (!payment) {

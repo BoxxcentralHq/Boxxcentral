@@ -43,7 +43,6 @@ export class CloudinaryService {
 
   async destroyImage(publicId?: string) {
     if (!publicId) return;
-    // a failed cleanup should never block the main operation
     await cloudinary.uploader.destroy(publicId).catch(() => undefined);
   }
 }

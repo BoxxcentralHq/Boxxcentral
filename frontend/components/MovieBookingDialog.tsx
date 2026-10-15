@@ -60,22 +60,13 @@ function Step({ title, children }: { title: string; children: ReactNode }) {
 }
 
 type MovieBookingDialogProps = {
-  /** Last-selected movie — kept truthy through the close animation so the
-   *  dialog doesn't flash empty while it fades out. */
   movie: NowShowingMovie | null;
-  /** Day + time already picked in the listing, if any. */
   initialSelection?: ShowSelection;
   vatRate: number;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
 
-/**
- * Ticket checkout for a public screening.
- * Poster and running order summary on the left; date, showtime, seats and
- * contact details on the right. Films without showtimes skip straight to
- * seats. Remount it (via `key`) per opening to reset its state.
- */
 export default function MovieBookingDialog({
   movie,
   initialSelection,
@@ -185,7 +176,6 @@ export default function MovieBookingDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[92svh] p-0 sm:max-w-3xl">
         <div className="grid sm:grid-cols-[16rem_1fr]">
-          {/* Film panel */}
           <aside className="relative flex items-center gap-4 border-b border-boxx-line p-5 sm:flex-col sm:items-stretch sm:justify-end sm:gap-0 sm:border-r sm:border-b-0 sm:p-0">
             <div className="relative aspect-2/3 w-16 shrink-0 overflow-hidden rounded-md bg-boxx-slate sm:absolute sm:inset-0 sm:w-auto sm:rounded-none sm:rounded-l-2xl">
               {movie.posterUrl && (
@@ -220,7 +210,6 @@ export default function MovieBookingDialog({
                 Choose a showtime and number of seats, then add your details.
               </DialogDescription>
 
-              {/* Order summary — desktop only, mobile shows it by the CTA */}
               <dl className="mt-6 hidden space-y-2 border-t border-boxx-white/15 pt-4 text-sm sm:block">
                 {summary.map((row) => (
                   <div key={row.label} className="flex justify-between gap-3">
@@ -238,7 +227,6 @@ export default function MovieBookingDialog({
             </div>
           </aside>
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="flex flex-col">
             <div className="space-y-8 p-5 sm:p-8">
               <Step title="Pick a day">
@@ -395,7 +383,6 @@ export default function MovieBookingDialog({
               </Step>
             </div>
 
-            {/* Sticky footer */}
             <div className="sticky bottom-0 mt-auto flex items-center gap-4 border-t border-boxx-line bg-boxx-coal p-5 sm:px-8">
               <div className="sm:hidden">
                 <p className="text-xs text-boxx-dim">Total</p>

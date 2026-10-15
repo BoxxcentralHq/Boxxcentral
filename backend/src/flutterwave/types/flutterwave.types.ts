@@ -24,12 +24,6 @@ export interface FlutterwaveInitializePayload {
   customizations: FlutterwaveCustomizations;
 }
 
-/**
- * Webhook payloads arrive in two shapes:
- * V3 (nested): { event: "charge.completed", data: { tx_ref, status, id } }
- * V2 (flat):   { txRef, status, id, "event.type": ... }
- * PaymentsService normalizes both.
- */
 export interface FlutterwaveWebhookPayload {
   event?: string;
   'event.type'?: string;

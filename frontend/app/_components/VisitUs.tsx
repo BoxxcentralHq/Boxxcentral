@@ -3,7 +3,6 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Clock01Icon,
   Location01Icon,
-  // WhatsappIcon,
 } from "@hugeicons/core-free-icons";
 import Container from "@/components/Container";
 import LocationMap from "@/components/LocationMap";

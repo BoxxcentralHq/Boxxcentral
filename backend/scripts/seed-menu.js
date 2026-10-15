@@ -1,20 +1,4 @@
 #!/usr/bin/env node
-/**
- * One-off migration: wipes the lounge menu collection and re-seeds it from
- * frontend/lib/menudata.json, uploading each item's image from
- * frontend/public/boxxcentral-images/ through the real /menu API (so
- * Cloudinary assets get created the same way the admin dashboard creates
- * them — not a direct DB write).
- *
- * Usage:
- *   MENU_SEED_API_BASE=https://staging-api.boxxcentral.com/api/v1 \
- *   MENU_SEED_ADMIN_EMAIL=you@boxxcentral.com \
- *   MENU_SEED_ADMIN_PASSWORD=•••• \
- *   node backend/scripts/seed-menu.js
- *
- * Add MENU_SEED_DRY_RUN=1 to log the plan without deleting or creating
- * anything — always run this first against a target you haven't used yet.
- */
 
 const fs = require('fs');
 const path = require('path');
@@ -37,9 +21,6 @@ if (!API_BASE || !ADMIN_EMAIL || !ADMIN_PASSWORD) {
   process.exit(1);
 }
 
-// Short, hand-written copy per item — menudata.json has no descriptions,
-// and the API requires one. "Popcorn" is deliberately listed once (Food);
-// the Pastries duplicate in menudata.json is skipped as a data mistake.
 const DESCRIPTIONS = {
   'Chicken Loaded Fries': 'Crispy fries piled high with seasoned chicken, sauce, and cheese.',
   'Beef Sliders': 'Mini beef patties stacked with cheese and all the classic fixings.',

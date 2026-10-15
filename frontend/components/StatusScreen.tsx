@@ -9,7 +9,6 @@ type StatusScreenProps = {
   actions: ReactNode;
 };
 
-/** Full-height branded screen for status routes (404, error boundary). */
 export default function StatusScreen({
   eyebrow,
   title,

@@ -3,12 +3,6 @@
 import { useSyncExternalStore } from "react";
 import type { Showtime } from "./api/types";
 
-/**
- * Date/showtime helpers shared by the FilmBoxx listing and the ticket
- * dialog. All "now" maths is in venue time — Lagos is UTC+1 year-round,
- * so it's a fixed offset with no DST to worry about.
- */
-
 export const DAYS_AHEAD = 7;
 const LAGOS_OFFSET_MS = 60 * 60 * 1000;
 const DAY_MS = 86_400_000;
@@ -33,20 +27,14 @@ export type ShowDay = {
   weekday: string;
   date: number;
   month: string;
-  /** "YYYY-MM-DD" in Lagos time */
   iso: string;
 };
 
-/** A day + time picked from the listing, handed to the ticket dialog. */
 export type ShowSelection = {
   dayOffset: number;
   showtimeId: string;
 };
 
-/*
- * Current minute, client-only. The server snapshot is null so the first
- * client render matches SSR; anything time-dependent fills in after.
- */
 const subscribeMinute = (onChange: () => void) => {
   const id = setInterval(onChange, 30_000);
   return () => clearInterval(id);
@@ -71,7 +59,6 @@ export function getShowDays(nowMinute: number): ShowDay[] {
   });
 }
 
-/** Minutes past midnight in Lagos for `dayOffset` 0, else null (nothing past). */
 export function getCutoff(nowMinute: number | null, dayOffset: number) {
   if (nowMinute === null || dayOffset !== 0) return null;
   return Math.floor(((nowMinute * 60_000 + LAGOS_OFFSET_MS) % DAY_MS) / 60_000);
@@ -100,7 +87,6 @@ export function lowestPrice(showtimes: Showtime[]) {
     : null;
 }
 
-/** "13:30" → "1:30 PM" */
 export function formatTime(time: string) {
   const [h, m] = time.split(":").map(Number);
   return `${h % 12 || 12}:${String(m).padStart(2, "0")} ${h < 12 ? "AM" : "PM"}`;

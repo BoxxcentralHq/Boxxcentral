@@ -8,10 +8,6 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { Experience } from "@/lib/experiences";
 
-/**
- * Story + media section shared by every sub-brand page. Copy, media, and
- * column order all come from the experience's `showcase` data.
- */
 export default function ExperienceShowcase({
   experience,
 }: {
@@ -32,13 +28,6 @@ export default function ExperienceShowcase({
           <div className="mt-10">
             <HighlightList items={experience.highlights} />
           </div>
-          {/* 
-          {experience.bookable && (
-            <Button asChild size="lg" className="mt-10">
-              <Link href="#book">Book {experience.name}</Link>
-            </Button>
-          )}
-              */}
         </Reveal>
 
         <Reveal

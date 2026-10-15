@@ -1,8 +1,6 @@
 import type { GymSubscriptionStatus } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 
-/** Shared building blocks for admin pages. */
-
 const gymStatusStyles: Record<GymSubscriptionStatus, string> = {
   pending: "border-boxx-line text-boxx-dim",
   paid: "border-boxx-red/40 bg-boxx-red/10 text-boxx-red-glow",

@@ -6,18 +6,16 @@ import type { MonthlyRevenue } from "@/lib/api/types";
 import EmptyState from "@/components/EmptyState";
 
 const CHART_RED = "#fa0306";
-const GRID_COLOR = "#333333"; // boxx-line — one step off the boxx-coal card surface
+const GRID_COLOR = "#333333";
 
 const naira = (amount: number) => `₦${amount.toLocaleString("en-NG")}`;
 
-/** Compact axis/label form: 450000 -> "₦450K", 1250000 -> "₦1.3M". */
 function compactNaira(amount: number) {
   if (amount >= 1_000_000) return `₦${(amount / 1_000_000).toFixed(1)}M`;
   if (amount >= 1_000) return `₦${Math.round(amount / 1_000)}K`;
   return naira(amount);
 }
 
-/** Rounds a max value up to a clean gridline top (e.g. 450,000 -> 500,000). */
 function niceMax(max: number) {
   if (max <= 0) return 1;
   const magnitude = 10 ** Math.floor(Math.log10(max));
@@ -29,11 +27,6 @@ const HEIGHT = 280;
 const PADDING = { top: 36, right: 12, bottom: 32, left: 56 };
 const BAR_MAX_WIDTH = 24;
 
-/**
- * Monthly revenue as a single-series bar chart — plain SVG, no charting
- * library needed for six bars. Brand red is validated for contrast against
- * the boxx-coal card surface (see dataviz skill's palette validator).
- */
 export default function RevenueChart({ data }: { data: MonthlyRevenue[] }) {
   const [hovered, setHovered] = useState<number | null>(null);
   const gradientId = useId();
@@ -79,7 +72,6 @@ export default function RevenueChart({ data }: { data: MonthlyRevenue[] }) {
           </linearGradient>
         </defs>
 
-        {/* Gridlines + y-axis ticks */}
         {ticks.map((tick) => (
           <g key={tick}>
             <line
@@ -102,7 +94,6 @@ export default function RevenueChart({ data }: { data: MonthlyRevenue[] }) {
           </g>
         ))}
 
-        {/* Bars */}
         {data.map((d, i) => {
           const slotX = PADDING.left + i * slotWidth;
           const barX = slotX + (slotWidth - barWidth) / 2;
@@ -113,7 +104,6 @@ export default function RevenueChart({ data }: { data: MonthlyRevenue[] }) {
 
           return (
             <g key={d.month}>
-              {/* transparent hit target — bigger than the painted bar */}
               <rect
                 x={slotX}
                 y={PADDING.top}
@@ -187,7 +177,6 @@ export default function RevenueChart({ data }: { data: MonthlyRevenue[] }) {
         })}
       </svg>
 
-      {/* Accessible fallback — same data as the chart, for screen readers */}
       <table className="sr-only">
         <caption>Monthly revenue</caption>
         <thead>

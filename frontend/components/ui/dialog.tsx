@@ -62,15 +62,12 @@ function DialogContent({
         data-slot="dialog-content"
         className={cn(
           "fixed z-50 grid max-h-[85svh] gap-0 overflow-y-auto border border-boxx-line bg-boxx-coal shadow-2xl ease-out data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
-          // Mobile: bottom sheet — pinned to the bottom edge, slides up on open.
           "max-sm:inset-x-0 max-sm:top-auto max-sm:bottom-0 max-sm:w-full max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-t-2xl max-sm:rounded-b-none max-sm:duration-300 max-sm:data-open:slide-in-from-bottom max-sm:data-open:zoom-in-100 max-sm:data-closed:slide-out-to-bottom max-sm:data-closed:zoom-out-100",
-          // Desktop: centered modal, scales in/out from the middle of the screen.
           "sm:top-1/2 sm:left-1/2 sm:w-[calc(100%-2rem)] sm:max-w-lg sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl sm:duration-150 sm:data-open:zoom-in-95 sm:data-closed:zoom-out-95",
           className
         )}
         {...props}
       >
-        {/* Drag-handle affordance — mobile bottom sheet only */}
         <span
           aria-hidden
           className="mx-auto mt-3 mb-1 h-1.5 w-10 shrink-0 rounded-full bg-boxx-line sm:hidden"

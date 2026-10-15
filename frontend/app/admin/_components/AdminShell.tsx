@@ -30,7 +30,6 @@ type NavItem = {
   label: string;
   href: string;
   icon: IconSvgElement;
-  /** Omitted means every signed-in role can see this item. */
   section?: AdminSection;
 };
 
@@ -66,10 +65,6 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
   );
 }
 
-/**
- * Admin chrome: fixed sidebar on desktop, top strip on mobile, and the
- * client-side session guard. Children render only for signed-in staff.
- */
 export default function AdminShell({
   children,
 }: {
@@ -86,20 +81,17 @@ export default function AdminShell({
     if (isError) router.replace("/login");
   }, [isError, router]);
 
-  // Deep-linking into a section this role can't use bounces back to the overview.
   useEffect(() => {
     if (!profile) return;
     const section = sectionForPath(pathname);
     if (section && !canAccess(profile.role, section)) router.replace("/admin");
   }, [profile, pathname, router]);
 
-  // A route change means a nav link was just used — close the mobile drawer.
   if (pathname !== prevPathname) {
     setPrevPathname(pathname);
     setNavOpen(false);
   }
 
-  // Lock body scroll and allow Escape to dismiss while the mobile drawer is up.
   useEffect(() => {
     if (!navOpen) return;
     document.body.style.overflow = "hidden";
@@ -139,7 +131,6 @@ export default function AdminShell({
 
   return (
     <div className="flex min-h-svh">
-      {/* Desktop sidebar */}
       <aside className="sticky top-0 hidden h-svh w-64 shrink-0 flex-col border-r border-boxx-line bg-boxx-coal p-6 lg:flex">
         <Link href="/admin" className="inline-block">
           <Image src="/logo.png" alt={site.name} width={130} height={43} />
@@ -168,9 +159,7 @@ export default function AdminShell({
         </div>
       </aside>
 
-      {/* Main column */}
       <div className="flex min-w-0 flex-1 flex-col">
-        {/* Mobile top strip */}
         <header className="flex items-center justify-between border-b border-boxx-line bg-boxx-coal px-5 py-4 lg:hidden">
           <Link href="/admin">
             <Image src="/logo.png" alt={site.name} width={110} height={37} />
@@ -189,7 +178,6 @@ export default function AdminShell({
         <div className="flex-1 px-5 py-8 sm:px-8 lg:px-10">{children}</div>
       </div>
 
-      {/* Mobile nav drawer */}
       <AnimatePresence>
         {navOpen && (
           <>

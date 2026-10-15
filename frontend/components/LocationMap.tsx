@@ -4,20 +4,12 @@ import { contact, site } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 type LocationMapProps = {
-  /** Tailwind aspect utility, e.g. "aspect-[4/3]", "aspect-[4/5]". */
   aspect?: string;
   className?: string;
 };
 
 const mapQuery = encodeURIComponent(contact.mapQuery);
 
-/**
- * Interactive Google Maps embed for the facility, framed like every other
- * media block on the site. The keyless `output=embed` endpoint geocodes
- * the address directly; the invert/hue-rotate filter re-skins Google's
- * light tiles to sit naturally on the dark canvas. An overlay pill opens
- * the real Google Maps for directions.
- */
 export default function LocationMap({
   aspect = "aspect-[4/3]",
   className,

@@ -4,13 +4,7 @@ const { URL } = require("url");
 const HOST = "0.0.0.0";
 const PORT = 8088;
 
-// --------------------------------------------------
-// PER-DEVICE STATE
-// Tracks whether we've already seen a registry POST
-// for a given serial number, so we don't keep telling
-// the device to re-register on every handshake.
-// --------------------------------------------------
-const devices = new Map(); // SN -> { registered: bool, lastSeen: Date, options: {} }
+const devices = new Map();
 
 function getDevice(sn) {
     if (!devices.has(sn)) {
@@ -19,13 +13,6 @@ function getDevice(sn) {
     return devices.get(sn);
 }
 
-// --------------------------------------------------
-// CONNECTION TRACKING
-// Tags every underlying TCP socket with an id and a
-// counter of how many requests it has served, so we can
-// tell whether the device is reusing one keep-alive
-// connection or opening a new one every cycle.
-// --------------------------------------------------
 let nextSocketId = 1;
 const socketMeta = new WeakMap();
 
@@ -51,11 +38,6 @@ function tagSocket(socket) {
 
 let lastRequestTime = null;
 
-// --------------------------------------------------
-// COMMAND QUEUE
-// SN -> array of raw command strings waiting to be
-// delivered on the device's next GET /iclock/getrequest.
-// --------------------------------------------------
 const commandQueues = new Map();
 
 function queueCommand(sn, cmd) {
@@ -89,10 +71,6 @@ const server = http.createServer((req, res) => {
     console.log("========================================");
     console.log("Headers:", req.headers);
 
-    // --------------------------------------------------
-    // PHASE 1: DEVICE HANDSHAKE
-    // GET /iclock/cdata
-    // --------------------------------------------------
     if (req.method === "GET" && path === "/iclock/cdata") {
         const sn = query.SN || "UNKNOWN";
         const device = getDevice(sn);
@@ -104,11 +82,6 @@ const server = http.createServer((req, res) => {
         console.log("→ PushOptionsFlag:", query.PushOptionsFlag);
         console.log("→ Already registered?", device.registered);
 
-        // Isolating one variable at a time: a verified real face scan produced
-        // no push at all, even with the Go reference server (also bare "OK")
-        // listening. Testing whether this firmware needs an explicit signal
-        // to start pushing live events, rather than assuming that's the
-        // default when the field is omitted.
         const response = "OK\nRealtime=1";
 
         console.log("\n← Sending handshake response:", JSON.stringify(response));
@@ -122,10 +95,6 @@ const server = http.createServer((req, res) => {
         return res.end(response);
     }
 
-    // --------------------------------------------------
-    // PHASE 2: DEVICE REGISTRATION
-    // POST /iclock/registry
-    // --------------------------------------------------
     if (req.method === "POST" && path === "/iclock/registry") {
         const sn = query.SN || "UNKNOWN";
         let body = "";
@@ -142,8 +111,6 @@ const server = http.createServer((req, res) => {
             device.registered = true;
             device.lastSeen = new Date();
 
-            // Parse the comma-separated key=value payload for
-            // later inspection/debugging.
             body.split(",").forEach((pair) => {
                 const idx = pair.indexOf("=");
                 if (idx === -1) return;
@@ -168,10 +135,6 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    // --------------------------------------------------
-    // PHASE 3: DEVICE POLLS FOR COMMANDS
-    // GET /iclock/getrequest
-    // --------------------------------------------------
     if (req.method === "GET" && path === "/iclock/getrequest") {
         const sn = query.SN || "UNKNOWN";
         const device = getDevice(sn);
@@ -180,10 +143,6 @@ const server = http.createServer((req, res) => {
         console.log("→ getrequest from:", sn);
 
         const pending = drainCommands(sn);
-        // Command wire format is "C:<id>:<cmd>\n" per line (verified against
-        // real device traffic, see s0x90/zkteco-adms datasheet). Plain "OK"
-        // (no trailing newline) when nothing is queued, matching that same
-        // reference server.
         const response = pending.length > 0 ? pending.map((cmd) => `${cmd}\n`).join("") : "OK";
 
         if (pending.length > 0) {
@@ -202,10 +161,6 @@ const server = http.createServer((req, res) => {
         return res.end(response);
     }
 
-    // --------------------------------------------------
-    // DEBUG: queue a test command for a device
-    // GET /debug/queue-command?SN=xxx&cmd=CHECK
-    // --------------------------------------------------
     if (req.method === "GET" && path === "/debug/queue-command") {
         const sn = query.SN || "UNKNOWN";
         const cmd = query.cmd || "CHECK";
@@ -216,10 +171,6 @@ const server = http.createServer((req, res) => {
         return res.end(body);
     }
 
-    // --------------------------------------------------
-    // PHASE 4: DEVICE DATA
-    // POST /iclock/cdata
-    // --------------------------------------------------
     if (req.method === "POST" && path === "/iclock/cdata") {
         const sn = query.SN || "UNKNOWN";
         let body = "";
@@ -247,10 +198,6 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    // --------------------------------------------------
-    // PHASE 5: COMMAND RESULT
-    // POST /iclock/devicecmd
-    // --------------------------------------------------
     if (req.method === "POST" && path === "/iclock/devicecmd") {
         let body = "";
 
@@ -273,10 +220,6 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    // --------------------------------------------------
-    // DEBUG: current device state snapshot
-    // GET /debug/devices
-    // --------------------------------------------------
     if (req.method === "GET" && path === "/debug/devices") {
         const snapshot = {};
         for (const [sn, d] of devices.entries()) {
@@ -287,18 +230,12 @@ const server = http.createServer((req, res) => {
         return res.end(body);
     }
 
-    // --------------------------------------------------
-    // UNKNOWN ENDPOINT
-    // --------------------------------------------------
     console.log("⚠️ Unknown endpoint:", path);
 
     res.writeHead(404, { "Content-Type": "text/plain" });
     res.end("NOT FOUND");
 });
 
-// --------------------------------------------------
-// START SERVER
-// --------------------------------------------------
 server.keepAliveTimeout = 65000;
 server.headersTimeout = 66000;
 
@@ -311,10 +248,6 @@ server.listen(PORT, HOST, () => {
     console.log(`Debug device state at: http://192.168.1.100:${PORT}/debug/devices`);
     console.log("========================================\n");
 });
-
-// --------------------------------------------------
-// ERROR HANDLING
-// --------------------------------------------------
 
 server.on("error", (err) => {
     console.error("Server error:", err);

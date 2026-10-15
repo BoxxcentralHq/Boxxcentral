@@ -9,7 +9,6 @@ import Container from "@/components/Container";
 import Reveal from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
 
-/* TODO: placeholder values copy — refine with the client's own words */
 const values = [
   {
     icon: Diamond02Icon,

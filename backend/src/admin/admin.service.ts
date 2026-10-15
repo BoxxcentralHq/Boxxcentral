@@ -39,7 +39,7 @@ export class AdminService {
       role: admin.role,
     };
 
-    const accessToken = this.jwtService.sign(payload); // 15m, JWT_SECRET (module config)
+    const accessToken = this.jwtService.sign(payload);
     const refreshToken = this.jwtService.sign(payload, {
       secret: this.configService.getOrThrow<string>('JWT_REFRESH_SECRET'),
       expiresIn: '7d',

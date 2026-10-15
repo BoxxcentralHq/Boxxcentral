@@ -1,7 +1,6 @@
 import { AxiosError } from "axios";
 import { ApiError } from "../core";
 
-// normalizes any axios failure (HTTP or network) into our typed ApiError
 export function toApiError(error: unknown): ApiError {
   if (error instanceof ApiError) return error;
 

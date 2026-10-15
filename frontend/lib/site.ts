@@ -5,11 +5,6 @@ import {
   WhatsappIcon,
 } from "@hugeicons/core-free-icons";
 
-/**
- * Global site configuration — single source of truth for brand copy,
- * navigation, and contact details.
- */
-
 export const site = {
   name: "BoxxCentral",
   tagline: "Four experiences. One address.",

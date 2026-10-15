@@ -8,7 +8,6 @@ import type {
   MessagesPage,
 } from "@/lib/api/types";
 
-/** Public — submits the contact form. Server rate-limits this to 3/min. */
 export function useCreateContactMessage() {
   return useMutation({
     mutationFn: (body: CreateContactMessageBody) =>
@@ -24,7 +23,6 @@ export type MessagesQuery = {
   unread?: boolean;
 };
 
-/** super_admin-only paginated inbox. */
 export function useMessagesList(query: MessagesQuery, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: [...ADMIN_MESSAGES_KEY, query] as const,
@@ -33,7 +31,6 @@ export function useMessagesList(query: MessagesQuery, options?: { enabled?: bool
   });
 }
 
-/** Marks a message read. */
 export function useMarkMessageRead() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -44,7 +41,6 @@ export function useMarkMessageRead() {
   });
 }
 
-/** Permanently deletes a message. */
 export function useDeleteMessage() {
   const queryClient = useQueryClient();
   return useMutation({

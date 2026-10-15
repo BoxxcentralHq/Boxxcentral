@@ -1,15 +1,11 @@
 "use client";
 
-// Public movie reads go through lib/api/server.ts's getMovies() (a plain
-// server-component fetch) — this file is the admin-only CRUD surface.
-
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api/client";
 import type { Movie } from "@/lib/api/types";
 
 const ADMIN_MOVIES_KEY = ["admin", "movies"] as const;
 
-/** super_admin / cinema_admin — full list, including hidden movies. */
 export function useMoviesAdmin() {
   return useQuery({
     queryKey: ADMIN_MOVIES_KEY,
@@ -23,7 +19,6 @@ export type MovieInput = {
   genre?: string;
   durationMins?: number;
   poster?: File;
-  /** PATCH-only per the API — never sent on create. */
   visible?: boolean;
 };
 
@@ -38,7 +33,6 @@ function toMovieFormData(input: Partial<MovieInput>): FormData {
   return form;
 }
 
-/** Creates a movie. Multipart — file field is `poster`. */
 export function useCreateMovie() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -48,7 +42,6 @@ export function useCreateMovie() {
   });
 }
 
-/** Updates a movie. All fields optional — only send what changed. */
 export function useUpdateMovie() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -58,7 +51,6 @@ export function useUpdateMovie() {
   });
 }
 
-/** Permanently deletes a movie. */
 export function useDeleteMovie() {
   const queryClient = useQueryClient();
   return useMutation({

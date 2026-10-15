@@ -10,7 +10,6 @@ type PaginationProps = {
   onPageChange: (page: number) => void;
 };
 
-/** Shared prev/next pager for admin tables — renders nothing for a single page. */
 export default function Pagination({ page, totalPages, total, onPageChange }: PaginationProps) {
   if (totalPages <= 1) return null;
 

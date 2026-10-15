@@ -20,11 +20,6 @@ const naira = (amount: number) => `₦${amount.toLocaleString("en-NG")}`;
 const ROTATE_MS = 9000;
 const MAX_FEATURED = 5;
 
-/**
- * Full-bleed featured-film hero: the movie's still fills the screen, copy
- * sits bottom-left. The first few films rotate (paused on hover and for
- * reduced-motion users), with prev/next controls bottom-right.
- */
 export default function CinemaHero({
   movies,
   fallbackVideo,
@@ -70,7 +65,6 @@ export default function CinemaHero({
       onMouseLeave={() => setPaused(false)}
       className="relative h-svh min-h-150 overflow-hidden bg-boxx-night"
     >
-      {/* Background still */}
       <AnimatePresence initial={false}>
         <motion.div
           key={movie._id}
@@ -107,7 +101,6 @@ export default function CinemaHero({
         </motion.div>
       </AnimatePresence>
 
-      {/* Just enough shade for the copy to read */}
       <div className="absolute inset-0 bg-linear-to-t from-boxx-night via-boxx-night/40 to-boxx-night/20" />
       <div className="absolute inset-0 bg-linear-to-r from-boxx-night/80 via-boxx-night/20 to-transparent" />
 

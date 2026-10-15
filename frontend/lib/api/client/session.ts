@@ -1,8 +1,6 @@
 import axios from "axios";
 import { API_URL } from "../core";
 
-// single-flight: concurrent 401s share one refresh call — the backend
-// treats refresh-token reuse as theft and kills the session
 let refreshInFlight: Promise<boolean> | null = null;
 
 export function refreshSession(): Promise<boolean> {

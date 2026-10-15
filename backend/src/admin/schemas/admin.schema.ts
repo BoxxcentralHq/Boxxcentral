@@ -24,7 +24,6 @@ export class Admin {
   @Prop({ type: String, enum: AdminRole, default: AdminRole.CINEMA_ADMIN })
   role: AdminRole;
 
-  // argon2 hash of the active refresh token; null = logged out
   @Prop({ type: String, default: null, select: false })
   refreshTokenHash: string | null;
 }

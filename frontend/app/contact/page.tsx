@@ -22,7 +22,6 @@ export default function ContactPage() {
         description="Questions, group bookings, events — drop us a message or talk to us on WhatsApp."
       />
 
-      {/* The form and the "visit us" panel, side by side */}
       <section className="py-24 sm:py-32">
         <Container className="grid items-start gap-10 lg:grid-cols-5 lg:gap-14">
           <Reveal variant="left" className="lg:col-span-3">
@@ -34,7 +33,6 @@ export default function ContactPage() {
         </Container>
       </section>
 
-      {/* Full-width map */}
       <section className="pb-24 sm:pb-32">
         <Container>
           <Reveal>

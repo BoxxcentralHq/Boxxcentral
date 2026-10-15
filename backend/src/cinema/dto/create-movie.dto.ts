@@ -14,7 +14,6 @@ export class CreateMovieDto {
   @IsString()
   genre?: string;
 
-  // multipart form fields arrive as strings
   @IsOptional()
   @Type(() => Number)
   @IsInt()

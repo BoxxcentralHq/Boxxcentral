@@ -295,7 +295,6 @@ export class EmailService {
     );
   }
 
-  /** Shared header/footer chrome for both membership emails. */
   private membershipEmailShell(heading: string, bodyRows: string): string {
     const headingFont =
       "font-family:'Anton',Impact,'Arial Narrow Bold',sans-serif;";
