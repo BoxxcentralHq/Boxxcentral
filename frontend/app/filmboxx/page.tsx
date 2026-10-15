@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { getMovies } from "@/lib/api/server";
-import { dummyMovies } from "@/lib/dummy-movies";
+import { getCinemaSettings, getNowShowing } from "@/lib/api/server";
 import { getExperience } from "@/lib/experiences";
 import CinemaLobby from "./_components/CinemaLobby";
 
@@ -13,9 +12,16 @@ export const metadata: Metadata = {
 };
 
 export default async function FilmboxxPage() {
-  const catalog = await getMovies();
-  /* No catalog (API down or nothing visible) — show placeholder films */
-  const movies = catalog && catalog.length > 0 ? catalog : dummyMovies;
+  const [movies, settings] = await Promise.all([
+    getNowShowing(),
+    getCinemaSettings(),
+  ]);
 
-  return <CinemaLobby movies={movies} fallbackVideo={filmboxx.hero.videoSrc} />;
+  return (
+    <CinemaLobby
+      movies={movies ?? []}
+      vatRate={settings?.vatRate ?? 0}
+      fallbackVideo={filmboxx.hero.videoSrc}
+    />
+  );
 }

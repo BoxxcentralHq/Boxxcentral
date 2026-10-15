@@ -22,6 +22,15 @@ import {
   GymSubscriptionDocument,
   GymSubscriptionStatus,
 } from '../gym/schemas/gym-subscription.schema';
+import {
+  Screening,
+  ScreeningDocument,
+} from '../screenings/schemas/screening.schema';
+import {
+  TicketOrder,
+  TicketOrderDocument,
+  TicketOrderStatus,
+} from '../screenings/schemas/ticket-order.schema';
 import { FlutterwaveService } from '../flutterwave/flutterwave.service';
 import { FlutterwaveWebhookPayload } from '../flutterwave/types/flutterwave.types';
 import { EmailService } from '../email/email.service';
@@ -36,6 +45,10 @@ export class PaymentsService {
     @InjectModel(Booking.name) private bookingModel: Model<BookingDocument>,
     @InjectModel(GymSubscription.name)
     private gymSubscriptionModel: Model<GymSubscriptionDocument>,
+    @InjectModel(TicketOrder.name)
+    private ticketOrderModel: Model<TicketOrderDocument>,
+    @InjectModel(Screening.name)
+    private screeningModel: Model<ScreeningDocument>,
     private flutterwaveService: FlutterwaveService,
     private emailService: EmailService,
   ) {}
@@ -200,6 +213,94 @@ export class PaymentsService {
     if (payment.subscriptionId) {
       await this.confirmSubscription(payment, justPaid);
     }
+    if (payment.ticketOrderId) {
+      await this.confirmTicketOrder(payment, justPaid);
+    }
+  }
+
+  private async confirmTicketOrder(
+    payment: PaymentDocument,
+    justPaid: boolean,
+  ) {
+    let order = await this.ticketOrderModel.findOneAndUpdate(
+      { _id: payment.ticketOrderId, status: TicketOrderStatus.PENDING },
+      { status: TicketOrderStatus.PAID },
+      { new: true },
+    );
+    if (order) {
+      await this.screeningModel.updateOne(
+        { _id: order.screeningId },
+        { $inc: { seatsHeld: -order.tickets, seatsSold: order.tickets } },
+      );
+    } else if (justPaid) {
+      order = await this.reseatExpiredOrder(payment);
+    }
+    if (!order) return;
+
+    try {
+      await this.emailService.sendTicketConfirmation({
+        guestName: order.guestName,
+        guestEmail: order.guestEmail,
+        guestPhone: order.guestPhone,
+        orderRef: order.orderRef,
+        movieTitle: order.movieTitle,
+        screen: order.screen,
+        date: order.date,
+        time: order.time,
+        tickets: order.tickets,
+        subtotal: order.subtotal,
+        vatAmount: order.vatAmount,
+        totalPrice: order.totalPrice,
+      });
+    } catch (emailError) {
+      this.logger.error(
+        `[Webhook] Email dispatch failed for ${payment.reference}: ${(emailError as Error).message}`,
+      );
+    }
+  }
+
+  private async reseatExpiredOrder(payment: PaymentDocument) {
+    const expired = await this.ticketOrderModel.findOne({
+      _id: payment.ticketOrderId,
+      status: TicketOrderStatus.EXPIRED,
+    });
+    if (!expired) return null;
+
+    const seated = await this.screeningModel.findOneAndUpdate(
+      {
+        _id: expired.screeningId,
+        $expr: {
+          $lte: [
+            { $add: ['$seatsHeld', '$seatsSold', expired.tickets] },
+            '$capacity',
+          ],
+        },
+      },
+      { $inc: { seatsSold: expired.tickets } },
+    );
+    if (!seated) {
+      await this.paymentModel.updateOne(
+        { _id: payment._id },
+        { needsReview: true, reviewReason: 'sold_out' },
+      );
+      this.logger.error(
+        `[Webhook] ${payment.reference} paid after expiry, screening sold out — flagged for review`,
+      );
+      return null;
+    }
+
+    const order = await this.ticketOrderModel.findOneAndUpdate(
+      { _id: expired._id, status: TicketOrderStatus.EXPIRED },
+      { status: TicketOrderStatus.PAID },
+      { new: true },
+    );
+    if (!order) {
+      await this.screeningModel.updateOne(
+        { _id: expired.screeningId },
+        { $inc: { seatsSold: -expired.tickets } },
+      );
+    }
+    return order;
   }
 
   private async confirmBooking(payment: PaymentDocument, justPaid: boolean) {

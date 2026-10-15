@@ -13,6 +13,7 @@ export enum PaymentStatus {
 export const PAYMENT_REVIEW_REASONS = [
   'amount_mismatch',
   'slot_taken',
+  'sold_out',
 ] as const;
 export type PaymentReviewReason = (typeof PAYMENT_REVIEW_REASONS)[number];
 
@@ -37,7 +38,12 @@ export class Payment {
 
   @Prop({
     required: true,
-    enum: ['booking_payment', 'gym_subscription_payment', 'refund'],
+    enum: [
+      'booking_payment',
+      'gym_subscription_payment',
+      'ticket_payment',
+      'refund',
+    ],
     default: 'booking_payment',
   })
   category: string;
@@ -57,6 +63,9 @@ export class Payment {
 
   @Prop({ type: Types.ObjectId, ref: 'GymSubscription' })
   subscriptionId?: Types.ObjectId;
+
+  @Prop({ type: Types.ObjectId, ref: 'TicketOrder' })
+  ticketOrderId?: Types.ObjectId;
 
   /** Raw gateway payload kept for dispute resolution / debugging. */
   @Prop({ type: Object })

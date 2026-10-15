@@ -42,12 +42,6 @@ Work happens on a feature branch, gets verified on staging (`development`), and 
 - [x] Escape all user-supplied values in the email templates.
 - [x] Unit tests for the above.
 
-**2A follow-ups (open):**
-- [ ] Reconcile from the verify endpoint: when `GET /payments/:ref/verify` sees a gateway-successful payment that is still pending locally, run the same confirmation logic. This covers webhooks that never arrive.
-- [ ] On a repeat delivery, flag a payment that is `success` but whose booking or subscription was never applied (a crash between the claim and fulfilment).
-- [ ] Rate-limit `GET /payments/:idOrRef/verify`; every call hits Flutterwave's API with our key.
-- [ ] Retry or resend confirmation emails that fail (ZeptoMail down).
-
 ### 2B. Private booking (whole room): ON HOLD
 - [ ] Interim: turn off "Booking enabled" in Admin → Settings in production. `POST /bookings` is still public even though no page shows the form.
 - Parked until public booking ships:
@@ -55,13 +49,13 @@ Work happens on a feature branch, gets verified on staging (`development`), and 
   - Check conflicts by overlapping time range (start plus session duration) per room, and include private bookings in the screening overlap check.
 
 ### 2C. Public booking (per-seat tickets)
-- [ ] Backend: `Screening` model (fields as above). Admin-only API endpoints to create, edit, and delete screenings (no admin UI yet), plus a public endpoint listing upcoming screenings grouped by movie.
-- [ ] `backend/scripts/seed-screenings.js`: creates screenings through the real API with an admin login, the same way `seed-gym-plans.js` does. This is how screenings get created until the admin redesign.
-- [ ] Backend: ticket purchase with an atomic seat hold (no overselling the last seat), a 30-minute hold for unpaid tickets, payment through the 2A pipeline, and a confirmation email.
-- [ ] Backend: reject a screening whose room and time range overlap another screening in the same room (start time plus movie duration plus a cleaning buffer).
-- [ ] Frontend: replace the mock [frontend/lib/publicScreenings.ts](frontend/lib/publicScreenings.ts) with the real endpoint, and drive showtimes from screenings instead of `Movie.showtimes`.
-- [ ] Frontend: change the screen labels in the dummy data and public UI from `Hall 1` / `Hall 2` to `Cinema 1` / `Cinema 2`, matching `CinemaSettings.rooms` (the rooms keep the Cinema names).
-- [ ] Remove the placeholder movies (`dummy-movies.ts`) from production; show an empty state instead.
+- [x] Backend: `Screening` model (fields as above). Admin-only API endpoints to create, edit, and delete screenings (no admin UI yet), plus a public endpoint listing upcoming screenings grouped by movie.
+- [ ] (Not started; seeding is on hold) `backend/scripts/seed-screenings.js`: creates screenings through the real API with an admin login, the same way `seed-gym-plans.js` does. This is how screenings get created until the admin redesign.
+- [x] Backend: ticket purchase with an atomic seat hold (no overselling the last seat), a 30-minute hold for unpaid tickets, payment through the 2A pipeline, and a confirmation email.
+- [x] Backend: reject a screening whose room and time range overlap another screening in the same room (start time plus movie duration plus a cleaning buffer).
+- [x] Frontend: replace the mock [frontend/lib/publicScreenings.ts](frontend/lib/publicScreenings.ts) with the real endpoint, and drive showtimes from screenings instead of `Movie.showtimes`.
+- [x] Screen labels now come from each screening's `screen`, which must be one of `CinemaSettings.rooms` (`Cinema 1` / `Cinema 2`). The hardcoded `Hall 1` / `Hall 2` labels went with the dummy data.
+- [x] Remove the placeholder movies (`dummy-movies.ts`) from production; show an empty state instead.
 
 ### Deferred to the admin dashboard redesign (separate project, after public booking ships)
 - Screenings manager page, including a "repeat daily for N days" option that skips days where the time would clash.

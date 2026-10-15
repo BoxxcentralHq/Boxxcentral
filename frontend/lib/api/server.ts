@@ -1,5 +1,5 @@
 import { buildUrl, parseResponse, Query } from "./core";
-import type { CinemaSettings, MenuItem, Movie } from "./types";
+import type { CinemaSettings, MenuItem, Movie, NowShowingMovie } from "./types";
 
 type CacheOpts = {
   revalidate?: number;
@@ -34,4 +34,10 @@ export function getMovies() {
 
 export function getMenuItems() {
   return serverFetch<MenuItem[]>("/menu", undefined, { revalidate: 60 });
+}
+
+export function getNowShowing() {
+  return serverFetch<NowShowingMovie[]>("/screenings", undefined, {
+    revalidate: 30,
+  });
 }

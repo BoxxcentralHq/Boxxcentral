@@ -17,6 +17,7 @@ import { FlutterwaveModule } from './flutterwave/flutterwave.module';
 import { GymModule } from './gym/gym.module';
 import { MenuModule } from './menu/menu.module';
 import { PaymentsModule } from './payments/payments.module';
+import { ScreeningsModule } from './screenings/screenings.module';
 
 const dbLogger = new Logger('Database');
 
@@ -87,6 +88,7 @@ const dbLogger = new Logger('Database');
     MenuModule,
     GymModule,
     BowlboxxModule,
+    ScreeningsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

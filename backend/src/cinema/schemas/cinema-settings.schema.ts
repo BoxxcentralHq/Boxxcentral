@@ -34,6 +34,12 @@ export class CinemaSettings {
 
   @Prop({ default: true })
   bookingEnabled: boolean;
+
+  @Prop({ required: true, min: 0, default: 10000 })
+  defaultTicketPrice: number;
+
+  @Prop({ required: true, min: 0, default: 30 })
+  screeningBufferMins: number;
 }
 
 export const CinemaSettingsSchema =

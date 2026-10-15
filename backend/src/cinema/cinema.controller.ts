@@ -52,6 +52,7 @@ export class CinemaController {
         timeSlots: s.timeSlots,
         rooms: s.rooms,
         bookingEnabled: s.bookingEnabled,
+        defaultTicketPrice: s.defaultTicketPrice,
       },
     };
   }

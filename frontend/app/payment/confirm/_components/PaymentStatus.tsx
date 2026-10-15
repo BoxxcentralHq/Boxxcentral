@@ -6,6 +6,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import type { IconSvgElement } from "@hugeicons/react";
 import { Alert02Icon, CheckmarkCircle02Icon, Clock01Icon } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
+import type { PaymentVerification } from "@/lib/api/types";
 import { usePaymentVerify } from "@/lib/payments";
 import { contact } from "@/lib/site";
 import { cn } from "@/lib/utils";
@@ -18,6 +19,23 @@ function readReference(params: URLSearchParams) {
 }
 
 const naira = (amount: number) => `₦${amount.toLocaleString("en-NG")}`;
+
+const RETRY_HREF: Record<PaymentVerification["category"], string> = {
+  booking_payment: "/filmboxx",
+  ticket_payment: "/filmboxx#now-showing",
+  gym_subscription_payment: "/gymboxx",
+  refund: "/",
+};
+
+const SUCCESS_BODY: Record<PaymentVerification["category"], string> = {
+  booking_payment:
+    "Your booking is locked in — we've sent the details to your email. See you soon.",
+  ticket_payment:
+    "Your seats are confirmed — we've emailed your tickets. Show your reference at the door.",
+  gym_subscription_payment:
+    "We've sent your receipt by email. Your membership doesn't start counting yet — come by the gym and show your reference at the front desk to activate it.",
+  refund: "Your payment has been processed.",
+};
 
 function StatusCard({
   icon,
@@ -112,7 +130,7 @@ export default function PaymentStatus() {
         <p className="mt-4 font-mono text-xs text-boxx-dim">Reference: {reference}</p>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
           <Button asChild size="lg">
-            <Link href="/filmboxx#book">Try again</Link>
+            <Link href={RETRY_HREF[data.category]}>Try again</Link>
           </Button>
           <Button asChild variant="outline" size="lg">
             <a href={contact.whatsapp} target="_blank" rel="noopener noreferrer">
@@ -139,17 +157,12 @@ export default function PaymentStatus() {
   }
 
   if (data.gatewayStatus === "successful") {
-    const isGymSubscription = data.category === "gym_subscription_payment";
     return (
       <StatusCard
         icon={CheckmarkCircle02Icon}
         tone="success"
         title="Payment confirmed"
-        body={
-          isGymSubscription
-            ? "We've sent your receipt by email. Your membership doesn't start counting yet — come by the gym and show your reference at the front desk to activate it."
-            : "Your booking is locked in — we've sent the details to your email. See you soon."
-        }
+        body={SUCCESS_BODY[data.category]}
       >
         <p className="mt-4 text-sm text-boxx-white">
           {naira(data.amount)} {data.currency}
@@ -172,7 +185,7 @@ export default function PaymentStatus() {
       <p className="mt-4 font-mono text-xs text-boxx-dim">Reference: {reference}</p>
       <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
         <Button asChild size="lg">
-          <Link href="/filmboxx#book">Try again</Link>
+          <Link href={RETRY_HREF[data.category]}>Try again</Link>
         </Button>
         <Button asChild variant="outline" size="lg">
           <a href={contact.whatsapp} target="_blank" rel="noopener noreferrer">

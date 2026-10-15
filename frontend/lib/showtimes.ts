@@ -40,7 +40,7 @@ export type ShowDay = {
 /** A day + time picked from the listing, handed to the ticket dialog. */
 export type ShowSelection = {
   dayOffset: number;
-  time: string;
+  showtimeId: string;
 };
 
 /*
@@ -88,6 +88,16 @@ export function isPastShowtime(s: Showtime, cutoff: number | null) {
 
 export function sortShowtimes(showtimes: Showtime[] = []) {
   return [...showtimes].sort((a, b) => minutesOf(a.time) - minutesOf(b.time));
+}
+
+export function showtimesOn(showtimes: Showtime[], iso: string | undefined) {
+  return sortShowtimes(showtimes.filter((s) => s.date === iso));
+}
+
+export function lowestPrice(showtimes: Showtime[]) {
+  return showtimes.length > 0
+    ? Math.min(...showtimes.map((s) => s.ticketPrice))
+    : null;
 }
 
 /** "13:30" → "1:30 PM" */

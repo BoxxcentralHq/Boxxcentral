@@ -8,6 +8,14 @@ import {
   GymSubscription,
   GymSubscriptionSchema,
 } from '../gym/schemas/gym-subscription.schema';
+import {
+  Screening,
+  ScreeningSchema,
+} from '../screenings/schemas/screening.schema';
+import {
+  TicketOrder,
+  TicketOrderSchema,
+} from '../screenings/schemas/ticket-order.schema';
 import { AdminModule } from '../admin/admin.module';
 
 @Module({
@@ -16,6 +24,8 @@ import { AdminModule } from '../admin/admin.module';
       { name: Payment.name, schema: PaymentSchema },
       { name: Booking.name, schema: BookingSchema },
       { name: GymSubscription.name, schema: GymSubscriptionSchema },
+      { name: Screening.name, schema: ScreeningSchema },
+      { name: TicketOrder.name, schema: TicketOrderSchema },
     ]),
     // JwtAuthGuard on admin endpoints needs the passport strategy from AdminModule
     AdminModule,

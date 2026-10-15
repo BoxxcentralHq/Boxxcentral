@@ -46,14 +46,18 @@ export type CinemaSettings = {
   timeSlots: string[];
   rooms: string[];
   bookingEnabled: boolean;
+  defaultTicketPrice: number;
 };
 
 export type UpdateCinemaSettingsBody = Partial<CinemaSettings>;
 
 export type Showtime = {
-  /** 24h "HH:mm" */
+  _id: string;
+  date: string;
   time: string;
   screen: string;
+  ticketPrice: number;
+  seatsLeft: number;
 };
 
 export type Movie = {
@@ -63,14 +67,35 @@ export type Movie = {
   genre?: string;
   durationMins?: number;
   posterUrl?: string;
-  /** YouTube link or direct video URL — not served by the API yet */
   trailerUrl?: string;
-  /** Age rating, e.g. "PG", "15" — not served by the API yet */
   rating?: string;
-  /** Daily screening times — not served by the API yet */
-  showtimes?: Showtime[];
   visible: boolean;
   createdAt: string;
+};
+
+export type NowShowingMovie = Movie & { showtimes: Showtime[] };
+
+export type CreateTicketOrderBody = {
+  tickets: number;
+  guestName: string;
+  guestEmail: string;
+  guestPhone: string;
+};
+
+export type CreateTicketOrderResponse = {
+  order: {
+    orderRef: string;
+    movieTitle: string;
+    date: string;
+    time: string;
+    screen: string;
+    tickets: number;
+    unitPrice: number;
+    subtotal: number;
+    vatAmount: number;
+    totalPrice: number;
+  };
+  paymentLink: string;
 };
 
 export const MENU_CATEGORIES = [
@@ -164,7 +189,11 @@ export type Payment = {
   amount: number;
   currency: string;
   type: "inflow" | "outflow";
-  category: "booking_payment" | "gym_subscription_payment" | "refund";
+  category:
+    | "booking_payment"
+    | "gym_subscription_payment"
+    | "ticket_payment"
+    | "refund";
   status: PaymentStatus;
   paymentMethod: string;
   bookingId?: Booking | string;
@@ -177,7 +206,11 @@ export type PaymentVerification = {
   gatewayStatus: string;
   amount: number;
   currency: string;
-  category: "booking_payment" | "gym_subscription_payment" | "refund";
+  category:
+    | "booking_payment"
+    | "gym_subscription_payment"
+    | "ticket_payment"
+    | "refund";
 };
 
 export type ContactMessage = {

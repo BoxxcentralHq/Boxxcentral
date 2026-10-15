@@ -18,6 +18,7 @@ export interface FlutterwaveInitializePayload {
   meta: {
     bookingId?: string;
     subscriptionId?: string;
+    ticketOrderId?: string;
     experience: string;
   };
   customer: FlutterwaveCustomer;

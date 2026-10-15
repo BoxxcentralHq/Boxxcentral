@@ -57,4 +57,14 @@ export class UpdateSettingsDto {
   @IsOptional()
   @IsBoolean()
   bookingEnabled?: boolean;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  defaultTicketPrice?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  screeningBufferMins?: number;
 }

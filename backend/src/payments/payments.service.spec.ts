@@ -7,6 +7,7 @@ import { PaymentsService } from './payments.service';
 import { PaymentStatus } from './schemas/payment.schema';
 import { BookingStatus } from '../bookings/schemas/booking.schema';
 import { GymSubscriptionStatus } from '../gym/schemas/gym-subscription.schema';
+import { TicketOrderStatus } from '../screenings/schemas/ticket-order.schema';
 import type { FlutterwaveWebhookPayload } from '../flutterwave/types/flutterwave.types';
 
 const REF = 'BXX-TEST-0001';
@@ -48,6 +49,23 @@ const subscription = {
   price: AMOUNT,
 };
 
+const ticketOrder = {
+  _id: 'order1',
+  screeningId: 'scr1',
+  guestName: 'Kemi',
+  guestEmail: 'kemi@example.com',
+  guestPhone: '0801',
+  orderRef: REF,
+  movieTitle: 'Dune',
+  screen: 'Cinema 2',
+  date: '2026-10-20',
+  time: '13:30',
+  tickets: 3,
+  subtotal: 30000,
+  vatAmount: 2250,
+  totalPrice: 32250,
+};
+
 function setup(paymentOverrides: Record<string, unknown> = {}) {
   const payment = {
     _id: 'pay1',
@@ -77,6 +95,11 @@ function setup(paymentOverrides: Record<string, unknown> = {}) {
   });
   const sendBookingConfirmation = jest.fn().mockResolvedValue(undefined);
   const sendMembershipPaymentReceipt = jest.fn().mockResolvedValue(undefined);
+  const sendTicketConfirmation = jest.fn().mockResolvedValue(undefined);
+  const ticketOrderUpdate = jest.fn().mockResolvedValue(ticketOrder);
+  const ticketOrderFindOne = jest.fn().mockResolvedValue(null);
+  const screeningUpdateOne = jest.fn().mockResolvedValue({});
+  const screeningReseat = jest.fn().mockResolvedValue({ _id: 'scr1' });
 
   const service = new PaymentsService(
     {
@@ -86,8 +109,20 @@ function setup(paymentOverrides: Record<string, unknown> = {}) {
     } as never,
     { findOneAndUpdate: bookingUpdate } as never,
     { findOneAndUpdate: subscriptionUpdate } as never,
+    {
+      findOneAndUpdate: ticketOrderUpdate,
+      findOne: ticketOrderFindOne,
+    } as never,
+    {
+      updateOne: screeningUpdateOne,
+      findOneAndUpdate: screeningReseat,
+    } as never,
     { validateSignature, verifyTransaction } as never,
-    { sendBookingConfirmation, sendMembershipPaymentReceipt } as never,
+    {
+      sendBookingConfirmation,
+      sendMembershipPaymentReceipt,
+      sendTicketConfirmation,
+    } as never,
   );
 
   return {
@@ -101,6 +136,11 @@ function setup(paymentOverrides: Record<string, unknown> = {}) {
     verifyTransaction,
     sendBookingConfirmation,
     sendMembershipPaymentReceipt,
+    sendTicketConfirmation,
+    ticketOrderUpdate,
+    ticketOrderFindOne,
+    screeningUpdateOne,
+    screeningReseat,
   };
 }
 
@@ -345,5 +385,95 @@ describe('PaymentsService.handleWebhook', () => {
       expect.anything(),
     );
     expect(t.sendMembershipPaymentReceipt).not.toHaveBeenCalled();
+  });
+
+  describe('ticket orders', () => {
+    const ticketPayment = { bookingId: undefined, ticketOrderId: 'order1' };
+
+    it('marks the order paid, moves held seats to sold, and emails the tickets', async () => {
+      const t = setup(ticketPayment);
+
+      await t.service.handleWebhook(event, 'sig');
+
+      expect(t.ticketOrderUpdate).toHaveBeenCalledWith(
+        { _id: 'order1', status: TicketOrderStatus.PENDING },
+        { status: TicketOrderStatus.PAID },
+        { new: true },
+      );
+      expect(t.screeningUpdateOne).toHaveBeenCalledWith(
+        { _id: 'scr1' },
+        { $inc: { seatsHeld: -3, seatsSold: 3 } },
+      );
+      expect(t.sendTicketConfirmation).toHaveBeenCalledWith(
+        expect.objectContaining({ orderRef: REF, tickets: 3 }),
+      );
+      expect(t.bookingUpdate).not.toHaveBeenCalled();
+    });
+
+    it('re-seats an order that expired while the guest was paying', async () => {
+      const t = setup({ ...ticketPayment, status: PaymentStatus.FAILED });
+      t.ticketOrderUpdate
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(ticketOrder);
+      t.ticketOrderFindOne.mockResolvedValue({
+        ...ticketOrder,
+        status: TicketOrderStatus.EXPIRED,
+      });
+
+      await t.service.handleWebhook(event, 'sig');
+
+      expect(t.screeningReseat).toHaveBeenCalledWith(
+        expect.objectContaining({ _id: 'scr1' }),
+        { $inc: { seatsSold: 3 } },
+      );
+      expect(t.screeningUpdateOne).not.toHaveBeenCalled();
+      expect(t.sendTicketConfirmation).toHaveBeenCalledTimes(1);
+    });
+
+    it('flags a late payment for review when the screening sold out meanwhile', async () => {
+      const t = setup({ ...ticketPayment, status: PaymentStatus.FAILED });
+      t.ticketOrderUpdate.mockResolvedValueOnce(null);
+      t.ticketOrderFindOne.mockResolvedValue({
+        ...ticketOrder,
+        status: TicketOrderStatus.EXPIRED,
+      });
+      t.screeningReseat.mockResolvedValue(null);
+
+      await t.service.handleWebhook(event, 'sig');
+
+      expect(t.paymentUpdateOne).toHaveBeenCalledWith(
+        { _id: 'pay1' },
+        { needsReview: true, reviewReason: 'sold_out' },
+      );
+      expect(t.sendTicketConfirmation).not.toHaveBeenCalled();
+    });
+
+    it('gives the seats back if the order was claimed by another delivery', async () => {
+      const t = setup({ ...ticketPayment, status: PaymentStatus.FAILED });
+      t.ticketOrderUpdate.mockResolvedValue(null);
+      t.ticketOrderFindOne.mockResolvedValue({
+        ...ticketOrder,
+        status: TicketOrderStatus.EXPIRED,
+      });
+
+      await t.service.handleWebhook(event, 'sig');
+
+      expect(t.screeningUpdateOne).toHaveBeenCalledWith(
+        { _id: 'scr1' },
+        { $inc: { seatsSold: -3 } },
+      );
+      expect(t.sendTicketConfirmation).not.toHaveBeenCalled();
+    });
+
+    it('never re-seats an expired order on a repeat delivery', async () => {
+      const t = setup({ ...ticketPayment, status: PaymentStatus.SUCCESS });
+      t.ticketOrderUpdate.mockResolvedValue(null);
+
+      await t.service.handleWebhook(event, 'sig');
+
+      expect(t.ticketOrderFindOne).not.toHaveBeenCalled();
+      expect(t.screeningReseat).not.toHaveBeenCalled();
+      expect(t.sendTicketConfirmation).not.toHaveBeenCalled();
+    });
   });
 });

@@ -6,7 +6,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Cancel01Icon, Ticket01Icon } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogPortal } from "@/components/ui/dialog";
-import type { Movie } from "@/lib/api/types";
+import type { NowShowingMovie } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 
 /** YouTube watch/share/embed links → embed URL; anything else plays as a file. */
@@ -31,10 +31,10 @@ export default function TrailerDialog({
   onOpenChange,
   onBook,
 }: {
-  movie: Movie | null;
+  movie: NowShowingMovie | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onBook: (movie: Movie) => void;
+  onBook: (movie: NowShowingMovie) => void;
 }) {
   const url = movie?.trailerUrl;
   const embed = url ? youtubeEmbed(url) : null;

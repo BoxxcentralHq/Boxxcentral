@@ -7,7 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import { AxiosError } from 'axios';
 import { firstValueFrom } from 'rxjs';
-import { timingSafeEqual } from 'crypto';
+import { randomBytes, timingSafeEqual } from 'crypto';
 import {
   FlutterwaveInitializePayload,
   FlutterwaveVerifyResponse,
@@ -22,6 +22,12 @@ interface FlwEnvelope<T> {
 
 /** Prefix for BoxxCentral transaction references (e.g. BXX-1721300000-AB12). */
 export const TX_REF_PREFIX = 'BXX-';
+
+export function generateTxRef(): string {
+  const stamp = Date.now().toString(36).toUpperCase();
+  const rand = randomBytes(3).toString('hex').toUpperCase();
+  return `${TX_REF_PREFIX}${stamp}-${rand}`;
+}
 
 const FLW_BASE_URL = 'https://api.flutterwave.com/v3';
 
