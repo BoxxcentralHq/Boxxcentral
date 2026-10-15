@@ -12,11 +12,11 @@ export default function AdminSettingsPage() {
         Settings
       </p>
       <h1 className="mt-2 font-heading text-3xl tracking-tight text-boxx-white sm:text-4xl">
-        FilmBoxx pricing
+        FilmBoxx settings
       </h1>
       <p className="mt-3 max-w-xl text-sm leading-relaxed text-boxx-mist">
-        Everything the booking form and the price it quotes are built from —
-        changes apply to new bookings immediately.
+        Ticket pricing, VAT, rooms, and the gap between screenings — changes
+        apply to new screenings and ticket orders immediately.
       </p>
 
       <div className="mt-8">

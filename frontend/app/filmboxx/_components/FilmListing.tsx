@@ -7,13 +7,11 @@ import {
   Cancel01Icon,
   PlayIcon,
   Search01Icon,
-  Ticket01Icon,
 } from "@hugeicons/core-free-icons";
 import Container from "@/components/Container";
 import Reveal from "@/components/Reveal";
 import { Button } from "@/components/ui/button";
-import type { Movie } from "@/lib/api/types";
-import { publicScreeningPricePerPerson } from "@/lib/pricing";
+import type { NowShowingMovie, Showtime } from "@/lib/api/types";
 import {
   DAYS_AHEAD,
   formatDuration,
@@ -21,7 +19,8 @@ import {
   getCutoff,
   getShowDays,
   isPastShowtime,
-  sortShowtimes,
+  lowestPrice,
+  showtimesOn,
   useNowMinute,
   type ShowSelection,
 } from "@/lib/showtimes";
@@ -47,9 +46,9 @@ export default function FilmListing({
   onBook,
   onTrailer,
 }: {
-  movies: Movie[];
-  onBook: (movie: Movie, selection?: ShowSelection) => void;
-  onTrailer: (movie: Movie) => void;
+  movies: NowShowingMovie[];
+  onBook: (movie: NowShowingMovie, selection?: ShowSelection) => void;
+  onTrailer: (movie: NowShowingMovie) => void;
 }) {
   const nowMinute = useNowMinute();
   const [dayOffset, setDayOffset] = useState(0);
@@ -63,6 +62,8 @@ export default function FilmListing({
     [nowMinute],
   );
   const cutoff = getCutoff(nowMinute, dayOffset);
+  const dayIso = days?.[dayOffset]?.iso;
+  const fromPrice = lowestPrice(movies.flatMap((m) => m.showtimes));
 
   const genres = useMemo(
     () => [
@@ -83,14 +84,11 @@ export default function FilmListing({
         m.genre?.toLowerCase().includes(needle)),
   );
   /* Stable sort: bookable today first, original order otherwise */
-  const hasShowingsLeft = (m: Movie) =>
-    !m.showtimes?.length || m.showtimes.some((s) => !isPastShowtime(s, cutoff));
-  const ordered =
-    cutoff === null
-      ? matches
-      : [...matches].sort(
-          (a, b) => Number(hasShowingsLeft(b)) - Number(hasShowingsLeft(a)),
-        );
+  const hasShowingsLeft = (m: NowShowingMovie) =>
+    showtimesOn(m.showtimes, dayIso).some((s) => isBookable(s, cutoff));
+  const ordered = [...matches].sort(
+    (a, b) => Number(hasShowingsLeft(b)) - Number(hasShowingsLeft(a)),
+  );
   /* A search shows every hit — collapsing results would hide them */
   const collapsed = !expanded && !needle && ordered.length > INITIAL_VISIBLE;
   const shown = collapsed ? ordered.slice(0, INITIAL_VISIBLE) : ordered;
@@ -121,8 +119,8 @@ export default function FilmListing({
             Now showing
           </h2>
           <p className="text-sm text-boxx-dim">
-            {movies.length} films · Tickets{" "}
-            {naira(publicScreeningPricePerPerson)} a seat
+            {movies.length} {movies.length === 1 ? "film" : "films"}
+            {fromPrice !== null && ` · Tickets from ${naira(fromPrice)} a seat`}
           </p>
         </div>
 
@@ -257,6 +255,7 @@ export default function FilmListing({
               <FilmCard
                 movie={movie}
                 dayOffset={dayOffset}
+                dayIso={dayIso}
                 cutoff={cutoff}
                 onBook={onBook}
                 onTrailer={onTrailer}
@@ -287,21 +286,27 @@ export default function FilmListing({
   );
 }
 
+function isBookable(s: Showtime, cutoff: number | null) {
+  return !isPastShowtime(s, cutoff) && s.seatsLeft > 0;
+}
+
 function FilmCard({
   movie,
   dayOffset,
+  dayIso,
   cutoff,
   onBook,
   onTrailer,
 }: {
-  movie: Movie;
+  movie: NowShowingMovie;
   dayOffset: number;
+  dayIso: string | undefined;
   cutoff: number | null;
-  onBook: (movie: Movie, selection?: ShowSelection) => void;
-  onTrailer: (movie: Movie) => void;
+  onBook: (movie: NowShowingMovie, selection?: ShowSelection) => void;
+  onTrailer: (movie: NowShowingMovie) => void;
 }) {
-  const showtimes = sortShowtimes(movie.showtimes);
-  const soldOutForDay =
+  const showtimes = showtimesOn(movie.showtimes, dayIso);
+  const allPast =
     showtimes.length > 0 && showtimes.every((s) => isPastShowtime(s, cutoff));
 
   return (
@@ -364,20 +369,23 @@ function FilmCard({
           {showtimes.length > 0 ? (
             <>
               <p className="text-[11px] font-semibold tracking-wider text-boxx-dim uppercase">
-                {soldOutForDay ? "No more showings today" : "Showtimes"}
+                {allPast ? "No more showings today" : "Showtimes"}
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {showtimes.map((s) => {
                   const past = isPastShowtime(s, cutoff);
+                  const soldOut = s.seatsLeft === 0;
                   return (
                     <button
-                      key={`${s.time}-${s.screen}`}
+                      key={s._id}
                       type="button"
-                      disabled={past}
-                      onClick={() => onBook(movie, { dayOffset, time: s.time })}
+                      disabled={past || soldOut}
+                      onClick={() =>
+                        onBook(movie, { dayOffset, showtimeId: s._id })
+                      }
                       className={cn(
                         "flex flex-col items-start rounded-md border px-2.5 py-1.5 text-left transition-colors",
-                        past
+                        past || soldOut
                           ? "cursor-not-allowed border-boxx-line/60 opacity-40"
                           : "border-boxx-line hover:border-boxx-red hover:bg-boxx-red/10",
                       )}
@@ -391,7 +399,7 @@ function FilmCard({
                         {formatTime(s.time)}
                       </span>
                       <span className="text-[10px] text-boxx-dim">
-                        {s.screen}
+                        {soldOut && !past ? "Sold out" : s.screen}
                       </span>
                     </button>
                   );
@@ -399,14 +407,11 @@ function FilmCard({
               </div>
             </>
           ) : (
-            <Button type="button" size="sm" onClick={() => onBook(movie)}>
-              <HugeiconsIcon
-                icon={Ticket01Icon}
-                aria-hidden
-                className="size-4"
-              />
-              Buy Ticket
-            </Button>
+            dayIso && (
+              <p className="text-sm text-boxx-dim">
+                No showings on this day — try another date.
+              </p>
+            )
           )}
         </div>
       </div>

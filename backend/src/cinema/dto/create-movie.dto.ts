@@ -20,4 +20,12 @@ export class CreateMovieDto {
   @IsInt()
   @Min(1)
   durationMins?: number;
+
+  @IsOptional()
+  @IsString()
+  trailerUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  rating?: string;
 }

@@ -8,7 +8,6 @@ import { AnimatePresence, motion } from "motion/react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import type { IconSvgElement } from "@hugeicons/react";
 import {
-  Calendar03Icon,
   Cancel01Icon,
   ClapperboardIcon,
   DashboardSquare01Icon,
@@ -37,7 +36,6 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { label: "Overview", href: "/admin", icon: DashboardSquare01Icon },
-  { label: "Bookings", href: "/admin/bookings", icon: Calendar03Icon, section: "bookings" },
   { label: "Movies", href: "/admin/movies", icon: ClapperboardIcon, section: "movies" },
   { label: "Messages", href: "/admin/messages", icon: Message01Icon, section: "messages" },
   { label: "Menu", href: "/admin/menu", icon: RestaurantIcon, section: "menu" },

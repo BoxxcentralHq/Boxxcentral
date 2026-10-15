@@ -1,0 +1,124 @@
+{
+  "movies": [
+    {
+      "slug": "ikenga",
+      "title": "Ikenga: The Last Festival",
+      "synopsis": "In the ancient kingdom of Umuani, where tradition and ancestral law hold everything together, one man's hunger for forbidden power threatens to tear the community apart, and the king and elders must fight to protect their sacred heritage.",
+      "genre": "Drama",
+      "durationMins": null,
+      "rating": null,
+      "trailerUrl": "https://www.youtube.com/watch?v=Qotmgq1Ph00"
+    },
+    {
+      "slug": "black-market",
+      "title": "Black Market",
+      "synopsis": "Five market women secretly run a fuel-smuggling ring across the border. When a rival syndicate kidnaps one of their daughters, they must fight to save her and to protect everything they have built together.",
+      "genre": "Crime Thriller",
+      "durationMins": null,
+      "rating": null,
+      "trailerUrl": "https://www.youtube.com/watch?v=VnB5eHeYiuc"
+    },
+    {
+      "slug": "star-lomo",
+      "title": "Star Lomo",
+      "synopsis": "A young man in Lagos chases his dream of a music career against family pressure and hard economic times.",
+      "genre": "Comedy Drama",
+      "durationMins": null,
+      "rating": null,
+      "trailerUrl": "https://www.youtube.com/watch?v=MrkNJKTXP_4"
+    },
+    {
+      "slug": "king-kosoko",
+      "title": "King Kosoko: The Battle for Lagos",
+      "synopsis": "Nineteenth-century Lagos. Oba Kosoko battles rivals for the throne and stands against foreign influence in the turbulent years leading up to the 1851 British bombardment of the city.",
+      "genre": "Historical Epic",
+      "durationMins": null,
+      "rating": null,
+      "trailerUrl": "https://www.youtube.com/watch?v=QCdpXtp-qtI"
+    },
+    {
+      "slug": "alahun",
+      "title": "Alahun: The Weaver",
+      "synopsis": "Mocked for weaving baskets and plaiting hair, crafts his community says are not for men, a young man is pulled into a mystical journey that could decide the fate of his whole kingdom.",
+      "genre": "Fantasy Epic",
+      "durationMins": null,
+      "rating": null,
+      "trailerUrl": "https://www.youtube.com/watch?v=vazAgWOeJ0o"
+    },
+    {
+      "slug": "fathers-secret",
+      "title": "A Father's Secret",
+      "synopsis": "A woman who has spent ten years building a life without her father sees everything unsettled when he suddenly returns.",
+      "genre": "Family Drama",
+      "durationMins": null,
+      "rating": null,
+      "trailerUrl": null
+    },
+    {
+      "slug": "east-west-love",
+      "title": "East West Love",
+      "synopsis": "After catching her boyfriend and business partner cheating, Lagos entrepreneur Tito turns a planned trip to Kenya into a girls' getaway, and finds healing, friendship and unexpected love in Mombasa.",
+      "genre": "Romantic Comedy",
+      "durationMins": null,
+      "rating": null,
+      "trailerUrl": "https://www.youtube.com/watch?v=EPBXwOnk9c4"
+    },
+    {
+      "slug": "agbara-nla",
+      "title": "Agbara Nla: The Return",
+      "synopsis": "Decades after the original spiritual battle, darkness returns to the village of Abule Muwonleru, drawing a new generation into a fight against occult forces.",
+      "genre": "Supernatural Drama",
+      "durationMins": null,
+      "rating": null,
+      "trailerUrl": "https://www.youtube.com/watch?v=sTJ3ZKxIePQ"
+    }
+  ],
+  "schedule": {
+    "from": "2026-10-09",
+    "to": "2026-10-15",
+    "capacity": 12,
+    "ticketPrice": 5000,
+    "daily": [
+      {
+        "screen": "Cinema 2",
+        "time": "14:00",
+        "movie": "ikenga"
+      },
+      {
+        "screen": "Cinema 2",
+        "time": "15:45",
+        "movie": "black-market"
+      },
+      {
+        "screen": "Cinema 2",
+        "time": "17:25",
+        "movie": "star-lomo"
+      },
+      {
+        "screen": "Cinema 2",
+        "time": "19:30",
+        "movie": "king-kosoko"
+      },
+      {
+        "screen": "Cinema 1",
+        "time": "14:00",
+        "movie": "alahun"
+      },
+      {
+        "screen": "Cinema 1",
+        "time": "16:00",
+        "movie": "fathers-secret"
+      },
+      {
+        "screen": "Cinema 1",
+        "time": "18:10",
+        "movie": "east-west-love"
+      },
+      {
+        "screen": "Cinema 1",
+        "time": "19:50",
+        "movie": "agbara-nla"
+      }
+    ]
+  }
+}

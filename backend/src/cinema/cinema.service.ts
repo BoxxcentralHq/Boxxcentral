@@ -14,6 +14,11 @@ import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 const POSTER_FOLDER = 'boxxcentral/movies';
 
+export type MovieImages = {
+  poster?: Express.Multer.File;
+  banner?: Express.Multer.File;
+};
+
 @Injectable()
 export class CinemaService implements OnModuleInit {
   constructor(
@@ -50,33 +55,39 @@ export class CinemaService implements OnModuleInit {
     return this.movieModel.find().sort({ createdAt: -1 });
   }
 
-  async createMovie(dto: CreateMovieDto, poster?: Express.Multer.File) {
-    const posterData = poster
-      ? await this.cloudinaryService.uploadImage(poster, POSTER_FOLDER)
-      : undefined;
+  async createMovie(dto: CreateMovieDto, images: MovieImages = {}) {
+    const [posterData, bannerData] = await Promise.all([
+      this.upload(images.poster),
+      this.upload(images.banner),
+    ]);
     return new this.movieModel({
       ...dto,
       posterUrl: posterData?.url,
       posterPublicId: posterData?.publicId,
+      bannerUrl: bannerData?.url,
+      bannerPublicId: bannerData?.publicId,
     }).save();
   }
 
-  async updateMovie(
-    id: string,
-    dto: UpdateMovieDto,
-    poster?: Express.Multer.File,
-  ) {
-    const movie = await this.movieModel.findById(id).select('+posterPublicId');
+  async updateMovie(id: string, dto: UpdateMovieDto, images: MovieImages = {}) {
+    const movie = await this.movieModel
+      .findById(id)
+      .select('+posterPublicId +bannerPublicId');
     if (!movie) throw new NotFoundException('Movie not found');
 
-    if (poster) {
-      const posterData = await this.cloudinaryService.uploadImage(
-        poster,
-        POSTER_FOLDER,
-      );
+    const [posterData, bannerData] = await Promise.all([
+      this.upload(images.poster),
+      this.upload(images.banner),
+    ]);
+    if (posterData) {
       await this.cloudinaryService.destroyImage(movie.posterPublicId);
       movie.posterUrl = posterData.url;
       movie.posterPublicId = posterData.publicId;
+    }
+    if (bannerData) {
+      await this.cloudinaryService.destroyImage(movie.bannerPublicId);
+      movie.bannerUrl = bannerData.url;
+      movie.bannerPublicId = bannerData.publicId;
     }
 
     Object.assign(movie, dto);
@@ -84,11 +95,20 @@ export class CinemaService implements OnModuleInit {
   }
 
   async removeMovie(id: string) {
-    const movie = await this.movieModel.findById(id).select('+posterPublicId');
+    const movie = await this.movieModel
+      .findById(id)
+      .select('+posterPublicId +bannerPublicId');
     if (!movie) throw new NotFoundException('Movie not found');
 
     await this.cloudinaryService.destroyImage(movie.posterPublicId);
+    await this.cloudinaryService.destroyImage(movie.bannerPublicId);
     await movie.deleteOne();
     return { message: `"${movie.title}" removed` };
+  }
+
+  private upload(file?: Express.Multer.File) {
+    return file
+      ? this.cloudinaryService.uploadImage(file, POSTER_FOLDER)
+      : Promise.resolve(undefined);
   }
 }

@@ -7,6 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import { AxiosError } from 'axios';
 import { firstValueFrom } from 'rxjs';
+import { escapeStrings } from './escape-html';
 
 const LOGO_URL =
   'https://res.cloudinary.com/tg9rwuoe/image/upload/v1785553610/boxxcentral/brand/logo.png';
@@ -14,21 +15,6 @@ const SITE_NAME = 'BoxxCentral';
 const SITE_ADDRESS = 'Fadeyi Estate off Ilesa Road, Osogbo, Osun State';
 const SITE_PHONE = '+234 706 349 2072';
 const SITE_EMAIL = 'info@boxxcentral.com';
-
-export interface BookingConfirmationEmail {
-  guestName: string;
-  guestEmail: string;
-  guestPhone: string;
-  bookingRef: string;
-  experience: string;
-  room: string;
-  date: string;
-  timeSlot: string;
-  guests: number;
-  subtotal: number;
-  vatAmount: number;
-  totalPrice: number;
-}
 
 export interface MembershipPaymentReceiptEmail {
   memberName: string;
@@ -46,6 +32,37 @@ export interface MembershipActivatedEmail {
   planName: string;
   startDate: Date;
   endDate: Date;
+}
+
+export interface TicketConfirmationEmail {
+  guestName: string;
+  guestEmail: string;
+  guestPhone: string;
+  orderRef: string;
+  movieTitle: string;
+  screen: string;
+  date: string;
+  time: string;
+  tickets: number;
+  subtotal: number;
+  vatAmount: number;
+  totalPrice: number;
+}
+
+interface Receipt {
+  heading: string;
+  ref: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  description: string;
+  details: string;
+  quantityLabel: string;
+  quantity: number;
+  subtotal: number;
+  vatAmount: number;
+  totalPrice: number;
+  note: string;
 }
 
 type Sender = 'bookings' | 'noreply';
@@ -122,7 +139,7 @@ export class EmailService {
     }
   }
 
-  private bookingConfirmationHtml(data: BookingConfirmationEmail): string {
+  private receiptHtml(r: Receipt): string {
     const naira = (n: number) => `₦${n.toLocaleString('en-NG')}`;
     const issuedOn = new Date().toLocaleDateString('en-GB', {
       day: 'numeric',
@@ -150,7 +167,7 @@ export class EmailService {
                     <img src="${LOGO_URL}" alt="BoxxCentral" height="36" style="display:block;" />
                   </td>
                   <td align="right">
-                    <p style="margin:0;font-size:26px;font-weight:normal;letter-spacing:0.04em;color:#111111;${heading}">BOOKING RECEIPT</p>
+                    <p style="margin:0;font-size:26px;font-weight:normal;letter-spacing:0.04em;color:#111111;${heading}">${r.heading}</p>
                     <p style="margin:2px 0 0;font-size:12px;color:#8a8a8a;">${issuedOn}</p>
                   </td>
                 </tr>
@@ -163,7 +180,7 @@ export class EmailService {
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:13px;color:#3a3a3a;">
                 <tr>
                   <td style="padding:2px 0;color:#8a8a8a;">Receipt number</td>
-                  <td align="right" style="padding:2px 0;font-weight:bold;color:#111111;">${data.bookingRef}</td>
+                  <td align="right" style="padding:2px 0;font-weight:bold;color:#111111;">${r.ref}</td>
                 </tr>
                 <tr>
                   <td style="padding:2px 0;color:#8a8a8a;">Issued by</td>
@@ -181,9 +198,9 @@ export class EmailService {
             <td style="padding:24px 32px 0;">
               <p style="margin:0 0 8px;font-size:11px;font-weight:bold;letter-spacing:0.08em;text-transform:uppercase;color:#e4212e;">Invoice to</p>
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:13px;color:#3a3a3a;">
-                <tr><td style="padding:2px 0;">${data.guestName}</td></tr>
-                <tr><td style="padding:2px 0;color:#8a8a8a;">${data.guestEmail}</td></tr>
-                <tr><td style="padding:2px 0;color:#8a8a8a;">${data.guestPhone}</td></tr>
+                <tr><td style="padding:2px 0;">${r.customerName}</td></tr>
+                <tr><td style="padding:2px 0;color:#8a8a8a;">${r.customerEmail}</td></tr>
+                <tr><td style="padding:2px 0;color:#8a8a8a;">${r.customerPhone}</td></tr>
               </table>
             </td>
           </tr>
@@ -193,16 +210,16 @@ export class EmailService {
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
                 <tr style="background:#f4f2ee;">
                   <td style="${label}padding-left:12px;border-radius:8px 0 0 8px;">Description</td>
-                  <td style="${label}" align="center">Guests</td>
+                  <td style="${label}" align="center">${r.quantityLabel}</td>
                   <td style="${label}padding-right:12px;border-radius:0 8px 8px 0;" align="right">Amount</td>
                 </tr>
                 <tr>
                   <td style="${cell}padding-left:12px;border-bottom:1px solid #eeece7;">
-                    FilmBoxx Private Cinema — ${data.room}<br/>
-                    <span style="color:#8a8a8a;font-size:12px;">${data.date} at ${data.timeSlot}</span>
+                    ${r.description}<br/>
+                    <span style="color:#8a8a8a;font-size:12px;">${r.details}</span>
                   </td>
-                  <td style="${cell}border-bottom:1px solid #eeece7;" align="center">${data.guests}</td>
-                  <td style="${cell}padding-right:12px;border-bottom:1px solid #eeece7;" align="right">${naira(data.subtotal)}</td>
+                  <td style="${cell}border-bottom:1px solid #eeece7;" align="center">${r.quantity}</td>
+                  <td style="${cell}padding-right:12px;border-bottom:1px solid #eeece7;" align="right">${naira(r.subtotal)}</td>
                 </tr>
               </table>
             </td>
@@ -214,17 +231,17 @@ export class EmailService {
                 <tr>
                   <td></td>
                   <td width="180" style="padding:4px 0;color:#8a8a8a;">Subtotal</td>
-                  <td width="120" style="padding:4px 0;" align="right">${naira(data.subtotal)}</td>
+                  <td width="120" style="padding:4px 0;" align="right">${naira(r.subtotal)}</td>
                 </tr>
                 <tr>
                   <td></td>
                   <td style="padding:4px 0;color:#8a8a8a;">VAT</td>
-                  <td style="padding:4px 0;" align="right">${naira(data.vatAmount)}</td>
+                  <td style="padding:4px 0;" align="right">${naira(r.vatAmount)}</td>
                 </tr>
                 <tr>
                   <td></td>
                   <td style="padding:10px 0;font-weight:bold;color:#111111;border-top:2px solid #111111;">Total paid</td>
-                  <td style="padding:10px 0;font-weight:bold;color:#e4212e;border-top:2px solid #111111;" align="right">${naira(data.totalPrice)}</td>
+                  <td style="padding:10px 0;font-weight:bold;color:#e4212e;border-top:2px solid #111111;" align="right">${naira(r.totalPrice)}</td>
                 </tr>
                 <tr>
                   <td></td>
@@ -238,8 +255,7 @@ export class EmailService {
           <tr>
             <td style="padding:28px 32px 32px;">
               <p style="margin:0;font-size:12px;line-height:1.6;color:#8a8a8a;">
-                Show this receipt (or your booking reference) at the door. Please arrive on time —
-                your session starts promptly at the scheduled reservation time.
+                ${r.note}
               </p>
             </td>
           </tr>
@@ -253,11 +269,29 @@ export class EmailService {
       </div>`;
   }
 
-  async sendBookingConfirmation(data: BookingConfirmationEmail) {
+  private ticketConfirmationHtml(data: TicketConfirmationEmail): string {
+    return this.receiptHtml({
+      heading: 'TICKET RECEIPT',
+      ref: data.orderRef,
+      customerName: data.guestName,
+      customerEmail: data.guestEmail,
+      customerPhone: data.guestPhone,
+      description: `${data.movieTitle} — ${data.screen}`,
+      details: `${data.date} at ${data.time}`,
+      quantityLabel: 'Tickets',
+      quantity: data.tickets,
+      subtotal: data.subtotal,
+      vatAmount: data.vatAmount,
+      totalPrice: data.totalPrice,
+      note: 'Show this receipt (or your ticket reference) at the door. Please arrive a little early — the screening starts promptly at the scheduled time.',
+    });
+  }
+
+  async sendTicketConfirmation(data: TicketConfirmationEmail) {
     await this.send(
       { address: data.guestEmail, name: data.guestName },
-      `Your FilmBoxx booking ${data.bookingRef} is confirmed`,
-      this.bookingConfirmationHtml(data),
+      `Your FilmBoxx tickets for ${data.movieTitle} — ${data.orderRef}`,
+      this.ticketConfirmationHtml(escapeStrings(data)),
     );
   }
 
@@ -455,7 +489,7 @@ export class EmailService {
     await this.send(
       { address: data.memberEmail, name: data.memberName },
       `Payment received — activate your GymBoxx membership ${data.subscriptionRef}`,
-      this.membershipPaymentReceiptHtml(data),
+      this.membershipPaymentReceiptHtml(escapeStrings(data)),
     );
   }
 
@@ -463,7 +497,7 @@ export class EmailService {
     await this.send(
       { address: data.memberEmail, name: data.memberName },
       `Your GymBoxx membership ${data.subscriptionRef} is active`,
-      this.membershipActivatedHtml(data),
+      this.membershipActivatedHtml(escapeStrings(data)),
     );
   }
 }

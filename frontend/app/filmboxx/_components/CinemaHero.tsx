@@ -12,8 +12,8 @@ import {
 } from "@hugeicons/core-free-icons";
 import Container from "@/components/Container";
 import { Button } from "@/components/ui/button";
-import type { Movie } from "@/lib/api/types";
-import { publicScreeningPricePerPerson } from "@/lib/pricing";
+import type { NowShowingMovie } from "@/lib/api/types";
+import { lowestPrice } from "@/lib/showtimes";
 import { cn } from "@/lib/utils";
 
 const naira = (amount: number) => `₦${amount.toLocaleString("en-NG")}`;
@@ -31,10 +31,10 @@ export default function CinemaHero({
   onBook,
   onTrailer,
 }: {
-  movies: Movie[];
+  movies: NowShowingMovie[];
   fallbackVideo?: string;
-  onBook: (movie: Movie) => void;
-  onTrailer: (movie: Movie) => void;
+  onBook: (movie: NowShowingMovie) => void;
+  onTrailer: (movie: NowShowingMovie) => void;
 }) {
   const featured = movies.slice(0, MAX_FEATURED);
   const [index, setIndex] = useState(0);
@@ -55,11 +55,13 @@ export default function CinemaHero({
   const step = (delta: number) =>
     setIndex((i) => (i + delta + featured.length) % featured.length);
 
+  const fromPrice = lowestPrice(movie.showtimes);
+  const heroImage = movie.bannerUrl ?? movie.posterUrl;
   const meta = [
     movie.rating && `Rated ${movie.rating}`,
     movie.genre,
     movie.durationMins !== undefined && `${movie.durationMins} min`,
-    `${naira(publicScreeningPricePerPerson)} a seat`,
+    fromPrice !== null && `From ${naira(fromPrice)} a seat`,
   ].filter(Boolean);
 
   return (
@@ -78,9 +80,9 @@ export default function CinemaHero({
           transition={{ duration: 0.9, ease: "easeInOut" }}
           className="absolute inset-0"
         >
-          {movie.posterUrl ? (
+          {heroImage ? (
             <Image
-              src={movie.posterUrl}
+              src={heroImage}
               alt=""
               fill
               priority

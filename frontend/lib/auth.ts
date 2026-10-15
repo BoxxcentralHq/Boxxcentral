@@ -67,7 +67,7 @@ export function useAdmins() {
   });
 }
 
-/** super_admin only — creates a cinema_admin or lounge_admin account. */
+/** super_admin only — creates a cinema_admin, lounge_admin, or gym_admin account. */
 export function useCreateAdmin() {
   const queryClient = useQueryClient();
   return useMutation({

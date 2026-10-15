@@ -41,10 +41,11 @@ function PaymentStatusBadge({ status }: { status: PaymentStatus }) {
   );
 }
 
-function bookingRef(bookingId: Payment["bookingId"]) {
-  if (!bookingId) return "—";
-  return typeof bookingId === "string" ? bookingId.slice(-6).toUpperCase() : bookingId.bookingRef;
-}
+const PAID_FOR: Record<Payment["category"], string> = {
+  ticket_payment: "Tickets",
+  gym_subscription_payment: "Gym membership",
+  refund: "Refund",
+};
 
 /** The payments ledger — super_admin only. Search is server-side, debounced. */
 export default function PaymentsManager() {
@@ -95,7 +96,7 @@ export default function PaymentsManager() {
             <thead>
               <tr className="border-b border-boxx-line text-[10px] font-bold uppercase tracking-widest text-boxx-dim">
                 <th className="px-6 py-4 font-bold">Reference</th>
-                <th className="px-4 py-4 font-bold">Booking</th>
+                <th className="px-4 py-4 font-bold">For</th>
                 <th className="px-4 py-4 font-bold">Method</th>
                 <th className="px-4 py-4 font-bold">Category</th>
                 <th className="px-4 py-4 text-right font-bold">Amount</th>
@@ -128,7 +129,7 @@ export default function PaymentsManager() {
                       </p>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-boxx-mist">
-                      {bookingRef(p.bookingId)}
+                      {PAID_FOR[p.category]}
                     </td>
                     <td className="px-4 py-4 text-boxx-mist">{p.paymentMethod}</td>
                     <td className="px-4 py-4 whitespace-nowrap text-boxx-mist">

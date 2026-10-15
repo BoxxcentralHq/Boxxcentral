@@ -43,7 +43,7 @@ export default function RevenueChart({ data }: { data: MonthlyRevenue[] }) {
       <EmptyState
         icon={Wallet01Icon}
         title="No revenue yet"
-        description="Completed bookings will show up here."
+        description="Completed payments will show up here."
       />
     );
   }

@@ -7,7 +7,6 @@ import type { Connection } from 'mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AdminModule } from './admin/admin.module';
-import { BookingsModule } from './bookings/bookings.module';
 import { BowlboxxModule } from './bowlboxx/bowlboxx.module';
 import { CinemaModule } from './cinema/cinema.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
@@ -17,6 +16,7 @@ import { FlutterwaveModule } from './flutterwave/flutterwave.module';
 import { GymModule } from './gym/gym.module';
 import { MenuModule } from './menu/menu.module';
 import { PaymentsModule } from './payments/payments.module';
+import { ScreeningsModule } from './screenings/screenings.module';
 
 const dbLogger = new Logger('Database');
 
@@ -75,7 +75,6 @@ const dbLogger = new Logger('Database');
         },
       }),
     }),
-    // Default rate limit: 20 requests / 10s per IP (login is stricter via @Throttle)
     ThrottlerModule.forRoot([{ ttl: 10000, limit: 20 }]),
     CloudinaryModule,
     EmailModule,
@@ -83,11 +82,11 @@ const dbLogger = new Logger('Database');
     AdminModule,
     PaymentsModule,
     CinemaModule,
-    BookingsModule,
     ContactModule,
     MenuModule,
     GymModule,
     BowlboxxModule,
+    ScreeningsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -42,7 +42,7 @@ type GymSubscribeDialogProps = {
 };
 
 /** Collects member details, creates the subscription, then hands off to
- *  Flutterwave — same one-time-payment shape as BookingSection. */
+ *  Flutterwave. */
 export default function GymSubscribeDialog({
   plan,
   open,
