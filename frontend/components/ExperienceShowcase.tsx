@@ -1,10 +1,8 @@
-import Link from "next/link";
 import Container from "@/components/Container";
 import HighlightList from "@/components/HighlightList";
 import Reveal from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
 import SiteImage from "@/components/SiteImage";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { Experience } from "@/lib/experiences";
 
