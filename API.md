@@ -294,8 +294,15 @@ reference in the query string (`tx_ref`).
   amount: number,
   currency: string,
   category: "gym_subscription_payment" | "ticket_payment" | "refund",
+  needsReview: boolean,                                       // paid, but needs staff follow-up
 }
 ```
+
+Read-only — it never confirms anything; only the webhook does. Treat `localStatus:
+"success"` as the confirmation, not `gatewayStatus`: Flutterwave can report `successful`
+a moment before the webhook lands. Once `localStatus` is `success` or `refunded`, the
+endpoint answers from our ledger without calling Flutterwave. Returns **400** when
+Flutterwave has no transaction for the reference (e.g. the guest closed checkout).
 
 **Monthly revenue returns:** `[{ month: "Jan", revenue: 450000 }, ...]` — months with no
 revenue are omitted.

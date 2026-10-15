@@ -338,6 +338,25 @@ export class PaymentsService {
     }
     if (!payment) throw new NotFoundException('Payment record not found');
 
+    const summary = {
+      reference: payment.reference,
+      localStatus: payment.status,
+      category: payment.category,
+      needsReview: payment.needsReview ?? false,
+    };
+
+    const settled =
+      payment.status === PaymentStatus.SUCCESS ||
+      payment.status === PaymentStatus.REFUNDED;
+    if (settled) {
+      return {
+        ...summary,
+        gatewayStatus: 'successful',
+        amount: payment.amount,
+        currency: payment.currency,
+      };
+    }
+
     const flwData = await this.flutterwaveService.verifyTransaction(
       payment.transactionId || payment.reference,
     );
@@ -348,12 +367,10 @@ export class PaymentsService {
     }
 
     return {
-      reference: payment.reference,
-      localStatus: payment.status,
+      ...summary,
       gatewayStatus: flwData.status,
       amount: flwData.amount,
       currency: flwData.currency,
-      category: payment.category,
     };
   }
 

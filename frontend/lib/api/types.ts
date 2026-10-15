@@ -151,6 +151,7 @@ export type PaymentVerification = {
     | "gym_subscription_payment"
     | "ticket_payment"
     | "refund";
+  needsReview: boolean;
 };
 
 export type ContactMessage = {

@@ -62,6 +62,7 @@ function setup(paymentOverrides: Record<string, unknown> = {}) {
   };
 
   const paymentFindOne = jest.fn().mockResolvedValue(payment);
+  const paymentFindById = jest.fn().mockResolvedValue(null);
   const paymentClaim = jest
     .fn()
     .mockResolvedValue({ ...payment, status: PaymentStatus.SUCCESS });
@@ -86,6 +87,7 @@ function setup(paymentOverrides: Record<string, unknown> = {}) {
   const service = new PaymentsService(
     {
       findOne: paymentFindOne,
+      findById: paymentFindById,
       findOneAndUpdate: paymentClaim,
       updateOne: paymentUpdateOne,
     } as never,
@@ -105,6 +107,7 @@ function setup(paymentOverrides: Record<string, unknown> = {}) {
   return {
     service,
     paymentFindOne,
+    paymentFindById,
     paymentClaim,
     paymentUpdateOne,
     subscriptionUpdate,
@@ -413,5 +416,46 @@ describe('PaymentsService.handleWebhook', () => {
       );
       expect(t.sendMembershipPaymentReceipt).not.toHaveBeenCalled();
     });
+  });
+});
+
+describe('PaymentsService.verifyTransactionStatus', () => {
+  it('reports a confirmed payment from the ledger without calling Flutterwave', async () => {
+    const t = setup({
+      status: PaymentStatus.SUCCESS,
+      category: 'ticket_payment',
+    });
+
+    await expect(t.service.verifyTransactionStatus(REF)).resolves.toEqual({
+      reference: REF,
+      localStatus: PaymentStatus.SUCCESS,
+      category: 'ticket_payment',
+      needsReview: false,
+      gatewayStatus: 'successful',
+      amount: AMOUNT,
+      currency: 'NGN',
+    });
+    expect(t.verifyTransaction).not.toHaveBeenCalled();
+  });
+
+  it('asks Flutterwave while our side is still pending', async () => {
+    const t = setup({ category: 'ticket_payment' });
+
+    await expect(t.service.verifyTransactionStatus(REF)).resolves.toMatchObject(
+      { localStatus: PaymentStatus.PENDING, gatewayStatus: 'successful' },
+    );
+    expect(t.verifyTransaction).toHaveBeenCalledWith(REF);
+  });
+
+  it('tells the page when a payment was flagged for review', async () => {
+    const t = setup({
+      status: PaymentStatus.FAILED,
+      needsReview: true,
+      category: 'ticket_payment',
+    });
+
+    await expect(t.service.verifyTransactionStatus(REF)).resolves.toMatchObject(
+      { needsReview: true },
+    );
   });
 });

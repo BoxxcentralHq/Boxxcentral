@@ -10,13 +10,31 @@ import type {
 } from "@/lib/api/types";
 
 /** Public — the post-payment redirect page polls this until the gateway settles. */
+const VERIFY_POLL_MS = 3000;
+export const MAX_VERIFY_WAIT_MS = 2 * 60_000;
+
+export function isPaymentSettled(v: PaymentVerification) {
+  return (
+    v.localStatus === "success" ||
+    v.localStatus === "refunded" ||
+    v.needsReview ||
+    v.gatewayStatus === "failed"
+  );
+}
+
 export function usePaymentVerify(idOrRef: string | undefined) {
   return useQuery({
     queryKey: ["payments", "verify", idOrRef] as const,
     queryFn: () => api.get<PaymentVerification>(`/payments/${idOrRef}/verify`),
     enabled: Boolean(idOrRef),
-    refetchInterval: (query) =>
-      query.state.data?.gatewayStatus === "pending" ? 3000 : false,
+    retry: 1,
+    refetchInterval: (query) => {
+      const data = query.state.data;
+      if (!data || isPaymentSettled(data)) return false;
+      return query.state.dataUpdateCount * VERIFY_POLL_MS < MAX_VERIFY_WAIT_MS
+        ? VERIFY_POLL_MS
+        : false;
+    },
   });
 }
 
