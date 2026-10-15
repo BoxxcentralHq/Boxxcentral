@@ -138,6 +138,7 @@ jobs:
           # ever written to a file, only exported for this session
           envs: FRONTEND_URL,MONGODB_URI,JWT_SECRET,JWT_REFRESH_SECRET,FLW_SECRET_KEY,FLW_SECRET_HASH,ZEPTOMAIL_URL,ZEPTOMAIL_TOKEN,MAIL_FROM,MAIL_FROM_NAME,MAIL_NOREPLY,CLOUDINARY_CLOUD_NAME,CLOUDINARY_API_KEY,CLOUDINARY_API_SECRET,GHCR_PAT
           script: |
+            set -e
             echo "$GHCR_PAT" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             cd /srv/boxxcentral
             docker compose pull
