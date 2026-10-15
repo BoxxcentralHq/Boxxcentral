@@ -56,6 +56,7 @@ export default function CinemaHero({
     setIndex((i) => (i + delta + featured.length) % featured.length);
 
   const fromPrice = lowestPrice(movie.showtimes);
+  const heroImage = movie.bannerUrl ?? movie.posterUrl;
   const meta = [
     movie.rating && `Rated ${movie.rating}`,
     movie.genre,
@@ -79,9 +80,9 @@ export default function CinemaHero({
           transition={{ duration: 0.9, ease: "easeInOut" }}
           className="absolute inset-0"
         >
-          {movie.posterUrl ? (
+          {heroImage ? (
             <Image
-              src={movie.posterUrl}
+              src={heroImage}
               alt=""
               fill
               priority

@@ -29,7 +29,6 @@ export default function CinemaLobby({
     null,
   );
   const [selection, setSelection] = useState<ShowSelection>();
-  /* Bumped per opening so the checkout remounts with fresh state */
   const [bookingKey, setBookingKey] = useState(0);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [trailerMovie, setTrailerMovie] = useState<NowShowingMovie | null>(

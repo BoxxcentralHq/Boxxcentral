@@ -23,15 +23,15 @@ Work happens on a feature branch, gets verified on staging (`development`), and 
 - [ ] **D8** Pre-existing lint error: `backend/src/bowlboxx/bowlboxx.service.ts` line 1 needs prettier formatting. CI passes only because `pnpm lint` runs with `--fix`.
 - [ ] **D9** `frontend/README.md` is still the create-next-app template.
 
-## Phase 2: Public booking (private booking is on hold)
+## Phase 2: Public booking (private booking removed)
 
 **Decisions (agreed):**
-- **Focus on public booking first.** Private (whole-room) booking is on hold: its UI is no longer shown, and its code (`BookingSection`, `/bookings`) stays in place but parked.
+- **Private (whole-room) booking was removed entirely** on 2026-10-15: the `/bookings` API, `BookingSection`, the admin Bookings page, the private cinema settings fields, and the old dev bookings and their payments. It can be recovered from git history if it ever comes back.
 - Public screenings are **dated**: the admin creates each one with movie, room, date, and time.
-- Public screenings and private bookings use the **same physical rooms**. For now, screenings only block other screenings in the same room. The overlap check is built so private bookings can be added to it when 2B resumes.
+- Screenings block other screenings in the same room (start time plus movie duration, or 0 if unknown, plus the cleaning gap).
 - Customers pick a **ticket quantity only** (no seat map).
 - Ticket price is set **per screening**, with the default taken from cinema settings.
-- **VAT is added on top** of ticket prices using `CinemaSettings.vatRate` (currently 7.5%), the same as private bookings. Price, VAT, and total are shown before payment.
+- **VAT is added on top** of ticket prices using `CinemaSettings.vatRate` (currently 7.5%), as before. Price, VAT, and total are shown before payment.
 - `Screening` uses the dummy data's field names: `movieId`, `date`, `time`, `screen`, `ticketPrice`, `capacity`, `seatsHeld`, `seatsSold`, `visible`. The public API returns movies with `showtimes[]` in the dummy shape, with `_id`, `date`, `ticketPrice`, and `seatsLeft` added.
 - `Movie` gains `trailerUrl` and `rating`.
 
@@ -41,12 +41,6 @@ Work happens on a feature branch, gets verified on staging (`development`), and 
 - [x] A late payment for a slot that has since been taken is flagged for refund or manual follow-up instead of returning a 500.
 - [x] Escape all user-supplied values in the email templates.
 - [x] Unit tests for the above.
-
-### 2B. Private booking (whole room): ON HOLD
-- [ ] Interim: turn off "Booking enabled" in Admin → Settings in production. `POST /bookings` is still public even though no page shows the form.
-- Parked until public booking ships:
-  - Show the real `BookingSection` (Flutterwave) on `/filmboxx`.
-  - Check conflicts by overlapping time range (start plus session duration) per room, and include private bookings in the screening overlap check.
 
 ### 2C. Public booking (per-seat tickets)
 - [x] Backend: `Screening` model (fields as above). Admin-only API endpoints to create, edit, and delete screenings (no admin UI yet), plus a public endpoint listing upcoming screenings grouped by movie.
@@ -59,9 +53,9 @@ Work happens on a feature branch, gets verified on staging (`development`), and 
 
 ### Deferred to the admin dashboard redesign (separate project, after public booking ships)
 - Screenings manager page, including a "repeat daily for N days" option that skips days where the time would clash.
-- Ticket orders shown in the admin bookings and payments views.
+- Ticket orders shown in the admin, including in the payments view.
 - Movie form fields for `trailerUrl` and `rating`.
-- Payments flagged `needsReview` (`amount_mismatch`, `slot_taken`) shown in the payments view with a filter, so staff can refund or rebook. Until then, find them in the database with `{ needsReview: true }`.
+- Payments flagged `needsReview` (`amount_mismatch`, `sold_out`) shown in the payments view with a filter, so staff can refund or rebook. Until then, find them in the database with `{ needsReview: true }`.
 
 ### 2D. End-to-end test on staging (Flutterwave test mode)
 - [ ] Public tickets: buy and pay; failed payment; abandoned payment that expires and releases its seats; duplicate webhook; two people buying the last seat; admin creating overlapping screenings is rejected.

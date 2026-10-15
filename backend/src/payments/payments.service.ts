@@ -13,11 +13,6 @@ import {
   PaymentStatus,
 } from './schemas/payment.schema';
 import {
-  Booking,
-  BookingDocument,
-  BookingStatus,
-} from '../bookings/schemas/booking.schema';
-import {
   GymSubscription,
   GymSubscriptionDocument,
   GymSubscriptionStatus,
@@ -42,7 +37,6 @@ export class PaymentsService {
 
   constructor(
     @InjectModel(Payment.name) private paymentModel: Model<PaymentDocument>,
-    @InjectModel(Booking.name) private bookingModel: Model<BookingDocument>,
     @InjectModel(GymSubscription.name)
     private gymSubscriptionModel: Model<GymSubscriptionDocument>,
     @InjectModel(TicketOrder.name)
@@ -72,7 +66,6 @@ export class PaymentsService {
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
-        .populate('bookingId')
         .exec(),
       this.paymentModel.countDocuments(filter),
     ]);
@@ -209,7 +202,6 @@ export class PaymentsService {
   }
 
   private async fulfil(payment: PaymentDocument, justPaid: boolean) {
-    if (payment.bookingId) await this.confirmBooking(payment, justPaid);
     if (payment.subscriptionId) {
       await this.confirmSubscription(payment, justPaid);
     }
@@ -303,57 +295,6 @@ export class PaymentsService {
     return order;
   }
 
-  private async confirmBooking(payment: PaymentDocument, justPaid: boolean) {
-    let booking = await this.bookingModel.findOneAndUpdate(
-      { _id: payment.bookingId, status: BookingStatus.PENDING },
-      { status: BookingStatus.RESERVED },
-      { new: true },
-    );
-
-    if (!booking && justPaid) {
-      try {
-        booking = await this.bookingModel.findOneAndUpdate(
-          { _id: payment.bookingId, status: BookingStatus.CANCELLED },
-          { status: BookingStatus.RESERVED },
-          { new: true },
-        );
-      } catch (error) {
-        if ((error as { code?: number })?.code !== 11000) throw error;
-        await this.paymentModel.updateOne(
-          { _id: payment._id },
-          { needsReview: true, reviewReason: 'slot_taken' },
-        );
-        this.logger.error(
-          `[Webhook] ${payment.reference} paid after expiry, slot already taken — flagged for review`,
-        );
-        return;
-      }
-    }
-
-    if (!booking) return;
-
-    try {
-      await this.emailService.sendBookingConfirmation({
-        guestName: booking.guestName,
-        guestEmail: booking.guestEmail,
-        guestPhone: booking.guestPhone,
-        bookingRef: booking.bookingRef,
-        experience: booking.experience,
-        room: booking.room,
-        date: booking.date,
-        timeSlot: booking.timeSlot,
-        guests: booking.guests,
-        subtotal: booking.subtotal,
-        vatAmount: booking.vatAmount,
-        totalPrice: booking.totalPrice,
-      });
-    } catch (emailError) {
-      this.logger.error(
-        `[Webhook] Email dispatch failed for ${payment.reference}: ${(emailError as Error).message}`,
-      );
-    }
-  }
-
   private async confirmSubscription(
     payment: PaymentDocument,
     justPaid: boolean,
@@ -417,7 +358,7 @@ export class PaymentsService {
   }
 
   findOne(id: string) {
-    return this.paymentModel.findById(id).populate('bookingId').exec();
+    return this.paymentModel.findById(id).populate('ticketOrderId').exec();
   }
 
   async getMonthlyRevenue(): Promise<{ month: string; revenue: number }[]> {

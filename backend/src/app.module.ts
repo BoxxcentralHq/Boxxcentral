@@ -7,7 +7,6 @@ import type { Connection } from 'mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AdminModule } from './admin/admin.module';
-import { BookingsModule } from './bookings/bookings.module';
 import { BowlboxxModule } from './bowlboxx/bowlboxx.module';
 import { CinemaModule } from './cinema/cinema.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
@@ -83,7 +82,6 @@ const dbLogger = new Logger('Database');
     AdminModule,
     PaymentsModule,
     CinemaModule,
-    BookingsModule,
     ContactModule,
     MenuModule,
     GymModule,

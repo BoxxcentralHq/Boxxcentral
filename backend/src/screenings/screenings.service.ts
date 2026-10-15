@@ -364,11 +364,6 @@ export class ScreeningsService {
       ? await this.movieModel.findById(schedule.movieId)
       : null;
     if (!movie) throw new NotFoundException('Movie not found');
-    if (!movie.durationMins) {
-      throw new BadRequestException(
-        "Set the movie's duration before scheduling it",
-      );
-    }
 
     if (!isCalendarDate(schedule.date)) {
       throw new BadRequestException(`${schedule.date} is not a real date`);
@@ -379,7 +374,7 @@ export class ScreeningsService {
     }
     const endsAt = new Date(
       startsAt.getTime() +
-        (movie.durationMins + settings.screeningBufferMins) * 60_000,
+        ((movie.durationMins ?? 0) + settings.screeningBufferMins) * 60_000,
     );
 
     const clash = await this.screeningModel.findOne({

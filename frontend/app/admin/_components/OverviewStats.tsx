@@ -1,31 +1,19 @@
 "use client";
 
-import { format, formatDistanceToNowStrict, parseISO } from "date-fns";
+import { formatDistanceToNowStrict, parseISO } from "date-fns";
 import Reveal from "@/components/Reveal";
 import type { AdminRole } from "@/lib/api/types";
-import { useBookingsList } from "@/lib/bookings";
 import { useMessagesList } from "@/lib/contact";
 import { useMenuItemsAdmin } from "@/lib/menu";
 import { canAccess } from "@/lib/roles";
 import { PanelLabel } from "./shared";
 
-const today = format(new Date(), "yyyy-MM-dd");
-
-/** The overview stat tiles — real data from /bookings, /contact, and /menu, scoped to what this role can see. */
+/** The overview stat tiles — real data from /contact and /menu, scoped to what this role can see. */
 export default function OverviewStats({ role }: { role: AdminRole }) {
-  const showBookings = canAccess(role, "bookings");
   const showMessages = canAccess(role, "messages");
   const showMenu = canAccess(role, "menu");
-  const showMenuStats = showMenu && !showBookings;
+  const showMenuStats = showMenu;
 
-  const { data: todayData, isLoading: todayLoading } = useBookingsList(
-    { date: today, limit: 100 },
-    { enabled: showBookings },
-  );
-  const { data: pendingData, isLoading: pendingLoading } = useBookingsList(
-    { status: "pending", limit: 1 },
-    { enabled: showBookings },
-  );
   const { data: unreadData, isLoading: unreadLoading } = useMessagesList(
     { unread: true, limit: 1 },
     { enabled: showMessages },
@@ -33,40 +21,12 @@ export default function OverviewStats({ role }: { role: AdminRole }) {
   const { data: menuItems, isLoading: menuLoading } = useMenuItemsAdmin({
     enabled: showMenuStats,
   });
-  const activeTodaysBookings = (todayData?.bookings ?? []).filter(
-    (b) => b.status !== "cancelled",
-  );
-  const bookingsToday = activeTodaysBookings.length;
-  const guestsExpected = activeTodaysBookings.reduce((sum, b) => sum + b.guests, 0);
-  const nextToday = [...activeTodaysBookings].sort((a, b) =>
-    a.timeSlot.localeCompare(b.timeSlot),
-  )[0];
-  const pendingCount = pendingData?.meta?.total ?? 0;
   const unreadCount = unreadData?.meta?.total ?? 0;
   const newestUnread = unreadData?.messages?.[0];
   const hiddenMenuItems = (menuItems ?? []).filter((item) => !item.visible).length;
   const menuCategoryCount = new Set((menuItems ?? []).map((item) => item.category)).size;
 
   const stats = [
-    ...(showBookings
-      ? [
-          {
-            label: "Bookings today",
-            value: todayLoading ? "—" : String(bookingsToday),
-            note: nextToday ? `next at ${nextToday.timeSlot}` : "none scheduled",
-          },
-          {
-            label: "Guests expected",
-            value: todayLoading ? "—" : String(guestsExpected),
-            note: "today, across all bookings",
-          },
-          {
-            label: "Pending approvals",
-            value: pendingLoading ? "—" : String(pendingCount),
-            note: "awaiting payment",
-          },
-        ]
-      : []),
     ...(showMessages
       ? [
           {

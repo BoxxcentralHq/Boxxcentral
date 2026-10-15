@@ -37,16 +37,10 @@ export type ChangePasswordBody = {
 };
 
 export type CinemaSettings = {
-  basePrice: number;
-  includedGuests: number;
-  maxGuests: number;
-  extraSeatPrice: number;
-  sessionDurationHours: number;
   vatRate: number;
-  timeSlots: string[];
   rooms: string[];
-  bookingEnabled: boolean;
   defaultTicketPrice: number;
+  screeningBufferMins: number;
 };
 
 export type UpdateCinemaSettingsBody = Partial<CinemaSettings>;
@@ -67,6 +61,7 @@ export type Movie = {
   genre?: string;
   durationMins?: number;
   posterUrl?: string;
+  bannerUrl?: string;
   trailerUrl?: string;
   rating?: string;
   visible: boolean;
@@ -126,60 +121,6 @@ export type MenuItem = {
   createdAt: string;
 };
 
-export type BookingStatus = "pending" | "reserved" | "cancelled" | "completed";
-
-export type CreateBookingBody = {
-  guestName: string;
-  guestEmail: string;
-  guestPhone: string;
-  date: string; // "YYYY-MM-DD"
-  timeSlot: string; // "HH:mm", must match one of CinemaSettings.timeSlots
-  room: string; // must match one of CinemaSettings.rooms
-  guests: number;
-  notes?: string;
-};
-
-export type Booking = {
-  _id: string;
-  bookingRef: string;
-  experience: string;
-  guestName: string;
-  guestEmail: string;
-  guestPhone: string;
-  date: string;
-  timeSlot: string;
-  room: string;
-  guests: number;
-  subtotal: number;
-  vatAmount: number;
-  totalPrice: number;
-  status: BookingStatus;
-  notes?: string;
-  createdAt: string;
-};
-
-export type Availability = {
-  date: string;
-  room: string;
-  bookingEnabled: boolean;
-  slots: { time: string; available: boolean }[];
-};
-
-export type CreateBookingResponse = {
-  booking: Pick<
-    Booking,
-    | "bookingRef"
-    | "date"
-    | "timeSlot"
-    | "room"
-    | "guests"
-    | "subtotal"
-    | "vatAmount"
-    | "totalPrice"
-  >;
-  paymentLink: string;
-};
-
 export type PaymentStatus = "pending" | "success" | "failed" | "refunded";
 
 export type Payment = {
@@ -190,13 +131,13 @@ export type Payment = {
   currency: string;
   type: "inflow" | "outflow";
   category:
-    | "booking_payment"
     | "gym_subscription_payment"
     | "ticket_payment"
     | "refund";
   status: PaymentStatus;
   paymentMethod: string;
-  bookingId?: Booking | string;
+  ticketOrderId?: string;
+  subscriptionId?: string;
   createdAt: string;
 };
 
@@ -207,7 +148,6 @@ export type PaymentVerification = {
   amount: number;
   currency: string;
   category:
-    | "booking_payment"
     | "gym_subscription_payment"
     | "ticket_payment"
     | "refund";
@@ -259,7 +199,6 @@ export type PricingPlan = {
   buttonText?: string;
 };
 
-export type BookingsPage = { bookings: Booking[]; meta: PageMeta };
 export type PaymentsPage = { payments: Payment[]; meta: PageMeta };
 export type MessagesPage = { messages: ContactMessage[]; meta: PageMeta };
 

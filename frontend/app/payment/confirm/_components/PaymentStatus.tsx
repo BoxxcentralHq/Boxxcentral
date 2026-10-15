@@ -21,15 +21,12 @@ function readReference(params: URLSearchParams) {
 const naira = (amount: number) => `₦${amount.toLocaleString("en-NG")}`;
 
 const RETRY_HREF: Record<PaymentVerification["category"], string> = {
-  booking_payment: "/filmboxx",
   ticket_payment: "/filmboxx#now-showing",
   gym_subscription_payment: "/gymboxx",
   refund: "/",
 };
 
 const SUCCESS_BODY: Record<PaymentVerification["category"], string> = {
-  booking_payment:
-    "Your booking is locked in — we've sent the details to your email. See you soon.",
   ticket_payment:
     "Your seats are confirmed — we've emailed your tickets. Show your reference at the door.",
   gym_subscription_payment:

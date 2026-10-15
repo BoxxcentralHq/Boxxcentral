@@ -1,18 +1,13 @@
 import Link from "next/link";
-import BookingSection from "@/components/BookingSection";
 import ExperienceShowcase from "@/components/ExperienceShowcase";
 import PageHero from "@/components/PageHero";
 import { Button } from "@/components/ui/button";
 import type { Experience } from "@/lib/experiences";
 
 /**
- * Complete sub-brand page (hero + showcase [+ children] [+ booking]), driven
- * entirely by the experience's data in lib/experiences.ts. Bookable
- * experiences get a primary "Book {name}" CTA that jumps to the embedded
- * booking form, plus the data-driven secondary CTA; non-bookable experiences
- * show just the secondary CTA on its own. `children` is an optional slot
- * between the showcase and the booking form — FilmBoxx uses it for the
- * movie catalog.
+ * Complete sub-brand page (hero + showcase [+ children]), driven entirely by
+ * the experience's data in lib/experiences.ts. Bookable experiences get a
+ * primary "Buy tickets" CTA alongside the data-driven secondary CTA.
  */
 export default function ExperiencePage({
   experience,
@@ -33,7 +28,7 @@ export default function ExperiencePage({
           experience.bookable ? (
             <>
               <Button asChild size="lg">
-                <Link href="#book">Book {experience.name}</Link>
+                <Link href={`${experience.href}#now-showing`}>Buy tickets</Link>
               </Button>
               <Button asChild variant="outline" size="lg">
                 <Link href={experience.hero.cta.href}>
@@ -52,7 +47,6 @@ export default function ExperiencePage({
       />
       <ExperienceShowcase experience={experience} />
       {children}
-      {experience.bookable && <BookingSection experience={experience} />}
     </>
   );
 }

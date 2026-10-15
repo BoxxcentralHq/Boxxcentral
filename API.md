@@ -10,13 +10,13 @@ BoxxCentral is one umbrella brand over four experiences:
 
 | Sub-brand | What it is | Backend |
 |---|---|---|
-| **FilmBoxx** | Cinema | Movie catalog, public screenings with per-seat tickets (Flutterwave), cinema settings, and private whole-room bookings (Flutterwave — on hold, not shown on the site) |
+| **FilmBoxx** | Cinema | Movie catalog, public screenings with per-seat tickets (Flutterwave), cinema settings |
 | **GymBoxx** | Gym | Membership plans + paid one-off subscriptions (Flutterwave) |
 | **BowlBoxx** | Bowling | Leaderboard for the in-venue TV display |
 | **Lounge** | Bar/lounge | Menu (content only — no ordering or payment) |
 
-Three flows move money, all through Flutterwave: FilmBoxx tickets, FilmBoxx private
-bookings, and GymBoxx subscriptions. Payment is only ever confirmed by Flutterwave's webhook — never by the
+Two flows move money, both through Flutterwave: FilmBoxx tickets and GymBoxx
+subscriptions. Payment is only ever confirmed by Flutterwave's webhook — never by the
 frontend.
 
 ## 2. Environments
@@ -43,7 +43,7 @@ Success:
 ```ts
 {
   success: true,
-  message: string,      // human-readable, e.g. "Bookings fetched"
+  message: string,      // human-readable, e.g. "Screenings fetched"
   data: T | null,       // the payload documented per endpoint below
   error: null,
   timestamp: string,    // ISO 8601
@@ -100,7 +100,7 @@ every account after that is created by the super admin.
 | Role | Can do |
 |---|---|
 | `super_admin` | Everything below, plus staff accounts, payments ledger, revenue analytics, cinema settings, and contact messages |
-| `cinema_admin` | Movie catalog (CRUD + poster upload), screenings (CRUD), bookings (list / cancel / complete) |
+| `cinema_admin` | Movie catalog (CRUD + poster and banner upload), screenings (CRUD) |
 | `lounge_admin` | Lounge menu items (CRUD + image upload) |
 | `gym_admin` | Gym plans (CRUD), gym subscriptions (list / search / activate) |
 
@@ -126,19 +126,19 @@ Passwords must be at least 8 characters.
   documented fields.
 - **Rate limits** apply only where listed in the tables below (per IP). Routes without a
   listed limit are not rate-limited.
-- **Pagination** — bookings, payments, contact messages, and gym subscriptions take
+- **Pagination** — payments, contact messages, and gym subscriptions take
   `page` (default 1) and `limit` (default 10) and return:
   ```ts
   { <items>: [...], meta: { total, page, limit, totalPages } }
   ```
-  where `<items>` is `bookings`, `payments`, `messages`, or `subscriptions`.
+  where `<items>` is `payments`, `messages`, or `subscriptions`.
 - **File uploads** (movie posters, menu images) are `multipart/form-data` — text fields
   plus one file field (`poster` or `image`). JPEG, PNG, or WebP, max 5 MB, optional.
   Don't set `Content-Type` yourself; let the browser add the multipart boundary.
   Multipart booleans are sent as the strings `"true"` / `"false"`.
 - **Prices are plain numbers in naira** — `6500`, not `"₦6,500"`. Format on the frontend
   (`n.toLocaleString('en-NG')`).
-- **Money is never trusted from the client.** Booking and subscription amounts are
+- **Money is never trusted from the client.** Ticket and subscription amounts are
   computed server-side; the client sends quantities, never prices.
 - **Dates** are `"YYYY-MM-DD"` strings and times are 24-hour `"HH:mm"` strings.
 
@@ -146,38 +146,29 @@ Passwords must be at least 8 characters.
 
 | Method & path | Auth | Notes |
 |---|---|---|
-| `GET /cinema/settings` | none | Public pricing and booking config — shape below |
+| `GET /cinema/settings` | none | VAT, rooms, default ticket price, and cleaning gap — shape below |
 | `PATCH /cinema/settings` | `super_admin` | JSON body: any subset of the settings fields |
 | `GET /cinema/movies` | none | Visible movies only, newest first |
 | `GET /cinema/movies/all` | `super_admin`, `cinema_admin` | Includes hidden movies |
-| `POST /cinema/movies` | `super_admin`, `cinema_admin` | Multipart: `title`, `synopsis?`, `genre?`, `durationMins?`, `trailerUrl?`, `rating?` + file `poster?` |
-| `PATCH /cinema/movies/:id` | `super_admin`, `cinema_admin` | Same fields, all optional, plus `visible`. A new `poster` replaces the old one |
-| `DELETE /cinema/movies/:id` | `super_admin`, `cinema_admin` | Also deletes the poster from Cloudinary |
+| `POST /cinema/movies` | `super_admin`, `cinema_admin` | Multipart: `title`, `synopsis?`, `genre?`, `durationMins?`, `trailerUrl?`, `rating?` + files `poster?` (portrait, 2:3) and `banner?` (wide, for the hero) |
+| `PATCH /cinema/movies/:id` | `super_admin`, `cinema_admin` | Same fields, all optional, plus `visible`. A new `poster` or `banner` replaces the old one |
+| `DELETE /cinema/movies/:id` | `super_admin`, `cinema_admin` | Also deletes the poster and banner from Cloudinary |
 
 **Settings:**
 ```ts
 {
-  basePrice: number,            // private booking price, before VAT
-  includedGuests: number,       // guests covered by basePrice
-  maxGuests: number,
-  extraSeatPrice: number,       // per guest above includedGuests
-  sessionDurationHours: number,
   vatRate: number,              // percent, e.g. 7.5
-  timeSlots: string[],          // e.g. ["11:00", "15:00", "19:00"]
   rooms: string[],              // e.g. ["Cinema 1", "Cinema 2"]
-  bookingEnabled: boolean,      // master switch for private bookings
   defaultTicketPrice: number,   // used when a screening is created without a price
+  screeningBufferMins: number,  // cleaning gap kept free after each screening
 }
 ```
 
 **Movie:**
 ```ts
-{ _id, title, synopsis?, genre?, durationMins?, posterUrl?, trailerUrl?, rating?, visible,
-  createdAt, updatedAt }
+{ _id, title, synopsis?, genre?, durationMins?, posterUrl?, bannerUrl?, trailerUrl?, rating?,
+  visible, createdAt, updatedAt }
 ```
-
-`PATCH /cinema/settings` also accepts `screeningBufferMins` (cleaning gap between
-screenings in the same room, default 30). It isn't returned by the public `GET`.
 
 ## 7. Screenings and tickets (FilmBoxx public)
 
@@ -196,7 +187,7 @@ seats (quantity only — no seat map). Ticket prices have VAT added on top.
 **Create screening body:**
 ```ts
 {
-  movieId: string,       // the movie must have durationMins set
+  movieId: string,
   date: string,          // "YYYY-MM-DD", Lagos time, must be in the future
   time: string,          // "HH:mm", Lagos time
   screen: string,        // one of settings.rooms
@@ -205,13 +196,14 @@ seats (quantity only — no seat map). Ticket prices have VAT added on top.
   visible?: boolean,     // default true
 }
 ```
-A screening occupies its room from `time` until `time + durationMins + screeningBufferMins`.
-Creating or moving one into an occupied window returns **409**.
+A screening occupies its room from `time` until `time + durationMins + screeningBufferMins`
+(a movie with no `durationMins` counts as 0). Creating or moving one into an occupied window
+returns **409**. Existing screenings aren't re-checked when a movie's duration changes later.
 
 **`GET /screenings` returns:**
 ```ts
 [{
-  _id, title, synopsis?, genre?, durationMins?, posterUrl?, trailerUrl?, rating?,
+  _id, title, synopsis?, genre?, durationMins?, posterUrl?, bannerUrl?, trailerUrl?, rating?,
   visible, createdAt, updatedAt,
   showtimes: [{ _id, date, time, screen, ticketPrice, seatsLeft }],  // _id is the screening id
 }]
@@ -241,59 +233,7 @@ Errors: **404** unknown or hidden screening · **400** screening already started
 or `expired` (seats released). A payment that lands after expiry re-takes the seats if
 any are left; otherwise the payment is flagged for review (`sold_out`).
 
-## 8. Bookings (FilmBoxx private rooms)
-
-A booking reserves a whole room for one time slot. Not currently shown on the website.
-
-| Method & path | Auth | Notes |
-|---|---|---|
-| `POST /bookings` | none · 5/min | Creates a booking and a Flutterwave payment link |
-| `GET /bookings/availability?date=YYYY-MM-DD&room=<room>` | none | Free slots for one room on one day. **Both** params are required |
-| `GET /bookings` | `super_admin`, `cinema_admin` | Query: `page`, `limit`, `date`, `status` |
-| `PATCH /bookings/:id/cancel` | `super_admin`, `cinema_admin` | Frees the slot. Does **not** refund |
-| `PATCH /bookings/:id/complete` | `super_admin`, `cinema_admin` | Marks the visit done |
-
-**Create body:**
-```ts
-{
-  guestName: string,
-  guestEmail: string,
-  guestPhone: string,
-  date: string,       // "YYYY-MM-DD", not in the past
-  timeSlot: string,   // one of settings.timeSlots
-  room: string,       // one of settings.rooms
-  guests: number,     // 1..settings.maxGuests
-  notes?: string,
-}
-```
-
-**Create returns:**
-```ts
-{
-  booking: { bookingRef, date, timeSlot, room, guests, subtotal, vatAmount, totalPrice },
-  paymentLink: string,   // redirect the guest here to pay
-}
-```
-
-Pricing: `subtotal = basePrice + max(0, guests − includedGuests) × extraSeatPrice`,
-`vatAmount = round(subtotal × vatRate / 100)`, `totalPrice = subtotal + vatAmount`.
-
-**Availability returns:**
-```ts
-{ date, room, bookingEnabled, slots: [{ time: "19:00", available: true }, ...] }
-```
-
-**Statuses:** `pending` (awaiting payment; auto-cancelled after 30 minutes unpaid) →
-`reserved` (paid) → `completed` or `cancelled`. One room can't hold two
-pending/reserved bookings for the same date and slot.
-
-**Booking (admin list):**
-```ts
-{ _id, bookingRef, experience, guestName, guestEmail, guestPhone, date, timeSlot, room,
-  guests, subtotal, vatAmount, totalPrice, status, notes?, createdAt, updatedAt }
-```
-
-## 9. Gym (GymBoxx)
+## 8. Gym (GymBoxx)
 
 A plan is a fixed-length pass, paid once (no recurring billing). Plan prices are
 all-inclusive — no VAT is added.
@@ -332,7 +272,7 @@ runs from `startDate` to `endDate`) → `expired`.
   memberPhone, status, startDate?, endDate?, createdAt, updatedAt }
 ```
 
-## 10. Payments
+## 9. Payments
 
 | Method & path | Auth | Notes |
 |---|---|---|
@@ -340,7 +280,7 @@ runs from `startDate` to `endDate`) → `expired`.
 | `GET /payments/:idOrRef/verify` | none | The post-payment page polls this. Accepts the payment `_id` or the `BXX-…` reference |
 | `GET /payments` | `super_admin` | Query: `page`, `limit`, `search` (matches reference or transaction ID) |
 | `GET /payments/analytics/monthly` | `super_admin` | Successful revenue for the last 6 months |
-| `GET /payments/:id` | `super_admin` | One ledger entry with its booking populated |
+| `GET /payments/:id` | `super_admin` | One ledger entry with its ticket order populated |
 
 After payment, Flutterwave redirects the customer to `<frontend>/payment/confirm` with the
 reference in the query string (`tx_ref`).
@@ -353,7 +293,7 @@ reference in the query string (`tx_ref`).
   gatewayStatus: string,                                      // Flutterwave's view
   amount: number,
   currency: string,
-  category: "booking_payment" | "gym_subscription_payment" | "ticket_payment" | "refund",
+  category: "gym_subscription_payment" | "ticket_payment" | "refund",
 }
 ```
 
@@ -363,15 +303,15 @@ revenue are omitted.
 **Payment (ledger):**
 ```ts
 { _id, reference, transactionId?, amount, currency, type: "inflow" | "outflow", category,
-  status, paymentMethod, bookingId?, subscriptionId?, ticketOrderId?, gatewayResponse?,
+  status, paymentMethod, subscriptionId?, ticketOrderId?, gatewayResponse?,
   needsReview, reviewReason?, createdAt, updatedAt }
 ```
 
 `needsReview` is set when money arrived but couldn't be applied — `reviewReason` is
-`amount_mismatch`, `slot_taken` (private booking), or `sold_out` (tickets). These need a
+`amount_mismatch` or `sold_out` (tickets). These need a
 refund or manual follow-up.
 
-## 11. Menu (Lounge)
+## 10. Menu (Lounge)
 
 | Method & path | Auth | Notes |
 |---|---|---|
@@ -393,7 +333,7 @@ splits and trims it.
   createdAt, updatedAt }
 ```
 
-## 12. BowlBoxx leaderboard
+## 11. BowlBoxx leaderboard
 
 Two boards — the 6-frame and 10-frame challenges — stored together.
 
@@ -413,7 +353,7 @@ at most 10 entries, scores are whole numbers ≥ 0.
 }
 ```
 
-## 13. Contact
+## 12. Contact
 
 | Method & path | Auth | Notes |
 |---|---|---|
@@ -433,9 +373,9 @@ Max lengths: name 100, phone 30, subject 150, message 3000.
 { _id, name, email, phone?, subject?, message, read: boolean, createdAt, updatedAt }
 ```
 
-## 14. Not built yet (don't build against these)
+## 13. Not built yet (don't build against these)
 
 - **Admin UI for screenings and ticket orders** — the API exists; the dashboard
   screens come with the admin redesign. Until then, use the endpoints directly.
 - **Ticket check-in** — there is no endpoint yet to mark an order as used at the door.
-- **Refunds** — cancelling a booking frees the slot but doesn't touch Flutterwave.
+- **Refunds** — there is no refund endpoint; flagged payments are refunded by hand in Flutterwave.

@@ -54,11 +54,11 @@ admin (Admin → Account).
 | `JWT_SECRET` | **yes** | Signs access tokens. Long random string |
 | `JWT_REFRESH_SECRET` | **yes** | Signs refresh tokens. Must differ from `JWT_SECRET` |
 | `COOKIE_SAME_SITE` | no | Leave unset (`lax`). Set to `none` only when the frontend runs cross-site from the API, e.g. a local frontend against staging |
-| `FLW_SECRET_KEY` | for payments | Flutterwave secret key. Bookings and gym subscriptions fail without it |
+| `FLW_SECRET_KEY` | for payments | Flutterwave secret key. Ticket sales and gym subscriptions fail without it |
 | `FLW_SECRET_HASH` | for payments | Must match the webhook "secret hash" set in the Flutterwave dashboard |
 | `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | for uploads | Movie posters and menu images |
 | `ZEPTOMAIL_URL` | no | Defaults to `https://api.zeptomail.com/` |
-| `ZEPTOMAIL_TOKEN` | for email | Booking and membership emails fail without it |
+| `ZEPTOMAIL_TOKEN` | for email | Ticket and membership emails fail without it |
 | `MAIL_FROM`, `MAIL_FROM_NAME`, `MAIL_NOREPLY` | no | Sender addresses and display name |
 
 Generate secrets with `openssl rand -base64 48`.

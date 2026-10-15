@@ -165,12 +165,17 @@ describe('ScreeningsService', () => {
       ).rejects.toThrow(BadRequestException);
     });
 
-    it('rejects a movie without a duration', async () => {
+    it('schedules a movie without a duration, blocking only the cleaning gap', async () => {
       const t = setup();
       t.movieFindById.mockResolvedValue({ ...movie, durationMins: undefined });
 
-      await expect(t.service.create(newScreening)).rejects.toThrow(
-        "Set the movie's duration before scheduling it",
+      await t.service.create(newScreening);
+
+      const startsAt = lagosDateTime(FUTURE, '13:30');
+      expect(t.screeningCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          endsAt: new Date(startsAt.getTime() + 30 * 60_000),
+        }),
       );
     });
 

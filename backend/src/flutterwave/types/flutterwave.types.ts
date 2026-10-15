@@ -16,7 +16,6 @@ export interface FlutterwaveInitializePayload {
   currency: string;
   redirect_url: string;
   meta: {
-    bookingId?: string;
     subscriptionId?: string;
     ticketOrderId?: string;
     experience: string;

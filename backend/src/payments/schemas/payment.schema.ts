@@ -10,11 +10,7 @@ export enum PaymentStatus {
   REFUNDED = 'refunded',
 }
 
-export const PAYMENT_REVIEW_REASONS = [
-  'amount_mismatch',
-  'slot_taken',
-  'sold_out',
-] as const;
+export const PAYMENT_REVIEW_REASONS = ['amount_mismatch', 'sold_out'] as const;
 export type PaymentReviewReason = (typeof PAYMENT_REVIEW_REASONS)[number];
 
 @Schema({ timestamps: true })
@@ -38,13 +34,7 @@ export class Payment {
 
   @Prop({
     required: true,
-    enum: [
-      'booking_payment',
-      'gym_subscription_payment',
-      'ticket_payment',
-      'refund',
-    ],
-    default: 'booking_payment',
+    enum: ['gym_subscription_payment', 'ticket_payment', 'refund'],
   })
   category: string;
 
@@ -57,9 +47,6 @@ export class Payment {
 
   @Prop({ default: 'flutterwave' })
   paymentMethod: string;
-
-  @Prop({ type: Types.ObjectId, ref: 'Booking' })
-  bookingId?: Types.ObjectId;
 
   @Prop({ type: Types.ObjectId, ref: 'GymSubscription' })
   subscriptionId?: Types.ObjectId;

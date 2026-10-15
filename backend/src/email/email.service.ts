@@ -16,21 +16,6 @@ const SITE_ADDRESS = 'Fadeyi Estate off Ilesa Road, Osogbo, Osun State';
 const SITE_PHONE = '+234 706 349 2072';
 const SITE_EMAIL = 'info@boxxcentral.com';
 
-export interface BookingConfirmationEmail {
-  guestName: string;
-  guestEmail: string;
-  guestPhone: string;
-  bookingRef: string;
-  experience: string;
-  room: string;
-  date: string;
-  timeSlot: string;
-  guests: number;
-  subtotal: number;
-  vatAmount: number;
-  totalPrice: number;
-}
-
 export interface MembershipPaymentReceiptEmail {
   memberName: string;
   memberEmail: string;
@@ -284,24 +269,6 @@ export class EmailService {
       </div>`;
   }
 
-  private bookingConfirmationHtml(data: BookingConfirmationEmail): string {
-    return this.receiptHtml({
-      heading: 'BOOKING RECEIPT',
-      ref: data.bookingRef,
-      customerName: data.guestName,
-      customerEmail: data.guestEmail,
-      customerPhone: data.guestPhone,
-      description: `FilmBoxx Private Cinema — ${data.room}`,
-      details: `${data.date} at ${data.timeSlot}`,
-      quantityLabel: 'Guests',
-      quantity: data.guests,
-      subtotal: data.subtotal,
-      vatAmount: data.vatAmount,
-      totalPrice: data.totalPrice,
-      note: 'Show this receipt (or your booking reference) at the door. Please arrive on time — your session starts promptly at the scheduled reservation time.',
-    });
-  }
-
   private ticketConfirmationHtml(data: TicketConfirmationEmail): string {
     return this.receiptHtml({
       heading: 'TICKET RECEIPT',
@@ -325,14 +292,6 @@ export class EmailService {
       { address: data.guestEmail, name: data.guestName },
       `Your FilmBoxx tickets for ${data.movieTitle} — ${data.orderRef}`,
       this.ticketConfirmationHtml(escapeStrings(data)),
-    );
-  }
-
-  async sendBookingConfirmation(data: BookingConfirmationEmail) {
-    await this.send(
-      { address: data.guestEmail, name: data.guestName },
-      `Your FilmBoxx booking ${data.bookingRef} is confirmed`,
-      this.bookingConfirmationHtml(escapeStrings(data)),
     );
   }
 

@@ -2,13 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Add01Icon, Cancel01Icon, ToggleOffIcon, ToggleOnIcon } from "@hugeicons/core-free-icons";
+import { Add01Icon, Cancel01Icon } from "@hugeicons/core-free-icons";
 import Reveal from "@/components/Reveal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast, toastApiError } from "@/lib/api/toast";
-import { useCinemaSettings, useUpdateCinemaSettings } from "@/lib/bookings";
-import { cn } from "@/lib/utils";
+import { useCinemaSettings, useUpdateCinemaSettings } from "@/lib/cinema";
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -19,35 +18,35 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
 }
 
 type FormState = {
-  basePrice: string;
-  includedGuests: string;
-  maxGuests: string;
-  extraSeatPrice: string;
-  sessionDurationHours: string;
   vatRate: string;
-  timeSlots: string[];
-  bookingEnabled: boolean;
+  defaultTicketPrice: string;
+  screeningBufferMins: string;
+  rooms: string[];
 };
+
+type NumericKey = Exclude<keyof FormState, "rooms">;
+
+const numericFields: { key: NumericKey; label: string; hint?: string; step: number }[] = [
+  { key: "defaultTicketPrice", label: "Default ticket price (₦)", hint: "Before VAT, for new screenings", step: 1 },
+  { key: "vatRate", label: "VAT rate (%)", hint: "e.g. 7.5, not 0.075", step: 0.1 },
+  { key: "screeningBufferMins", label: "Gap between screenings (min)", hint: "Cleaning time kept free in each room", step: 1 },
+];
 
 export default function CinemaSettingsForm() {
   const { data: settings, isLoading, isError } = useCinemaSettings();
   const updateSettings = useUpdateCinemaSettings();
 
   const [form, setForm] = useState<FormState | null>(null);
-  const [newSlot, setNewSlot] = useState("");
+  const [newRoom, setNewRoom] = useState("");
   const initialized = useRef(false);
 
   useEffect(() => {
     if (settings && !initialized.current) {
       setForm({
-        basePrice: String(settings.basePrice),
-        includedGuests: String(settings.includedGuests),
-        maxGuests: String(settings.maxGuests),
-        extraSeatPrice: String(settings.extraSeatPrice),
-        sessionDurationHours: String(settings.sessionDurationHours),
         vatRate: String(settings.vatRate),
-        timeSlots: settings.timeSlots,
-        bookingEnabled: settings.bookingEnabled,
+        defaultTicketPrice: String(settings.defaultTicketPrice),
+        screeningBufferMins: String(settings.screeningBufferMins),
+        rooms: settings.rooms,
       });
       initialized.current = true;
     }
@@ -69,16 +68,16 @@ export default function CinemaSettingsForm() {
     );
   }
 
-  function addSlot() {
-    const slot = newSlot.trim();
-    if (!slot || !form || form.timeSlots.includes(slot)) return;
-    setForm({ ...form, timeSlots: [...form.timeSlots, slot].sort() });
-    setNewSlot("");
+  function addRoom() {
+    const room = newRoom.trim();
+    if (!room || !form || form.rooms.includes(room)) return;
+    setForm({ ...form, rooms: [...form.rooms, room] });
+    setNewRoom("");
   }
 
-  function removeSlot(slot: string) {
+  function removeRoom(room: string) {
     if (!form) return;
-    setForm({ ...form, timeSlots: form.timeSlots.filter((t) => t !== slot) });
+    setForm({ ...form, rooms: form.rooms.filter((r) => r !== room) });
   }
 
   function handleSave() {
@@ -86,14 +85,10 @@ export default function CinemaSettingsForm() {
 
     updateSettings.mutate(
       {
-        basePrice: Number(form.basePrice),
-        includedGuests: Number(form.includedGuests),
-        maxGuests: Number(form.maxGuests),
-        extraSeatPrice: Number(form.extraSeatPrice),
-        sessionDurationHours: Number(form.sessionDurationHours),
         vatRate: Number(form.vatRate),
-        timeSlots: form.timeSlots,
-        bookingEnabled: form.bookingEnabled,
+        defaultTicketPrice: Number(form.defaultTicketPrice),
+        screeningBufferMins: Number(form.screeningBufferMins),
+        rooms: form.rooms,
       },
       {
         onSuccess: () => toast.success("Settings saved"),
@@ -102,56 +97,25 @@ export default function CinemaSettingsForm() {
     );
   }
 
-  const numericFields: { key: keyof FormState; label: string; hint?: string }[] = [
-    { key: "basePrice", label: "Base price (₦)", hint: "For the included guest count" },
-    { key: "includedGuests", label: "Included guests" },
-    { key: "maxGuests", label: "Max guests" },
-    { key: "extraSeatPrice", label: "Extra seat price (₦)" },
-    { key: "sessionDurationHours", label: "Session length (hours)" },
-    { key: "vatRate", label: "VAT rate (%)", hint: "e.g. 7.5, not 0.075" },
-  ];
-
-  const isValid = numericFields.every((f) => {
-    const v = Number(form[f.key]);
-    return Number.isFinite(v) && v >= 0;
-  });
+  const isValid =
+    form.rooms.length > 0 &&
+    numericFields.every((f) => {
+      const v = Number(form[f.key]);
+      return form[f.key].trim() !== "" && Number.isFinite(v) && v >= 0;
+    }) &&
+    Number.isInteger(Number(form.screeningBufferMins));
 
   return (
     <Reveal className="rounded-2xl border border-boxx-line bg-boxx-coal p-6 sm:p-8">
-      <div className="flex items-center justify-between gap-4 rounded-xl border border-boxx-line bg-boxx-night px-5 py-4">
-        <div>
-          <p className="font-semibold text-boxx-white">Online booking</p>
-          <p className="mt-0.5 text-xs text-boxx-dim">
-            {form.bookingEnabled
-              ? "Guests can book and pay online."
-              : "Booking is paused — the public form points to WhatsApp instead."}
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => setForm({ ...form, bookingEnabled: !form.bookingEnabled })}
-          aria-pressed={form.bookingEnabled}
-          className={cn(
-            "flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-xs font-bold uppercase tracking-widest transition-colors duration-200",
-            form.bookingEnabled
-              ? "border-boxx-red bg-boxx-red text-boxx-white"
-              : "border-boxx-line text-boxx-mist hover:border-boxx-dim hover:text-boxx-white",
-          )}
-        >
-          <HugeiconsIcon icon={form.bookingEnabled ? ToggleOnIcon : ToggleOffIcon} className="size-4" />
-          {form.bookingEnabled ? "On" : "Off"}
-        </button>
-      </div>
-
-      <div className="mt-6 grid gap-5 sm:grid-cols-2">
+      <div className="grid gap-5 sm:grid-cols-2">
         {numericFields.map((f) => (
           <div key={f.key} className="space-y-2">
             <FieldLabel>{f.label}</FieldLabel>
             <Input
               type="number"
               min={0}
-              step={f.key === "vatRate" ? 0.1 : 1}
-              value={form[f.key] as string}
+              step={f.step}
+              value={form[f.key]}
               onChange={(e) => setForm({ ...form, [f.key]: e.target.value })}
             />
             {f.hint && <p className="text-xs text-boxx-dim">{f.hint}</p>}
@@ -160,40 +124,43 @@ export default function CinemaSettingsForm() {
       </div>
 
       <div className="mt-6 space-y-2">
-        <FieldLabel>Time slots</FieldLabel>
+        <FieldLabel>Rooms</FieldLabel>
         <div className="flex flex-wrap gap-2">
-          {form.timeSlots.map((slot) => (
+          {form.rooms.map((room) => (
             <span
-              key={slot}
+              key={room}
               className="inline-flex items-center gap-2 rounded-full border border-boxx-line px-3.5 py-1.5 text-xs font-bold tracking-wider text-boxx-white"
             >
-              {slot}
+              {room}
               <button
                 type="button"
-                onClick={() => removeSlot(slot)}
-                aria-label={`Remove ${slot}`}
+                onClick={() => removeRoom(room)}
+                aria-label={`Remove ${room}`}
                 className="cursor-pointer text-boxx-dim transition-colors duration-200 hover:text-boxx-red"
               >
                 <HugeiconsIcon icon={Cancel01Icon} className="size-3" />
               </button>
             </span>
           ))}
-          {form.timeSlots.length === 0 && (
-            <p className="text-xs text-boxx-dim">No time slots yet — add one below.</p>
+          {form.rooms.length === 0 && (
+            <p className="text-xs text-boxx-dim">Add at least one room.</p>
           )}
         </div>
         <div className="flex gap-2 pt-1">
           <Input
-            type="time"
-            value={newSlot}
-            onChange={(e) => setNewSlot(e.target.value)}
-            className="w-40"
+            value={newRoom}
+            onChange={(e) => setNewRoom(e.target.value)}
+            placeholder="e.g. Cinema 3"
+            className="w-48"
           />
-          <Button type="button" variant="outline" onClick={addSlot} disabled={!newSlot}>
+          <Button type="button" variant="outline" onClick={addRoom} disabled={!newRoom.trim()}>
             <HugeiconsIcon icon={Add01Icon} className="size-4" />
-            Add slot
+            Add room
           </Button>
         </div>
+        <p className="text-xs text-boxx-dim">
+          Screenings already scheduled keep their room name, so rename with care.
+        </p>
       </div>
 
       <Button

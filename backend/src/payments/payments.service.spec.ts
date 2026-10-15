@@ -5,13 +5,12 @@ import {
 } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { PaymentStatus } from './schemas/payment.schema';
-import { BookingStatus } from '../bookings/schemas/booking.schema';
 import { GymSubscriptionStatus } from '../gym/schemas/gym-subscription.schema';
 import { TicketOrderStatus } from '../screenings/schemas/ticket-order.schema';
 import type { FlutterwaveWebhookPayload } from '../flutterwave/types/flutterwave.types';
 
 const REF = 'BXX-TEST-0001';
-const AMOUNT = 118250;
+const AMOUNT = 32250;
 
 const event: FlutterwaveWebhookPayload = {
   event: 'charge.completed',
@@ -23,30 +22,6 @@ const event: FlutterwaveWebhookPayload = {
     currency: 'NGN',
     status: 'successful',
   },
-};
-
-const booking = {
-  guestName: 'Ada',
-  guestEmail: 'ada@example.com',
-  guestPhone: '0800',
-  bookingRef: REF,
-  experience: 'filmboxx',
-  room: 'Cinema 1',
-  date: '2026-10-20',
-  timeSlot: '19:00',
-  guests: 4,
-  subtotal: 110000,
-  vatAmount: 8250,
-  totalPrice: AMOUNT,
-};
-
-const subscription = {
-  memberName: 'Tolu',
-  memberEmail: 'tolu@example.com',
-  subscriptionRef: REF,
-  planName: 'Monthly',
-  durationDays: 30,
-  price: AMOUNT,
 };
 
 const ticketOrder = {
@@ -63,7 +38,16 @@ const ticketOrder = {
   tickets: 3,
   subtotal: 30000,
   vatAmount: 2250,
-  totalPrice: 32250,
+  totalPrice: AMOUNT,
+};
+
+const subscription = {
+  memberName: 'Tolu',
+  memberEmail: 'tolu@example.com',
+  subscriptionRef: REF,
+  planName: 'Monthly',
+  durationDays: 30,
+  price: AMOUNT,
 };
 
 function setup(paymentOverrides: Record<string, unknown> = {}) {
@@ -73,7 +57,7 @@ function setup(paymentOverrides: Record<string, unknown> = {}) {
     amount: AMOUNT,
     currency: 'NGN',
     status: PaymentStatus.PENDING,
-    bookingId: 'book1',
+    ticketOrderId: 'order1',
     ...paymentOverrides,
   };
 
@@ -82,8 +66,11 @@ function setup(paymentOverrides: Record<string, unknown> = {}) {
     .fn()
     .mockResolvedValue({ ...payment, status: PaymentStatus.SUCCESS });
   const paymentUpdateOne = jest.fn().mockResolvedValue({});
-  const bookingUpdate = jest.fn().mockResolvedValue(booking);
   const subscriptionUpdate = jest.fn().mockResolvedValue(subscription);
+  const ticketOrderUpdate = jest.fn().mockResolvedValue(ticketOrder);
+  const ticketOrderFindOne = jest.fn().mockResolvedValue(null);
+  const screeningUpdateOne = jest.fn().mockResolvedValue({});
+  const screeningReseat = jest.fn().mockResolvedValue({ _id: 'scr1' });
   const validateSignature = jest.fn().mockReturnValue(true);
   const verifyTransaction = jest.fn().mockResolvedValue({
     id: 99,
@@ -93,13 +80,8 @@ function setup(paymentOverrides: Record<string, unknown> = {}) {
     currency: 'NGN',
     status: 'successful',
   });
-  const sendBookingConfirmation = jest.fn().mockResolvedValue(undefined);
   const sendMembershipPaymentReceipt = jest.fn().mockResolvedValue(undefined);
   const sendTicketConfirmation = jest.fn().mockResolvedValue(undefined);
-  const ticketOrderUpdate = jest.fn().mockResolvedValue(ticketOrder);
-  const ticketOrderFindOne = jest.fn().mockResolvedValue(null);
-  const screeningUpdateOne = jest.fn().mockResolvedValue({});
-  const screeningReseat = jest.fn().mockResolvedValue({ _id: 'scr1' });
 
   const service = new PaymentsService(
     {
@@ -107,7 +89,6 @@ function setup(paymentOverrides: Record<string, unknown> = {}) {
       findOneAndUpdate: paymentClaim,
       updateOne: paymentUpdateOne,
     } as never,
-    { findOneAndUpdate: bookingUpdate } as never,
     { findOneAndUpdate: subscriptionUpdate } as never,
     {
       findOneAndUpdate: ticketOrderUpdate,
@@ -118,11 +99,7 @@ function setup(paymentOverrides: Record<string, unknown> = {}) {
       findOneAndUpdate: screeningReseat,
     } as never,
     { validateSignature, verifyTransaction } as never,
-    {
-      sendBookingConfirmation,
-      sendMembershipPaymentReceipt,
-      sendTicketConfirmation,
-    } as never,
+    { sendMembershipPaymentReceipt, sendTicketConfirmation } as never,
   );
 
   return {
@@ -130,17 +107,15 @@ function setup(paymentOverrides: Record<string, unknown> = {}) {
     paymentFindOne,
     paymentClaim,
     paymentUpdateOne,
-    bookingUpdate,
     subscriptionUpdate,
-    validateSignature,
-    verifyTransaction,
-    sendBookingConfirmation,
-    sendMembershipPaymentReceipt,
-    sendTicketConfirmation,
     ticketOrderUpdate,
     ticketOrderFindOne,
     screeningUpdateOne,
     screeningReseat,
+    validateSignature,
+    verifyTransaction,
+    sendMembershipPaymentReceipt,
+    sendTicketConfirmation,
   };
 }
 
@@ -173,7 +148,7 @@ describe('PaymentsService.handleWebhook', () => {
     expect(t.verifyTransaction).not.toHaveBeenCalled();
   });
 
-  it('confirms a verified payment, reserves the booking, and emails once', async () => {
+  it('confirms a verified payment atomically', async () => {
     const t = setup();
 
     await expect(t.service.handleWebhook(event, 'sig')).resolves.toEqual({
@@ -192,12 +167,6 @@ describe('PaymentsService.handleWebhook', () => {
       }),
       { new: true },
     );
-    expect(t.bookingUpdate).toHaveBeenCalledWith(
-      { _id: 'book1', status: BookingStatus.PENDING },
-      { status: BookingStatus.RESERVED },
-      { new: true },
-    );
-    expect(t.sendBookingConfirmation).toHaveBeenCalledTimes(1);
   });
 
   it('trusts the gateway over the webhook body', async () => {
@@ -218,8 +187,8 @@ describe('PaymentsService.handleWebhook', () => {
       expect.objectContaining({ status: PaymentStatus.FAILED }),
     );
     expect(t.paymentClaim).not.toHaveBeenCalled();
-    expect(t.bookingUpdate).not.toHaveBeenCalled();
-    expect(t.sendBookingConfirmation).not.toHaveBeenCalled();
+    expect(t.ticketOrderUpdate).not.toHaveBeenCalled();
+    expect(t.sendTicketConfirmation).not.toHaveBeenCalled();
   });
 
   it('leaves a payment untouched while the gateway still reports pending', async () => {
@@ -290,21 +259,9 @@ describe('PaymentsService.handleWebhook', () => {
         }),
       );
       expect(t.paymentClaim).not.toHaveBeenCalled();
-      expect(t.sendBookingConfirmation).not.toHaveBeenCalled();
+      expect(t.sendTicketConfirmation).not.toHaveBeenCalled();
     },
   );
-
-  it('does not email again on a repeat delivery', async () => {
-    const t = setup({ status: PaymentStatus.SUCCESS });
-    t.bookingUpdate.mockResolvedValue(null);
-
-    await expect(t.service.handleWebhook(event, 'sig')).resolves.toMatchObject({
-      status: 'duplicate',
-    });
-    expect(t.verifyTransaction).not.toHaveBeenCalled();
-    expect(t.bookingUpdate).toHaveBeenCalledTimes(1);
-    expect(t.sendBookingConfirmation).not.toHaveBeenCalled();
-  });
 
   it('lets only one of two racing deliveries confirm', async () => {
     const t = setup();
@@ -313,85 +270,13 @@ describe('PaymentsService.handleWebhook', () => {
     await expect(t.service.handleWebhook(event, 'sig')).resolves.toMatchObject({
       status: 'duplicate',
     });
-    expect(t.bookingUpdate).not.toHaveBeenCalled();
-    expect(t.sendBookingConfirmation).not.toHaveBeenCalled();
-  });
-
-  it('reinstates a booking that expired while the guest was paying', async () => {
-    const t = setup({ status: PaymentStatus.FAILED });
-    t.bookingUpdate.mockResolvedValueOnce(null).mockResolvedValueOnce(booking);
-
-    await t.service.handleWebhook(event, 'sig');
-
-    expect(t.bookingUpdate).toHaveBeenLastCalledWith(
-      { _id: 'book1', status: BookingStatus.CANCELLED },
-      { status: BookingStatus.RESERVED },
-      { new: true },
-    );
-    expect(t.sendBookingConfirmation).toHaveBeenCalledTimes(1);
-  });
-
-  it('flags a late payment for review when the slot was taken meanwhile', async () => {
-    const t = setup({ status: PaymentStatus.FAILED });
-    t.bookingUpdate
-      .mockResolvedValueOnce(null)
-      .mockRejectedValueOnce(Object.assign(new Error('dup'), { code: 11000 }));
-
-    await expect(t.service.handleWebhook(event, 'sig')).resolves.toMatchObject({
-      status: 'success',
-    });
-    expect(t.paymentUpdateOne).toHaveBeenCalledWith(
-      { _id: 'pay1' },
-      { needsReview: true, reviewReason: 'slot_taken' },
-    );
-    expect(t.sendBookingConfirmation).not.toHaveBeenCalled();
-  });
-
-  it('marks a gym subscription paid and sends the receipt', async () => {
-    const t = setup({ bookingId: undefined, subscriptionId: 'sub1' });
-
-    await t.service.handleWebhook(event, 'sig');
-
-    expect(t.subscriptionUpdate).toHaveBeenCalledWith(
-      {
-        _id: 'sub1',
-        status: {
-          $in: [GymSubscriptionStatus.PENDING, GymSubscriptionStatus.EXPIRED],
-        },
-        startDate: { $exists: false },
-      },
-      { status: GymSubscriptionStatus.PAID },
-      { new: true },
-    );
-    expect(t.sendMembershipPaymentReceipt).toHaveBeenCalledTimes(1);
-    expect(t.bookingUpdate).not.toHaveBeenCalled();
-  });
-
-  it('never revives an expired subscription on a repeat delivery', async () => {
-    const t = setup({
-      bookingId: undefined,
-      subscriptionId: 'sub1',
-      status: PaymentStatus.SUCCESS,
-    });
-    t.subscriptionUpdate.mockResolvedValue(null);
-
-    await t.service.handleWebhook(event, 'sig');
-
-    expect(t.subscriptionUpdate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        status: { $in: [GymSubscriptionStatus.PENDING] },
-      }),
-      expect.anything(),
-      expect.anything(),
-    );
-    expect(t.sendMembershipPaymentReceipt).not.toHaveBeenCalled();
+    expect(t.ticketOrderUpdate).not.toHaveBeenCalled();
+    expect(t.sendTicketConfirmation).not.toHaveBeenCalled();
   });
 
   describe('ticket orders', () => {
-    const ticketPayment = { bookingId: undefined, ticketOrderId: 'order1' };
-
     it('marks the order paid, moves held seats to sold, and emails the tickets', async () => {
-      const t = setup(ticketPayment);
+      const t = setup();
 
       await t.service.handleWebhook(event, 'sig');
 
@@ -404,14 +289,26 @@ describe('PaymentsService.handleWebhook', () => {
         { _id: 'scr1' },
         { $inc: { seatsHeld: -3, seatsSold: 3 } },
       );
+      expect(t.sendTicketConfirmation).toHaveBeenCalledTimes(1);
       expect(t.sendTicketConfirmation).toHaveBeenCalledWith(
         expect.objectContaining({ orderRef: REF, tickets: 3 }),
       );
-      expect(t.bookingUpdate).not.toHaveBeenCalled();
+    });
+
+    it('does not email again on a repeat delivery', async () => {
+      const t = setup({ status: PaymentStatus.SUCCESS });
+      t.ticketOrderUpdate.mockResolvedValue(null);
+
+      await expect(
+        t.service.handleWebhook(event, 'sig'),
+      ).resolves.toMatchObject({ status: 'duplicate' });
+      expect(t.verifyTransaction).not.toHaveBeenCalled();
+      expect(t.ticketOrderUpdate).toHaveBeenCalledTimes(1);
+      expect(t.sendTicketConfirmation).not.toHaveBeenCalled();
     });
 
     it('re-seats an order that expired while the guest was paying', async () => {
-      const t = setup({ ...ticketPayment, status: PaymentStatus.FAILED });
+      const t = setup({ status: PaymentStatus.FAILED });
       t.ticketOrderUpdate
         .mockResolvedValueOnce(null)
         .mockResolvedValueOnce(ticketOrder);
@@ -431,7 +328,7 @@ describe('PaymentsService.handleWebhook', () => {
     });
 
     it('flags a late payment for review when the screening sold out meanwhile', async () => {
-      const t = setup({ ...ticketPayment, status: PaymentStatus.FAILED });
+      const t = setup({ status: PaymentStatus.FAILED });
       t.ticketOrderUpdate.mockResolvedValueOnce(null);
       t.ticketOrderFindOne.mockResolvedValue({
         ...ticketOrder,
@@ -439,8 +336,9 @@ describe('PaymentsService.handleWebhook', () => {
       });
       t.screeningReseat.mockResolvedValue(null);
 
-      await t.service.handleWebhook(event, 'sig');
-
+      await expect(
+        t.service.handleWebhook(event, 'sig'),
+      ).resolves.toMatchObject({ status: 'success' });
       expect(t.paymentUpdateOne).toHaveBeenCalledWith(
         { _id: 'pay1' },
         { needsReview: true, reviewReason: 'sold_out' },
@@ -449,7 +347,7 @@ describe('PaymentsService.handleWebhook', () => {
     });
 
     it('gives the seats back if the order was claimed by another delivery', async () => {
-      const t = setup({ ...ticketPayment, status: PaymentStatus.FAILED });
+      const t = setup({ status: PaymentStatus.FAILED });
       t.ticketOrderUpdate.mockResolvedValue(null);
       t.ticketOrderFindOne.mockResolvedValue({
         ...ticketOrder,
@@ -466,7 +364,7 @@ describe('PaymentsService.handleWebhook', () => {
     });
 
     it('never re-seats an expired order on a repeat delivery', async () => {
-      const t = setup({ ...ticketPayment, status: PaymentStatus.SUCCESS });
+      const t = setup({ status: PaymentStatus.SUCCESS });
       t.ticketOrderUpdate.mockResolvedValue(null);
 
       await t.service.handleWebhook(event, 'sig');
@@ -474,6 +372,46 @@ describe('PaymentsService.handleWebhook', () => {
       expect(t.ticketOrderFindOne).not.toHaveBeenCalled();
       expect(t.screeningReseat).not.toHaveBeenCalled();
       expect(t.sendTicketConfirmation).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('gym subscriptions', () => {
+    const gymPayment = { ticketOrderId: undefined, subscriptionId: 'sub1' };
+
+    it('marks the subscription paid and sends the receipt', async () => {
+      const t = setup(gymPayment);
+
+      await t.service.handleWebhook(event, 'sig');
+
+      expect(t.subscriptionUpdate).toHaveBeenCalledWith(
+        {
+          _id: 'sub1',
+          status: {
+            $in: [GymSubscriptionStatus.PENDING, GymSubscriptionStatus.EXPIRED],
+          },
+          startDate: { $exists: false },
+        },
+        { status: GymSubscriptionStatus.PAID },
+        { new: true },
+      );
+      expect(t.sendMembershipPaymentReceipt).toHaveBeenCalledTimes(1);
+      expect(t.ticketOrderUpdate).not.toHaveBeenCalled();
+    });
+
+    it('never revives an expired subscription on a repeat delivery', async () => {
+      const t = setup({ ...gymPayment, status: PaymentStatus.SUCCESS });
+      t.subscriptionUpdate.mockResolvedValue(null);
+
+      await t.service.handleWebhook(event, 'sig');
+
+      expect(t.subscriptionUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          status: { $in: [GymSubscriptionStatus.PENDING] },
+        }),
+        expect.anything(),
+        expect.anything(),
+      );
+      expect(t.sendMembershipPaymentReceipt).not.toHaveBeenCalled();
     });
   });
 });
