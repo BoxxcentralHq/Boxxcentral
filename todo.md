@@ -61,6 +61,14 @@ Work happens on a feature branch, gets verified on staging (`development`), and 
 - [ ] Public tickets: buy and pay; failed payment; abandoned payment that expires and releases its seats; duplicate webhook; two people buying the last seat; admin creating overlapping screenings is rejected.
 - [ ] Gym subscriptions still work end to end, since they share the 2A pipeline.
 
+## Phase 3: Error responses ([PR #13](https://github.com/BoxxcentralHq/Boxxcentral/pull/13), added 2026-10-19)
+- [x] Unexpected errors no longer leak the raw message or class name in `error.details` / `error.type` in production.
+- [x] `error.path` and messages drop the query string.
+- [ ] Merge PR #13 into `development`, check on staging that a 404 and a 500 return the new shape, then merge to `main`.
+- [ ] (Optional) Add a request ID: put it in every log line and return it as `requestId` in error responses, so a reported failure maps to one log entry.
+
+**Decision:** request logs keep full URLs, query strings included, so they stay useful for tracing (e.g. `tx_ref`). Revisit if logs ever leave our server.
+
 ---
 
 # Issue details

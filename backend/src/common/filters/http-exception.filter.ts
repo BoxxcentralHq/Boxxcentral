@@ -45,7 +45,20 @@ export class HttpExceptionFilter implements ExceptionFilter {
       message = 'An unexpected error occurred. Please try again later.';
     }
 
-    const apiMessage = Array.isArray(message) ? message[0] : message;
+    const path = request.url.split('?')[0];
+    const scrub = (text: string) => text.replaceAll(request.url, path);
+    const apiMessage = scrub(Array.isArray(message) ? message[0] : message);
+    const exposeInternals = process.env.NODE_ENV !== 'production';
+
+    let type = 'InternalServerError';
+    let details = apiMessage;
+    if (exception instanceof HttpException) {
+      type = exception.name;
+      details = scrub(exception.message);
+    } else if (exposeInternals && exception instanceof Error) {
+      type = exception.name;
+      details = exception.message;
+    }
 
     response.locals.apiMessage = apiMessage;
 
@@ -63,9 +76,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
       data,
       error: {
         statusCode: status,
-        type: exception instanceof Error ? exception.name : 'Error',
-        details: exception instanceof Error ? exception.message : message,
-        path: request.url,
+        type,
+        details,
+        path,
       },
       timestamp: new Date().toISOString(),
     });
