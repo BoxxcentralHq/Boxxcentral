@@ -1,5 +1,5 @@
 FROM node:26-alpine AS base
-RUN npm install -g pnpm@11.1.3
+RUN npm install -g pnpm@12.15.0
 WORKDIR /app
 
 FROM base AS deps
