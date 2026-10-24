@@ -1,5 +1,5 @@
-FROM node:22-alpine AS base
-RUN corepack enable
+FROM node:26-alpine AS base
+RUN npm install -g pnpm@12.15.0
 WORKDIR /app
 
 FROM base AS deps
